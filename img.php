@@ -30,5 +30,5 @@ if(isset($newHeight)) {
 
 // Create the image object
 require(__DIR__.'/CImage.php');
-$img = new CImage($srcImage, $newWidth, $newHeight, $keepRatio, $crop, null/*$pathToCache*/);
+$img = new CImage($srcImage, $newWidth, $newHeight, $keepRatio, $crop, $pathToCache);
 $img->ResizeAndOutput();

@@ -1,10 +1,10 @@
 <?php
 /**
- * Resizing images on the fly.
+ * Resize and crop images on the fly. Store generated images in a cache.
  *
  * @author Mikael Roos mos@dbwebb.se
- * @example http://dbwebb.se/example/lessphp/
- * @link https://github.com/mosbth/Utility/blob/master/style.php
+ * @example http://mikaelroos.se/cimage/test.php
+ * @link https://github.com/mosbth/cimage
  */
 class CImage {
 
@@ -211,11 +211,6 @@ class CImage {
    * @param $imageQuality number the quality to use when saving the file, default is full quality.
    */
   public function ResizeAndSave($imageQuality="100") {
-
-    //echo "{$this->width}:{$this->height}:{$this->mime}</br>";
-    //echo "{$this->cropWidth}:{$this->cropHeight}</br>";    
-    //echo "{$this->newWidth}:{$this->newHeight}</br>";
-
     if($this->crop) {
       $cropX = ($this->cropWidth/2) - ($this->newWidth/2);  
       $cropY = ($this->cropHeight/2) - ($this->newHeight/2);  

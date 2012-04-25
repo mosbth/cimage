@@ -13,7 +13,10 @@
 <li>crop: together with both h & w makes the image fit in the box.
 <li>no-ratio: do not keep aspect ratio.
 </ul>
+<p>Sourcecode and issues on github: <a href='https://github.com/mosbth/cimage'>https://github.com/mosbth/cimage</a></p>
+<p>Mikael Roos (mos@dbwebb.se)</p>
 
+<h2>Testcases</h2>
 <table>
 <caption>Test cases</caption>
 <thead><tr><th>Testcase:</th><th>Result:</th></tr></thead>
