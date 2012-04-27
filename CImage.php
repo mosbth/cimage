@@ -147,13 +147,11 @@ class CImage {
       
         // Use newWidth and newHeigh as max width/height, image should not be larger.
         else {
-         if($this->width > $this->height) {
-            $factor = (float)$this->newWidth / (float)$this->width;
-            $this->newHeight = $factor * $this->height;
-          } else {
-            $factor = (float)$this->newHeight / (float)$this->height;
-            $this->newWidth = $factor * $this->width;
-          }
+          $ratioWidth = $this->width/$this->newWidth;
+          $ratioHeight = $this->height/$this->newHeight;
+          $ratio = ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
+          $this->newWidth = $this->width / $ratio;
+          $this->newHeight = $this->height / $ratio;
         }
       } 
      
@@ -189,6 +187,8 @@ class CImage {
     if(is_null($this->newWidth) && is_null($this->newHeight)) {
       $this->Output($this->pathToImage);
     }
+    
+    //echo "{$this->newWidth}:{$this->newHeight}";
     
     // Check cache before resizing.
     $this->newFileName = $this->CreateFilename();

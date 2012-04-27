@@ -21,6 +21,11 @@ Mikael Roos (mos@dbwebb.se)
 Revision history
 ----------------
 
+v0.1.1 (2012-04-27) 
+
+* Corrected calculation where both width and height were set.
+
+
 v0.1 (2012-04-25) 
 
 * Initial release after rewriting some older code I had lying around.
