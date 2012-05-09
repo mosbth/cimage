@@ -21,6 +21,20 @@ Mikael Roos (mos@dbwebb.se)
 Revision history
 ----------------
 
+ToDo.
+
+* crop
+* Pre-defined sizes.
+
+
+v0.2 (2012-05-09) 
+
+* Implemented filters as in http://php.net/manual/en/function.imagefilter.php
+* Changed `crop` to `crop_to_fit`, woks the same way.
+* Changed arguments to method and sends them in array.
+* Added quality-setting.
+* Added testcases for above.
+
 v0.1.1 (2012-04-27) 
 
 * Corrected calculation where both width and height were set.
