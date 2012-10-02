@@ -63,11 +63,14 @@ center of the image from which the crop is done.
 * Show how to integrate with WordPress, shortcodes.
 * Support for resizing opaque images.
 * Clean up code in `CImage.php`.
+* Better errorhandling for invalid dimensions.
+* Crop-to-fit does not work.
 
 
-v0.? (latest)
+v0.3x (latest)
 
 * Corrected error on naming cache-files using subdir.
+* Corrected calculation error on width & height for crop-to-fit.
 
 
 v0.3 (2012-10-02)

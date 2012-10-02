@@ -197,42 +197,48 @@ class CImage {
     // Calculate new width and height if keeping aspect-ratio. 
     if($this->keepRatio) {
     
+      // Crop-to-fit and both new width and height are set.
+      if($this->cropToFit && isset($this->newWidth) && isset($this->newHeight)) {
+        // Use newWidth and newHeigh as width/height, image should fit in box.
+        ;
+      } 
+     
       // Both new width and height are set.
-      if(isset($this->newWidth) && isset($this->newHeight)) {
+      elseif(isset($this->newWidth) && isset($this->newHeight)) {
         // Use newWidth and newHeigh as max width/height, image should not be larger.
         $ratioWidth  = $width  / $this->newWidth;
         $ratioHeight = $height / $this->newHeight;
         $ratio = ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
-        $this->newWidth  = $width  / $ratio;
-        $this->newHeight = $height / $ratio;
+        $this->newWidth  = round($width  / $ratio);
+        $this->newHeight = round($height / $ratio);
       } 
      
       // Use new width as max-width
       elseif(isset($this->newWidth)) {
         $factor = (float)$this->newWidth / (float)$width;
-        $this->newHeight = $factor * $height;
+        $this->newHeight = round($factor * $height);
       } 
     
       // Use new height as max-hight
       elseif(isset($this->newHeight)) {
         $factor = (float)$this->newHeight / (float)$height;
-        $this->newWidth = $factor * $width;
+        $this->newWidth = round($factor * $width);
       }
       
-      // Use newWidth and newHeigh as min width/height, image should fit the area.
+      // Use newWidth and newHeigh as defined width/height, image should fit the area.
       if($this->cropToFit) {
         $ratioWidth  = $width  / $this->newWidth;
         $ratioHeight = $height / $this->newHeight;
         $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
-        $this->cropWidth  = $width  / $ratio;
-        $this->cropHeight = $height / $ratio;
+        $this->cropWidth  = round($width  / $ratio);
+        $this->cropHeight = round($height / $ratio);
       }      
     }
     
     // Crop, ensure to set new width and height
     if($this->crop) {
-      $this->newWidth = isset($this->newWidth) ? $this->newWidth : $this->crop['width'];
-      $this->newHeight = isset($this->newHeight) ? $this->newHeight : $this->crop['height'];    
+      $this->newWidth = round(isset($this->newWidth) ? $this->newWidth : $this->crop['width']);
+      $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->crop['height']);    
     }
 
     // No new height or width is set, use existing measures.
