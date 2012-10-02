@@ -31,9 +31,9 @@ Installation
 
 2. Make the cache directory writable by the webserver.
 
-  <blockquote>
-  chmod 777 cache
-  </blockquote>
+<pre><code>
+chmod 777 cache
+</code></pre>
 
 3. Point your browser to `test.php`.
 
