@@ -31,6 +31,7 @@
 $testcase = array(
   array('text'=>'Original image', 'query'=>''),
   array('text'=>'Crop out a rectangle of 100x100, start by position 200x200.', 'query'=>'&crop=100,100,200,200'),
+  array('text'=>'Crop out a full width rectangle with height of 200, start by position 0x100.', 'query'=>'&crop=0,200,0,100'),
   array('text'=>'Max width 200.', 'query'=>'&w=200'),
   array('text'=>'Max height 200.', 'query'=>'&h=200'),
   array('text'=>'Max width 200 and max height 200.', 'query'=>'&w=200&h=200'),
@@ -54,6 +55,7 @@ $testcase = array(
   array('text'=>'Filter: Smooth 2', 'query'=>'&w=200&h=200&f=smooth,2'),
   array('text'=>'Filter: Pixelate 10,10', 'query'=>'&w=200&h=200&f=pixelate,10,10'),
   array('text'=>'Multiple filter: Negate, Grayscale and Pixelate 10,10', 'query'=>'&w=200&h=200&&f=negate&f0=grayscale&f1=pixelate,10,10'),
+  array('text'=>'Crop with width & height and crop-to-fit with quality and filter', 'query'=>'&crop=100,100,100,100&w=200&h=200&crop-to-fit&q=70&f0=grayscale'),
 );
 ?>
 

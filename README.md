@@ -19,6 +19,8 @@ Start by reviewing the `test.php`, then have a look at `img.php` and finally go 
 
 CImage lives at github: https://github.com/mosbth/cimage
 
+You can try out a live example at: http://dbwebb.se/kod-exempel/cimage/
+
 Enjoy!
 
 Mikael Roos (me@mikaelroos.se)
@@ -27,7 +29,7 @@ Mikael Roos (me@mikaelroos.se)
 Installation
 -------------------------------------
 
-1. Clone from github: git://github.com/mosbth/cimage.git
+1. Clone from github: `git://github.com/mosbth/cimage.git`
 
 2. Make the cache directory writable by the webserver.
 
@@ -37,7 +39,9 @@ chmod 777 cache
 
 3. Point your browser to `test.php`.
 
-4. Advanced usage. Put `img.php` in your `/img`-directory. Create a `.htaccess` in your
+4. Review the settings in `img.php` and try it out.
+
+5. Advanced usage. Put `img.php` in your `/img`-directory. Create a `.htaccess` in your
 web root folder containing the following line:
 
 <pre><code>
@@ -58,6 +62,7 @@ ToDo.
 center of the image from which the crop is done.
 * Show how to integrate with WordPress, shortcodes.
 * Support for resizing opaque images.
+* Clean up code in `CImage.php`.
 
 v0.3 (2012-10-02)
 

@@ -11,9 +11,9 @@ error_reporting(-1);
 set_time_limit(20);
 
 // Append ending slash
-$cimageClassFile = __DIR__ .'/CImage.php';
-$pathToImages = __DIR__.'/img/';
-$pathToCache = __DIR__.'/cache/';
+$cimageClassFile  = __DIR__ .'/CImage.php';
+$pathToImages     = __DIR__.'/img/';
+$pathToCache      = __DIR__.'/cache/';
 $maxWidth = $maxHeight = 2000;
 
 // Set areas to map constant to value, easier to use with width or height

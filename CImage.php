@@ -88,6 +88,7 @@ class CImage {
       }
     }
     $subdir = str_replace('/', '-', dirname($this->imageName));
+    $subdir = '.' ? '_.' : $subdir;
     return $this->saveFolder . '/' . $subdir . '_' . $parts['filename'] . '_' . round($this->newWidth) . '_' . round($this->newHeight) . $crop . $cropToFit . $crop_x . $crop_y . $quality . $filters . '.' . $parts['extension'];
   }
   
