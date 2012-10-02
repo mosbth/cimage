@@ -21,7 +21,7 @@ CImage lives at github: https://github.com/mosbth/cimage
 
 Enjoy!
 
-Mikael Roos (mos@dbwebb.se)
+Mikael Roos (me@mikaelroos.se)
 
 
 Installation
@@ -40,10 +40,10 @@ chmod 777 cache
 4. Advanced usage. Put `img.php` in your `/img`-directory. Create a `.htaccess` in your
 web root folder containing the following line:
 
-  <blockquote>
-  RewriteEngine on 
-  RewriteRule ^image/(.*)$        img/img.php?src=$1 [QSA,NC,L]
-  </blockquote>
+<pre><code>
+RewriteEngine on 
+RewriteRule ^image/(.*)$ img/img.php?src=$1 [QSA,NC,L]
+</code></pre>
 
 Now you can access and resize your images through `/image/someimage.jpg?w=80`. Very handy.
 
