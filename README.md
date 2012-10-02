@@ -65,7 +65,7 @@ center of the image from which the crop is done.
 * Clean up code in `CImage.php`.
 
 
-v0.4 (latest)
+v0.? (latest)
 
 * Corrected error on naming cache-files using subdir.
 
