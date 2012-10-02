@@ -67,11 +67,6 @@ center of the image from which the crop is done.
 
 v0.4 (latest)
 
-* Nothing yet.
-
-
-v0.31 (2012-10-02)
-
 * Corrected error on naming cache-files using subdir.
 
 
