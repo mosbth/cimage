@@ -4,9 +4,9 @@ Image conversion on the fly using PHP
 About
 -------------------------------------
 
-The `CImage.php` is a PHP class that can resize and crop images on the fly and output 
-them to, for example to a webpage. The class preserves a cache of the generated images 
-and responds with HTTP 304 (not modified) if the image has not changed.
+The `CImage.php` is a PHP class that can resize and crop images on the fly on the server side 
+and output them to, for example to a webpage. The class preserves a cache of the generated 
+images and responds with HTTP 304 (not modified) if the image has not changed.
 
 The file `img.php` uses `CImage.php` to resize images. It is a usecase on how to use
 the class. `img.php` is useful for webpages which want to dynamically resize the images.
@@ -64,6 +64,17 @@ center of the image from which the crop is done.
 * Support for resizing opaque images.
 * Clean up code in `CImage.php`.
 
+
+v0.4 (latest)
+
+* Nothing yet.
+
+
+v0.31 (2012-10-02)
+
+* Corrected error on naming cache-files using subdir.
+
+
 v0.3 (2012-10-02)
 
 * Added crop. Can crop a area (`width`, `height`, `start_x`, `start_y`) from the original
@@ -71,6 +82,7 @@ image.
 * Corrected to make the 304 Not Modified header work.
 * Pre-defined sizes can be configured for width in `img.php`.
 * Corrected to make crop work with width or height in combination with crop-to-fit.
+
  
 v0.2 (2012-05-09) 
 
@@ -79,6 +91,7 @@ v0.2 (2012-05-09)
 * Changed arguments and sends them in array.
 * Added quality-setting.
 * Added testcases for above.
+
 
 v0.1.1 (2012-04-27) 
 
