@@ -26,6 +26,12 @@ Enjoy!
 Mikael Roos (me@mikaelroos.se)
 
 
+License
+-------------------------------------
+
+Free and opensource software. License according to MIT.
+
+
 Installation
 -------------------------------------
 
@@ -52,6 +58,24 @@ RewriteRule ^image/(.*)$ img/img.php?src=$1 [QSA,NC,L]
 Now you can access and resize your images through `/image/someimage.jpg?w=80`. Very handy.
 
 
+
+Usage
+-------------------------------------
+
+`img.php?src=image.jpg&sharpen`
+
+-v, -verbose, Do verbose output and print out a log what happens.
+-no-cache, Do not use the cached version, do all conversions.
+-skip-original, Skip using the original image, always resize and use cached image.
+-save-as, Save image as jpg, png or gif, loosing transparency.
+
+-sharpen to appy a filter that sharpens the image. Good to apply when resizing to smaller dimensions.
+-emboss to apply a emboss effect.
+-blur to apply a blur effect.
+
+-palette to create a palette version of the image with up to 256 colors.
+
+
 Revision history
 -------------------------------------
 
@@ -64,13 +88,16 @@ center of the image from which the crop is done.
 * Support for resizing opaque images.
 * Clean up code in `CImage.php`.
 * Better errorhandling for invalid dimensions.
-* Crop-to-fit does not work.
+* Crop-to-fit with offste top, bottom, center, left, right, center.
+* Define the color of the background of the resulting image, when loosing transparency.
 
 
-v0.3x (latest)
+v0.3.x (latest)
 
+* Adding grid column size as predefined size, c1-c24 for a 24 column grid. Configure in `img.php`.
 * Corrected error on naming cache-files using subdir.
 * Corrected calculation error on width & height for crop-to-fit.
+* Adding effects for sharpen, emboss and blur through imageconvolution using matrixes.
 
 
 v0.3 (2012-10-02)
@@ -101,4 +128,4 @@ v0.1 (2012-04-25)
 * Initial release after rewriting some older code I had lying around.
 
  .   
-..:  Copyright 2012 by Mikael Roos (me@mikaelroos.se)
+..:  Copyright 2012-2013 by Mikael Roos (me@mikaelroos.se)
