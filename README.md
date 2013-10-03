@@ -81,23 +81,22 @@ Revision history
 
 ToDo.
 
-* Improved support for pre-defined sizes.
-* crop-to-fit, add parameter for offset x and y to enable to define which area is the 
-center of the image from which the crop is done.
 * Show how to integrate with WordPress, shortcodes.
-* Support for resizing opaque images.
 * Clean up code in `CImage.php`.
 * Better errorhandling for invalid dimensions.
-* Crop-to-fit with offste top, bottom, center, left, right, center.
 * Define the color of the background of the resulting image, when loosing transparency.
 
 
 v0.3.x (latest)
 
+* Improved support for pre-defined sizes.
 * Adding grid column size as predefined size, c1-c24 for a 24 column grid. Configure in `img.php`.
 * Corrected error on naming cache-files using subdir.
 * Corrected calculation error on width & height for crop-to-fit.
 * Adding effects for sharpen, emboss and blur through imageconvolution using matrixes.
+* crop-to-fit, add parameter for offset x and y to enable to define which area is the, implemented as area.
+* Support for resizing opaque images.
+* Center of the image from which the crop is done. Improved usage of area to crop.
 
 
 v0.3 (2012-10-02)
