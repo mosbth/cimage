@@ -107,7 +107,7 @@ v0.3 (2012-10-02)
 * Added crop. Can crop a area (`width`, `height`, `start_x`, `start_y`) from the original
 image.
 * Corrected to make the 304 Not Modified header work.
-* Pre-defined sizes can be configured for width in `img.php`.
+* Predefined sizes can be configured for width in `img.php`.
 * Corrected to make crop work with width or height in combination with crop-to-fit.
 
  
@@ -127,7 +127,7 @@ v0.1.1 (2012-04-27)
 
 v0.1 (2012-04-25) 
 
-* Initial release after rewriting some older code I had lying around.
+* Initial release after rewriting some older code doing the same, but not that good and flexible.
 
 <pre>
  .   
