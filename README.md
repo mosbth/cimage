@@ -129,5 +129,7 @@ v0.1 (2012-04-25)
 
 * Initial release after rewriting some older code I had lying around.
 
+<pre>
  .   
 ..:  Copyright 2012-2013 by Mikael Roos (me@mikaelroos.se)
+</pre>
