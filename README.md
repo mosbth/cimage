@@ -24,30 +24,26 @@ License according to MIT.
 
 
 
-Installation
+Installation and get going
 -------------------------------------
 
-1. Clone from github: `git://github.com/mosbth/cimage.git`
+**Latest stable version is v0.4 released 2013-10-08.**
 
-2. Make the cache directory writable by the webserver.
+```bash
+git clone git://github.com/mosbth/cimage.git
+cd cimage
+git checkout v0.4
+```
 
-<pre><code>
+Make the cache-directory writable by the webserver.
+
+```bash
 chmod 777 cache
-</code></pre>
+```
 
-3. Point your browser to `test.php`.
+Try it out by pointing your browser to the test file `test.php`.
 
-4. Review the settings in `img.php` and try it out.
-
-5. Advanced usage. Put `img.php` in your `/img`-directory. Create a `.htaccess` in your
-web root folder containing the following line:
-
-<pre><code>
-RewriteEngine on 
-RewriteRule ^image/(.*)$ img/img.php?src=$1 [QSA,NC,L]
-</code></pre>
-
-Now you can access and resize your images through `/image/someimage.jpg?w=80`. Very handy.
+Review the settings in `img.php`.
 
 
 
@@ -80,9 +76,7 @@ Usage
 
 Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it, apply a sharpen effect, save the image as JPEG and use quality 30.
 
-| `img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30` |
-|-----------------------------------------------------------|
-| <img src=/kod-exempel/cimage/img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30 alt=''> |
+`img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30`
 
 
 
