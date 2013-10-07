@@ -4,22 +4,13 @@ Image conversion on the fly using PHP
 About
 -------------------------------------
 
-The `CImage.php` is a PHP class that can resize and crop images on the fly on the server side 
-and output them to, for example to a webpage. The class preserves a cache of the generated 
-images and responds with HTTP 304 (not modified) if the image has not changed.
+`CImage` is a PHP class which enables scaling, cropping, filtering effects and processing of images using PHP GD. The script `img.php` uses `CImage` to enable server-side image processing together with caching and optimization of the processed images.
 
-The file `img.php` uses `CImage.php` to resize images. It is a usecase on how to use
-the class. `img.php` is useful for webpages which want to dynamically resize the images.
+Server-side image processing is a useful tool for any web developer, `img.php` has an easy to use interface and its quite powerful when you integrate it with your website. This is a most useful tool for any web developer who has a need to create and process images for a website.
 
-The file `test.php` has testcases that show the results of `img.php` with different
-settings.
+This is free software and open source.
 
-Start by reviewing the `test.php`, then have a look at `img.php` and finally go through 
-`CImage.php`.
-
-CImage lives at github: https://github.com/mosbth/cimage
-
-You can try out a live example at: http://dbwebb.se/kod-exempel/cimage/
+Read more on http://dbwebb.se/opensource/cimage
 
 Enjoy!
 
@@ -29,7 +20,8 @@ Mikael Roos (me@mikaelroos.se)
 License
 -------------------------------------
 
-Free and opensource software. License according to MIT.
+License according to MIT.
+
 
 
 Installation
@@ -62,6 +54,14 @@ Now you can access and resize your images through `/image/someimage.jpg?w=80`. V
 Usage
 -------------------------------------
 
+| Parameter      | Explained                                    | 
+|----------------|----------------------------------------------|
+| `src`          | `src=img.png` choses the source image to use. |
+| `h, height`    | `h=200` sets the width to be to max 200px. `h=25%` sets the height to 25% of its original height. |
+| `w, width`     | `w=200` sets the height to be max 200px. `w=100%` sets the width to 100% of its original width. |
+| `ar, aspect-ratio` | Use this as aspect ratio. Use together with either height or width or alone to base calculations on original image dimensions. This setting is used to calculate the resulting dimension for the image. `w=160&aspect-ratio=1.6` results in a width of 100px. |
+
+
 `img.php?src=image.jpg&sharpen`
 
 -v, -verbose, Do verbose output and print out a log what happens.
@@ -74,6 +74,7 @@ Usage
 -blur to apply a blur effect.
 
 -palette to create a palette version of the image with up to 256 colors.
+
 
 
 Revision history
@@ -97,6 +98,11 @@ v0.3.x (latest)
 * crop-to-fit, add parameter for offset x and y to enable to define which area is the, implemented as area.
 * Support for resizing opaque images.
 * Center of the image from which the crop is done. Improved usage of area to crop.
+* Added support for % in width & height.
+* Added aspect-ratio.
+* Added scale.
+* Quality for PNG images is now knows as deflate.
+* Added palette to create images with max 256 colors.
 
 
 v0.3 (2012-10-02)

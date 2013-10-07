@@ -151,6 +151,7 @@ EOD;
     $cropToFit = $this->cropToFit ? '_cf' : null;
     $crop_x = $this->crop_x ? "_x{$this->crop_x}" : null;
     $crop_y = $this->crop_y ? "_y{$this->crop_y}" : null;
+    $scale  = $this->scale ? "_s{$this->scale}" : null;
     $quality = $this->quality ? "_q{$this->quality}" : null;
     $offset = isset($this->offset) ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left'] : null;
     $crop = $this->crop ? '_c' . $this->crop['width'] . '-' . $this->crop['height'] . '-' . $this->crop['start_x'] . '-' . $this->crop['start_y'] : null;
@@ -184,7 +185,10 @@ EOD;
 
     $subdir = str_replace('/', '-', dirname($this->imageName));
     $subdir = ($subdir == '.') ? '_.' : $subdir;
-    $this->cacheFileName = $this->saveFolder . '/' . $subdir . '_' . $parts['filename'] . '_' . round($this->newWidth) . '_' . round($this->newHeight) . $offset . $crop . $cropToFit . $crop_x . $crop_y . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize . '.' . $this->extension;
+    $this->cacheFileName = $this->saveFolder . '/' . $subdir . '_' . $parts['filename'] . '_' . round($this->newWidth) . '_' . round($this->newHeight) . $offset . $crop . $cropToFit . $crop_x . $crop_y . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize . $scale . '.' . $this->extension;
+    
+    // Sanitize filename
+    $this->cacheFileName = preg_replace('/^a-zA-Z0-9\.-_/', '', $this->cacheFileName);
     $this->Log("The cache file name is: " . $this->cacheFileName);
     return $this;
   }
@@ -195,15 +199,6 @@ EOD;
    * Init and do some sanity checks before any processing is done. Throws exception if not valid.
    */
   public function Init() {
-    is_null($this->newWidth) or is_numeric($this->newWidth) or $this->RaiseError('Width not numeric');
-    is_null($this->newHeight) or is_numeric($this->newHeight) or $this->RaiseError('Height not numeric');
-    is_null($this->quality) or (is_numeric($this->quality) and $this->quality >= 0 and $this->quality <= 100) or $this->RaiseError('Quality not in range.');
-    //is_numeric($this->crop_x) && is_numeric($this->crop_y) or $this->RaiseError('Quality not in range.');
-    //filter
-    is_readable($this->pathToImage) or $this->RaiseError('File does not exist.');
-    in_array($this->fileExtension, $this->validExtensions) or $this->RaiseError('Not a valid file extension.');
-    is_null($this->saveFolder) or is_writable($this->saveFolder) or $this->RaiseError('Save directory does not exist or is not writable.');
-
     // Get details on image
     $info = list($this->width, $this->height, $this->type, $this->attr) = getimagesize($this->pathToImage);
     !empty($info) or $this->RaiseError("The file doesn't seem to be an image.");
@@ -214,6 +209,54 @@ EOD;
       $this->Log("Image width x height (type): {$this->width} x {$this->height} ({$this->type}).");
       $this->Log("Image filesize: " . filesize($this->pathToImage) . " bytes.");
     }
+
+    // width as %
+    if($this->newWidth[strlen($this->newWidth)-1] == '%') {
+      $this->newWidth = $this->width * substr($this->newWidth, 0, -1) / 100;
+      $this->Log("Setting new width based on % to {$this->newWidth}");
+    }
+
+    // height as %
+    if($this->newHeight[strlen($this->newHeight)-1] == '%') {
+      $this->newHeight = $this->height * substr($this->newHeight, 0, -1) / 100;
+      $this->Log("Setting new height based on % to {$this->newHeight}");
+    }
+
+    is_null($this->aspectRatio) or is_numeric($this->aspectRatio) or $this->RaiseError('Aspect ratio out of range');
+    
+    // width & height from aspect ratio
+    if($this->aspectRatio && is_null($this->newWidth) && is_null($this->newHeight)) {
+      // set new width and height based on current & aspect ratio, but base on largest dimension to only shrink image, not enlarge
+        if($this->aspectRatio >= 1) {
+          $this->newWidth   = $this->width;
+          $this->newHeight  = $this->width / $this->aspectRatio;
+          $this->Log("Setting new width & height based on width & aspect ratio (>=1) to (w x h) {$this->newWidth} x {$this->newHeight}");
+        }
+        else {
+          $this->newHeight  = $this->height;
+          $this->newWidth   = $this->height * $this->aspectRatio;
+          $this->Log("Setting new width & height based on width & aspect ratio (<1) to (w x h) {$this->newWidth} x {$this->newHeight}");
+        }
+    }
+    else if($this->aspectRatio && is_null($this->newWidth)) {
+      $this->newWidth   = $this->newHeight * $this->aspectRatio;
+      $this->Log("Setting new width based on aspect ratio to {$this->newWidth}");
+    }
+    else if($this->aspectRatio && is_null($this->newHeight)) {
+      //$this->newHeight  = ($this->aspectRatio >= 0) ? ($this->newWidth / $this->aspectRatio) : ($this->newWidth * $this->aspectRatio);
+      $this->newHeight  = $this->newWidth / $this->aspectRatio;
+      $this->Log("Setting new height based on aspect ratio to {$this->newHeight}");
+    }
+
+    // Check values to be within domain
+    is_null($this->newWidth) or is_numeric($this->newWidth) or $this->RaiseError('Width not numeric');
+    is_null($this->newHeight) or is_numeric($this->newHeight) or $this->RaiseError('Height not numeric');
+    is_null($this->quality) or (is_numeric($this->quality) and $this->quality > 0 and $this->quality <= 100) or $this->RaiseError('Quality not in range.');
+    //is_numeric($this->crop_x) && is_numeric($this->crop_y) or $this->RaiseError('Quality not in range.');
+    //filter
+    is_readable($this->pathToImage) or $this->RaiseError('File does not exist.');
+    in_array($this->fileExtension, $this->validExtensions) or $this->RaiseError('Not a valid file extension.');
+    is_null($this->saveFolder) or is_writable($this->saveFolder) or $this->RaiseError('Save directory does not exist or is not writable.');
 
     return $this;
   }
@@ -690,10 +733,13 @@ EOD;
     $defaults = array(
       'newWidth'  => null,
       'newHeight' => null,
+      'aspectRatio' => null,
       'keepRatio' => true,
       'area'      => null, //'0,0,0,0',
+      'scale'     => null, 
       'cropToFit' => false,
       'quality'   => null,
+      'deflate'   => null,
       'crop'      => null, //array('width'=>null, 'height'=>null, 'start_x'=>0, 'start_y'=>0), 
       'filters'   => null,
       'verbose'   => false,
@@ -745,6 +791,11 @@ EOD;
       }
     }
     
+    // Quick solution when introducing parameter deflate, just map it to quality. Should re-engineer usage of quality and deflate.
+    if(!isset($this->quality) && isset($this->deflate)) {
+      $this->quality = $this->deflate;
+    }
+
     // Merge default arguments with incoming and set properties.
     //$args = array_merge_recursive($defaults, $args);
     $args = array_merge($defaults, $args);
@@ -816,33 +867,11 @@ EOD;
     imagefill($img, 0, 0, $bg);
     */
 
-/*
-  I have had success doing it like this in the past:
-
-  $thumb = imagecreatetruecolor($newwidth, $newheight);
-    imagealphablending($thumb, false);
-    imagesavealpha($thumb, true);  
-  
-    $source = imagecreatefrompng($fileName);
-    imagealphablending($source, true);
-  
-    imagecopyresampled($thumb, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-  
-    imagepng($thumb,$newFilename);
-  
-    I found the output image quality much better using imagecopyresampled() than imagecopyresized()
-    
-      if($this->fileExtension == 'png' || ($this->fileExtension == 'gif')) { 
-      imagealphablending($img, false);
-      imagesavealpha($img, true);
-      $transparent = imagecolorallocatealpha($img, 255, 255, 255, 127);
-      imagefilledrectangle($img, 0, 0, $width, $height, $transparent);
-    }
-*/
     return $img;
   }
 
   
+
   /**
    * Resize and or crop the image.
    *
@@ -851,6 +880,18 @@ EOD;
 
     $this->Log("Starting to Resize()");
 
+    // Scale the original image before starting
+    if(isset($this->scale)) {
+      $this->Log("Scale by {$this->scale}%");
+      $newWidth  = $this->width * $this->scale / 100;
+      $newHeight = $this->height * $this->scale / 100;
+      $img = $this->CreateImageKeepTransparency($newWidth, $newHeight);
+      imagecopyresampled($img, $this->image, 0, 0, 0, 0, $newWidth, $newHeight, $this->width, $this->height);
+      $this->image = $img;
+      $this->width = $newWidth;
+      $this->height = $newHeight;
+    } 
+    
     // Only use a specified area of the image, $this->offset is defining the area to use
     if(isset($this->offset)) {
       $this->Log("Offset for area to use, cropping it width={$this->offset['width']}, height={$this->offset['height']}, start_x={$this->offset['left']}, start_y={$this->offset['top']}");
@@ -891,6 +932,8 @@ EOD;
       imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
       imagecopyresampled($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight, $this->newWidth, $this->newHeight);
       $this->image = $imageResized;
+      $this->width = $this->newWidth;
+      $this->height = $this->newHeight;
     } 
     
     // Resize it
