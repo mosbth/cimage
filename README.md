@@ -60,35 +60,36 @@ Usage
 | `h, height`    | `h=200` sets the width to be to max 200px. `h=25%` sets the height to 25% of its original height. |
 | `w, width`     | `w=200` sets the height to be max 200px. `w=100%` sets the width to 100% of its original width. |
 | `ar, aspect-ratio` | Use this as aspect ratio. Use together with either height or width or alone to base calculations on original image dimensions. This setting is used to calculate the resulting dimension for the image. `w=160&aspect-ratio=1.6` results in a width of 100px. |
+| `s, scale`     | Scale the image to a size proportional to a percentage of its original size, `scale=25` makes a image 25% of its original size and `size=200` doubles up the image size. Scale is applied before all processing and has no impact of the final width and height. |
+| `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
+| `cf, crop-to-fit`  | Set together with both `h` & `w` to make the image fit into dimensions, and crop out the rest of the image. |
+| `a, area`      | Define the area of the image to work with. Set `area=10,10,10,10` (top,right,bottom,left) to crop out the 10% of the outermost area. It works like an offset to define which part of the image you want to process. Its an alternative to use `crop`. |
+| `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use left, right or center when setting start_x. You may use top, bottom or center when setting start_y. |
+| `q, quality`   | Quality affects lossy compression and file size for JPEG images by setting the quality between 1-100, default is 60.  Quality has no effect on PNG or GIF. |
+| `d, deflate`   | For PNG images it defines the compression algorithm, values can be 1-9, default is defined by PHP GD. Quality has no effect on JPEG or GIF. |
+| `sharpen`      | Appy a filter that sharpens the image.       |
+| `emboss`       | Appy a filter with an emboss effect.         |
+| `blur`         | Appy a filter with a blur effect.            |
+| `f, filter`    | Apply filter to image, `f=colorize,0,255,0,0` makes image more green. Supports all filters as defined in [PHP GD `imagefilter()`](http://php.net/manual/en/function.imagefilter.php). |
+| `f0, f1-f9`    | Same as `filter`, just add more filters. Applied in order `f`, `f0-f9`.  |
+| `p, palette`       | Create a palette version of the image with up to 256 colors. |
+| `sa, save-as`      | Save resulting image as JPEG, PNG or GIF, for example `?src=river.png&save-as=gif`. |
+| `nc, no-cache`     | Do not use the cached version, do all image processing and save a new image to cache. |
+| `so, skip-original`| Skip using the original image, always process image, create and use a cached version of the original image. |
+| `v, verbose`   | Do verbose output and print out a log what happens. Good for debugging, analyzing what happens or analyzing the image being processed. |
 
+Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it, apply a sharpen effect, save the image as JPEG and use quality 30.
 
-`img.php?src=image.jpg&sharpen`
-
--v, -verbose, Do verbose output and print out a log what happens.
--no-cache, Do not use the cached version, do all conversions.
--skip-original, Skip using the original image, always resize and use cached image.
--save-as, Save image as jpg, png or gif, loosing transparency.
-
--sharpen to appy a filter that sharpens the image. Good to apply when resizing to smaller dimensions.
--emboss to apply a emboss effect.
--blur to apply a blur effect.
-
--palette to create a palette version of the image with up to 256 colors.
+| `img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30` |
+|-----------------------------------------------------------|
+| <img src=/kod-exempel/cimage/img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30 alt=''> |
 
 
 
 Revision history
 -------------------------------------
 
-ToDo.
-
-* Show how to integrate with WordPress, shortcodes.
-* Clean up code in `CImage.php`.
-* Better errorhandling for invalid dimensions.
-* Define the color of the background of the resulting image, when loosing transparency.
-
-
-v0.3.x (latest)
+v0.4 (2013-10-08)
 
 * Improved support for pre-defined sizes.
 * Adding grid column size as predefined size, c1-c24 for a 24 column grid. Configure in `img.php`.
@@ -103,6 +104,8 @@ v0.3.x (latest)
 * Added scale.
 * Quality for PNG images is now knows as deflate.
 * Added palette to create images with max 256 colors.
+* Added usage of all parameters to README.md
+* Added documentation here http://dbwebb.se/opensource/cimage
 
 
 v0.3 (2012-10-02)
