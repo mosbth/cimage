@@ -108,7 +108,7 @@ if(isset($aspectRatios[$aspectRatio])) {
 }
 
 if($negateAspectRatio) {
-  $aspectRatio = 1 / $aspectRatioConvolution;
+  $aspectRatio = 1 / $aspectRatio;
 }
 
 

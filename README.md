@@ -100,7 +100,8 @@ v0.4 (2013-10-08)
 * Added palette to create images with max 256 colors.
 * Added usage of all parameters to README.md
 * Added documentation here http://dbwebb.se/opensource/cimage
-
+* Adding `.gitignore`
+* Readding `cache` directory
 
 v0.3 (2012-10-02)
 
