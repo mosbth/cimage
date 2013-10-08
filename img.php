@@ -24,9 +24,9 @@ set_exception_handler('myExceptionHandler');
 
 
 // Use preprocessing of images
-define('PNG_FILTER',    '/usr/local/bin/optipng -q');
-define('PNG_DEFLATE',   '/usr/local/bin/pngout -q');
-define('JPEG_OPTIMIZE', '/usr/local/bin/jpegtran -copy none -optimize');
+#define('PNG_FILTER',    '/usr/local/bin/optipng -q');
+#define('PNG_DEFLATE',   '/usr/local/bin/pngout -q');
+#define('JPEG_OPTIMIZE', '/usr/local/bin/jpegtran -copy none -optimize');
 
 
 // Append ending slash
