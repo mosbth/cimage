@@ -275,9 +275,12 @@ EOD;
     $info = list($width, $height, $type, $attr) = getimagesize($file);
     !empty($info) or $this->RaiseError("The file doesn't seem to be an image.");
     $mime = $info['mime'];
-    $time = filemtime($file);  
+    $lastModified = filemtime($file);  
+    $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
 
-    if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $time){  
+    if(!$this->verbose) { header('Last-Modified: ' . $gmdate . " GMT"); }
+
+    if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified){  
       if($this->verbose) {
         $this->Log("304 not modified");
         $this->VerboseOutput();
@@ -285,8 +288,6 @@ EOD;
       }
       header("HTTP/1.0 304 Not Modified");
     } else {  
-      $gmdate = gmdate("D, d M Y H:i:s", $time);
-
       if($this->verbose) {
         $this->Log("Last modified: " . $gmdate . " GMT");
         $this->VerboseOutput();
@@ -294,7 +295,6 @@ EOD;
       }
 
       header('Content-type: ' . $mime);  
-      header('Last-Modified: ' . $gmdate . " GMT");  
       readfile($file);
     }
     exit;

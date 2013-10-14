@@ -83,6 +83,12 @@ Combine the parameters to get the desired behavior and resulting image. For exam
 Revision history
 -------------------------------------
 
+v0.4.x (latest)
+
+* Changed => to == on Modified-Since.
+* Always send Last-Modified-Header.
+
+
 v0.4 (2013-10-08)
 
 * Improved support for pre-defined sizes.
@@ -101,7 +107,8 @@ v0.4 (2013-10-08)
 * Added usage of all parameters to README.md
 * Added documentation here http://dbwebb.se/opensource/cimage
 * Adding `.gitignore`
-* Readding `cache` directory
+* Re-adding `cache` directory
+
 
 v0.3 (2012-10-02)
 

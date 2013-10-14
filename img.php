@@ -24,9 +24,9 @@ set_exception_handler('myExceptionHandler');
 
 
 // Use preprocessing of images
-#define('PNG_FILTER',    '/usr/local/bin/optipng -q');
-#define('PNG_DEFLATE',   '/usr/local/bin/pngout -q');
-#define('JPEG_OPTIMIZE', '/usr/local/bin/jpegtran -copy none -optimize');
+define('PNG_FILTER',    '/usr/local/bin/optipng -q');
+define('PNG_DEFLATE',   '/usr/local/bin/pngout -q');
+define('JPEG_OPTIMIZE', '/usr/local/bin/jpegtran -copy none -optimize');
 
 
 // Append ending slash
@@ -151,13 +151,14 @@ else {
 
 
 
-// Display image if vebose mode
+// Display image if verbose mode
 if($verbose) {
   $query = array();
   parse_str($_SERVER['QUERY_STRING'], $query);
   unset($query['verbose']);
   unset($query['v']);
   unset($query['nocache']);
+  unset($query['nc']);
   $url1 = '?' . http_build_query($query);
   echo <<<EOD
 <a href=$url1><code>$url1</code></a><br>
