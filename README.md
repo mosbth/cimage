@@ -60,7 +60,7 @@ Usage
 | `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
 | `cf, crop-to-fit`  | Set together with both `h` & `w` to make the image fit into dimensions, and crop out the rest of the image. |
 | `a, area`      | Define the area of the image to work with. Set `area=10,10,10,10` (top,right,bottom,left) to crop out the 10% of the outermost area. It works like an offset to define which part of the image you want to process. Its an alternative to use `crop`. |
-| `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use left, right or center when setting start_x. You may use top, bottom or center when setting start_y. |
+| `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use left, right or center when setting start_x. You may use top, bottom or center when setting start_y. Use 0 for width or height to get the width/height of the original image. Use negative values for width/height to get original width/height minus selected value. |
 | `q, quality`   | Quality affects lossy compression and file size for JPEG images by setting the quality between 1-100, default is 60.  Quality has no effect on PNG or GIF. |
 | `d, deflate`   | For PNG images it defines the compression algorithm, values can be 1-9, default is defined by PHP GD. Quality has no effect on JPEG or GIF. |
 | `sharpen`      | Appy a filter that sharpens the image.       |
@@ -90,6 +90,7 @@ v0.4.x (latest)
 * Added `htmlentities()` to verbose output.
 * Fixed support for jpeg, not only jpg.
 * Fixed crop whole image by setting crop=0,0,0,0
+* Use negative values for crop width & height to base calulation on original width/height and withdraw selected amount.
 
 
 v0.4 (2013-10-08)
