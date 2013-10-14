@@ -495,8 +495,8 @@ EOD;
     $height = $this->height;
 
     if($this->crop) {
-      $width  = $this->crop['width'];
-      $height = $this->crop['height'];
+      $width  = $this->crop['width']  = $this->crop['width'] == 0 ? $this->width : $this->crop['width'];
+      $height = $this->crop['height'] = $this->crop['height'] == 0 ? $this->height : $this->crop['height'];
 
       if($this->crop['start_x'] == 'left') {
         $this->crop['start_x'] = 0;

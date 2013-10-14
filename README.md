@@ -89,6 +89,7 @@ v0.4.x (latest)
 * Always send Last-Modified-Header.
 * Added `htmlentities()` to verbose output.
 * Fixed support for jpeg, not only jpg.
+* Fixed crop whole image by setting crop=0,0,0,0
 
 
 v0.4 (2013-10-08)
