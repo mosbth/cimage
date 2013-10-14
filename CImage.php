@@ -109,11 +109,11 @@ class CImage {
     foreach($this->log as $val) {
       if(is_array($val)) {
         foreach($val as $val1) {
-          $log .= $val1 . '<br/>';
+          $log .= htmlentities($val1) . '<br/>';
         }
       }
       else {
-        $log .= $val . '<br/>';
+        $log .= htmlentities($val) . '<br/>';
       }
     }
 
@@ -561,6 +561,13 @@ EOD;
       
       // Use newWidth and newHeigh as defined width/height, image should fit the area.
       if($this->cropToFit) {
+        /*
+        if($cropToFit && $newWidth && $newHeight) {
+          $targetRatio = $newWidth / $newHeight;
+          $cropWidth   = $targetRatio > $aspectRatio ? $width : round($height * $targetRatio);
+          $cropHeight  = $targetRatio > $aspectRatio ? round($width  / $targetRatio) : $height;
+          }
+        */
         $ratioWidth  = $width  / $this->newWidth;
         $ratioHeight = $height / $this->newHeight;
         $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
@@ -924,6 +931,15 @@ EOD;
     
     // Resize by crop to fit
     if($this->cropToFit) {
+      /*
+      $cropX = round(($width - $cropWidth) / 2);  
+      $cropY = round(($height - $cropHeight) / 2);    
+      $imageResized = createImageKeepTransparency($newWidth, $newHeight);
+      imagecopyresampled($imageResized, $image, 0, 0, $cropX, $cropY, $newWidth, $newHeight, $cropWidth, $cropHeight);
+      $image = $imageResized;
+      $width = $newWidth;
+      $height = $newHeight;
+      */
       $this->Log("Crop to fit");
       $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));  
       $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));  
@@ -996,6 +1012,7 @@ EOD;
    */
   protected function SaveToCache() {
     switch($this->extension) {
+      case 'jpeg':  
       case 'jpg':  
         if($this->saveFolder) {
           $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");

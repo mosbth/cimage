@@ -87,6 +87,8 @@ v0.4.x (latest)
 
 * Changed => to == on Modified-Since.
 * Always send Last-Modified-Header.
+* Added `htmlentities()` to verbose output.
+* Fixed support for jpeg, not only jpg.
 
 
 v0.4 (2013-10-08)
