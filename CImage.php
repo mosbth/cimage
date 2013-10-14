@@ -336,6 +336,7 @@ EOD;
   protected function SetQuality() {
     if(!$this->quality) {
       switch($this->extension) {
+        case 'jpeg':
         case 'jpg':
           $this->quality = self::JPEG_QUALITY_DEFAULT;
           break;

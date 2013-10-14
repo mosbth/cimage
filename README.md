@@ -91,6 +91,7 @@ v0.4.x (latest)
 * Fixed support for jpeg, not only jpg.
 * Fixed crop whole image by setting crop=0,0,0,0
 * Use negative values for crop width & height to base calulation on original width/height and withdraw selected amount.
+* Correcting jpeg when setting quality.
 
 
 v0.4 (2013-10-08)
