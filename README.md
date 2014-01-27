@@ -27,12 +27,12 @@ License according to MIT.
 Installation and get going
 -------------------------------------
 
-**Latest stable version is v0.4 released 2013-10-08.**
+**Latest stable version is v0.4.1 released 2014-01-27.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.4
+git checkout v0.4.1
 ```
 
 Make the cache-directory writable by the webserver.
