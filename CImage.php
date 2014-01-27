@@ -40,8 +40,6 @@ class CImage {
   private $quality;
   public $filters;
   public $saveFolder;
-  public $newName;
-  //private $newFileName; // OBSOLETE, using cacheFileName instead.
   private $mime; // Calculated from source image
   private $width; // Calculated from source image
   private $height; // Calculated from source image
@@ -71,16 +69,14 @@ class CImage {
    * @param string $imageName filename which may contain subdirectory.
    * @param string $imageFolder path to root folder for images.
    * @param string $saveFolder path to folder where to save the new file or null to skip saving.
-   * @param string $newName new filename or leave to null to autogenerate filename.
    */
-  public function __construct($imageName=null, $imageFolder=null, $saveFolder=null, $newName=null) {
+  public function __construct($imageName=null, $imageFolder=null, $saveFolder=null) {
     $this->imageName      = ltrim($imageName, '/');
     $this->imageFolder    = rtrim($imageFolder, '/');
     $this->pathToImage    = $this->imageFolder . '/' . $this->imageName;
     $this->fileExtension  = pathinfo($this->pathToImage, PATHINFO_EXTENSION);
     $this->extension      = $this->fileExtension;
     $this->saveFolder     = $saveFolder;
-    $this->newName        = $newName;
   }
 
 
