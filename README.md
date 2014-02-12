@@ -50,7 +50,7 @@ Review the settings in `webroot/img_config.php` and check out `webroot/img.php` 
 Usage
 -------------------------------------
 
-###List of parameters {#parameters}
+###List of parameters
 
 The `img.php` supports a lot of parameters. Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it using width, aspect-ratio and crop-to-fit, apply a sharpen effect, save the image as JPEG using quality 30.
 
