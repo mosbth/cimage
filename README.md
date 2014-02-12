@@ -56,7 +56,7 @@ The `img.php` supports a lot of parameters. Combine the parameters to get the de
 
 | `img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30` |
 |-----------------------------------------------------------|
-| <img src=/kod-exempel/cimage_/webroot/img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''> |
+| <img src=http://dbwebb.se/kod-exempel/cimage_/webroot/img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''> |
 
 Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
 
@@ -131,7 +131,7 @@ Revision history
 -------------------------------------
 
 
-v0.5 (2014-02-07)
+v0.5 (2014-02-12)
 
 * Change constant name `CImage::PNG_QUALITY_DEFAULT` to `CImage::PNG_COMPRESSION_DEFAULT`.
 * Split JPEG quality and PNG compression, `CImage->quality` and `CImage->compression`
