@@ -26,12 +26,12 @@ This is free software and open source software, licensed according MIT.
 Installation and get going
 -------------------------------------
 
-**Latest stable version is v0.5 released 2014-02-12.**
+**Latest stable version is v0.5.1 released 2014-02-12.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.5
+git checkout v0.5.1
 ```
 
 Make the cache-directory writable by the webserver.
@@ -131,7 +131,7 @@ Revision history
 -------------------------------------
 
 
-v0.x (latest)
+v0.5.1 (2014-02-12)
 
 * Display image in README-file.
 * Create an empty `cache` directory as part of repo.
