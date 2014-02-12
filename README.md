@@ -131,6 +131,12 @@ Revision history
 -------------------------------------
 
 
+v0.x (latest)
+
+* Display image in README-file.
+* Create an empty `cache` directory as part of repo.
+
+
 v0.5 (2014-02-12)
 
 * Change constant name `CImage::PNG_QUALITY_DEFAULT` to `CImage::PNG_COMPRESSION_DEFAULT`.
