@@ -4,11 +4,9 @@ Image conversion on the fly using PHP
 About
 -------------------------------------
 
-`CImage` is a PHP class which enables scaling, cropping, filtering effects and processing of images using PHP GD. The script `img.php` uses `CImage` to enable server-side image processing together with caching and optimization of the processed images.
+`CImage` is a PHP class which enables resizing of images through scaling and cropping together with filtering effects, all using PHP GD. The script `img.php` uses `CImage` to enable server-side image processing together with caching and optimization of the processed images.
 
-Server-side image processing is a useful tool for any web developer, `img.php` has an easy to use interface and its quite powerful when you integrate it with your website. This is a most useful tool for any web developer who has a need to create and process images for a website.
-
-This is free software and open source.
+Server-side image processing is a most useful tool for any web developer, `img.php` has an easy to use interface and its quite powerful when you integrate it with your website. Using it might decrease the time and effort put in managing images and improve your work flow when creating content for websites.
 
 Read more on http://dbwebb.se/opensource/cimage
 
@@ -17,22 +15,23 @@ Enjoy!
 Mikael Roos (me@mikaelroos.se)
 
 
+
 License
 -------------------------------------
 
-License according to MIT.
+This is free software and open source software, licensed according MIT.
 
 
 
 Installation and get going
 -------------------------------------
 
-**Latest stable version is v0.4.1 released 2014-01-27.**
+**Latest stable version is v0.5 released 2014-02-11.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.4.1
+git checkout v0.5
 ```
 
 Make the cache-directory writable by the webserver.
@@ -41,47 +40,109 @@ Make the cache-directory writable by the webserver.
 chmod 777 cache
 ```
 
-Try it out by pointing your browser to the test file `test.php`.
+Try it out by pointing your browser to the test file `webroot/test.php`.
 
-Review the settings in `img.php`.
+Review the settings in `webroot/img_config.php` and check out `webroot/img.php` on how it uses `CImage`.
+
 
 
 
 Usage
 -------------------------------------
 
+###List of parameters {#parameters}
+
+The `img.php` supports a lot of parameters. Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it using width, aspect-ratio and crop-to-fit, apply a sharpen effect, save the image as JPEG using quality 30.
+
+| `img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30` |
+|-----------------------------------------------------------|
+| <img src=/kod-exempel/cimage_/webroot/img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''> |
+
+Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
+
+
+####Mandatory options and debugging
+
+The `src` is the only mandatory option. The other in this section is useful for debugging or deciding what version of the target image is used.
+
 | Parameter      | Explained                                    | 
 |----------------|----------------------------------------------|
-| `src`          | `src=img.png` choses the source image to use. |
-| `h, height`    | `h=200` sets the width to be to max 200px. `h=25%` sets the height to 25% of its original height. |
-| `w, width`     | `w=200` sets the height to be max 200px. `w=100%` sets the width to 100% of its original width. |
-| `ar, aspect-ratio` | Use this as aspect ratio. Use together with either height or width or alone to base calculations on original image dimensions. This setting is used to calculate the resulting dimension for the image. `w=160&aspect-ratio=1.6` results in a width of 100px. |
-| `s, scale`     | Scale the image to a size proportional to a percentage of its original size, `scale=25` makes a image 25% of its original size and `size=200` doubles up the image size. Scale is applied before all processing and has no impact of the final width and height. |
-| `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
+| `src`          | Source image to use, mandatory. `src=img.png` or with subdirectory `src=dir/img.png`. |
+| `nc, no-cache` | Do not use the cached version, do all image processing and save a new image to cache. |
+| `so, skip-original`| Skip using the original image, always process image, create and use a cached version of the original image. |
+| `v, verbose`   | Do verbose output and print out a log what happens. Good for debugging, analyzing the process and inspecting how the image is being processed. |
+
+
+
+####Options for resizing image
+
+These options are all affecting the dimensions used when resizing the image. Its used to define the area to use in the source image and the resulting dimensions for the target image.
+
+| Parameter      | Explained                                    | 
+|----------------|----------------------------------------------|
+| `h, height`    | `h=200` sets the width to be to max 200px. `h=25%` sets the height to max 25% of its original height. |
+| `w, width`     | `w=200` sets the height to be max 200px. `w=100%` sets the width to max 100% of its original width. |
+| `ar, aspect-ratio` | Control target aspect ratio. Use together with either height or width or alone to base calculations on original image dimensions. This setting is used to calculate the resulting dimension for the image. `w=160&aspect-ratio=1.6` results in a height of 100px. Use ar=!1.6 to inverse the ratio, useful when using portrat instead of landscape images. |
+| `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing and using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
 | `cf, crop-to-fit`  | Set together with both `h` & `w` to make the image fit into dimensions, and crop out the rest of the image. |
-| `a, area`      | Define the area of the image to work with. Set `area=10,10,10,10` (top,right,bottom,left) to crop out the 10% of the outermost area. It works like an offset to define which part of the image you want to process. Its an alternative to use `crop`. |
-| `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use left, right or center when setting start_x. You may use top, bottom or center when setting start_y. You can use negative values for x and y. Use 0 for width or height to get the width/height of the original image. Use negative values for width/height to get original width/height minus selected value. |
-| `q, quality`   | Quality affects lossy compression and file size for JPEG images by setting the quality between 1-100, default is 60.  Quality has no effect on PNG or GIF. |
-| `d, deflate`   | For PNG images it defines the compression algorithm, values can be 1-9, default is defined by PHP GD. Quality has no effect on JPEG or GIF. |
+| `a, area`      | Define the area of the image to work with. Set `area=10,10,10,10` (top,right,bottom,left) to crop out the 10% of the outermost area. It works like an offset to define which part of the image you want to process. Its an alternative of using `crop`. |
+| `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use `left`, `right` or `center` when setting start_x. You may use `top`, `bottom` or `center` when setting start_y. |
+
+
+
+####Processing of image before resizing
+
+These options are executed *before* the image is resized.
+
+| Parameter      | Explained                                    | 
+|----------------|----------------------------------------------|
+| `s, scale`     | Scale the image to a size proportional to a percentage of its original size, `scale=25` makes an image 25% of its original size and `size=200` doubles up the image size. Scale is applied before resizing and has no impact of the target width and height. |
+
+
+
+####Processing of image after resizing
+
+These options are executed *after* the image is resized.
+
+| Parameter      | Explained                                    | 
+|----------------|----------------------------------------------|
 | `sharpen`      | Appy a filter that sharpens the image.       |
 | `emboss`       | Appy a filter with an emboss effect.         |
 | `blur`         | Appy a filter with a blur effect.            |
 | `f, filter`    | Apply filter to image, `f=colorize,0,255,0,0` makes image more green. Supports all filters as defined in [PHP GD `imagefilter()`](http://php.net/manual/en/function.imagefilter.php). |
 | `f0, f1-f9`    | Same as `filter`, just add more filters. Applied in order `f`, `f0-f9`.  |
-| `p, palette`       | Create a palette version of the image with up to 256 colors. |
-| `sa, save-as`      | Save resulting image as JPEG, PNG or GIF, for example `?src=river.png&save-as=gif`. |
-| `nc, no-cache`     | Do not use the cached version, do all image processing and save a new image to cache. |
-| `so, skip-original`| Skip using the original image, always process image, create and use a cached version of the original image. |
-| `v, verbose`   | Do verbose output and print out a log what happens. Good for debugging, analyzing what happens or analyzing the image being processed. |
 
-Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it, apply a sharpen effect, save the image as JPEG and use quality 30.
 
-`img.php?src=kodim13.png&w=600&sharpen&save-as=jpg&q=30`
+####Saving image, affecting quality and filesize
+
+Options for saving the target image.
+
+| Parameter      | Explained                                    | 
+|----------------|----------------------------------------------|
+| `q, quality`   | Quality affects lossy compression and file size for JPEG images by setting the quality between 1-100, default is 60.  Quality only affects JPEG. |
+| `co, compress` | For PNG images it defines the compression algorithm, values can be 0-9, default is defined by PHP GD. Compress only affects PNG. |
+| `p, palette`   | Create a palette version of the image with up to 256 colors. |
+| `sa, save-as`  | Save resulting image as JPEG, PNG or GIF, for example `?src=river.png&save-as=gif`. |
+
 
 
 
 Revision history
 -------------------------------------
+
+
+v0.5 (2014-02-07)
+
+* Change constant name `CImage::PNG_QUALITY_DEFAULT` to `CImage::PNG_COMPRESSION_DEFAULT`.
+* Split JPEG quality and PNG compression, `CImage->quality` and `CImage->compression`
+* Changed `img.php` parameter name `d, deflate` to `co, compress`.
+* Separating configuration issues from `img.php` to `img_config.php`.
+* Format code according to PSR-2.
+* Disabled post-processing JPEG and PNG as default.
+* This version is supporting PHP 5.3, later versions will require 5.5 or later.
+* Using GitHub issue tracking for feature requests and planning.
+* Rewrote [the manual](http://dbwebb.se/opensource/cimage).
+
 
 v0.4.1 (2014-01-27)
 
@@ -145,5 +206,5 @@ v0.1 (2012-04-25)
 
 <pre>
  .   
-..:  Copyright 2012-2013 by Mikael Roos (me@mikaelroos.se)
+..:  Copyright 2012-2014 by Mikael Roos (me@mikaelroos.se)
 </pre>

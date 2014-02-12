@@ -1,0 +1,431 @@
+<?php
+/**
+ * Resize images on the fly using CImage, configuration is made in file named.
+ *
+ */
+
+
+/**
+ * Default configuration options, can be overridden in own config-file.
+ *
+ * @param string $msg to display.
+ *
+ * @return void
+ */
+function errorPage($msg) 
+{
+    header("Status: 404 Not Found");
+    die('img.php say 404: ' . $msg);
+}
+
+
+
+/**
+ * Custom exception handler.
+ */
+set_exception_handler(function($exception) {
+    errorPage("<p><b>img.php: Uncaught exception:</b> <p>" . $exception->getMessage() . "</p><pre>" . $exception->getTraceAsString(), "</pre>");
+});
+
+
+
+/**
+ * Get input from query string or return default value if not set.
+ *
+ * @param mixed $key     as string or array of string values to look for in $_GET.
+ * @param mixed $default value to return when $key is not set in $_GET.
+ *
+ * @return mixed value from $_GET or default value.
+ */
+function get($key, $default = null) 
+{
+    if (is_array($key)) {
+        foreach ($key as $val) {
+            if (isset($_GET[$val])) {
+                return $_GET[$val];
+            }
+        }
+    } elseif (isset($_GET[$key])) {
+        return $_GET[$key];
+    }
+    return $default;
+}
+
+
+
+/**
+ * Get input from query string and set to $defined if defined or else $undefined.
+ *
+ * @param mixed $key       as string or array of string values to look for in $_GET.
+ * @param mixed $defined   value to return when $key is set in $_GET.
+ * @param mixed $undefined value to return when $key is not set in $_GET.
+ *
+ * @return mixed value as $defined or $undefined.
+ */
+function getDefined($key, $defined, $undefined) 
+{
+    return get($key) === null ? $undefined : $defined; 
+}
+
+
+
+/**
+ * Log when verbose mode, when used without argument it returns the result.
+ *
+ * @param string $msg to log.
+ *
+ * @return void or array.
+ */
+function verbose($msg = null) 
+{
+    global $verbose;
+    static $log = array();
+
+    if (!$verbose) {
+        return;
+    }
+
+    if (is_null($msg)) {
+        return $log;
+    }
+
+    $log[] = $msg;
+}
+
+
+
+/**
+ * Default configuration options, can be overridden in own config-file.
+ */
+$config = array(
+
+);
+
+$configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
+$config = array_merge($config, require $configFile);
+
+call_user_func($config['error_reporting']);
+
+
+
+/**
+ * verbose, v - do a verbose dump of what happens
+ */
+$verbose = getDefined(array('verbose', 'v'), true, false);
+
+
+
+/**
+ * src - the source image file.
+ */
+$srcImage = get('src')
+    or errorPage('Must set src-attribute.');
+
+preg_match('#^[a-z0-9A-Z-/_\.]+$#', $srcImage) 
+    or errorPage('Filename contains invalid characters.');
+
+verbose("src = $srcImage");
+
+
+
+/**
+ * width, w - set target width, affecting the resulting image width, height and resize options
+ */
+$newWidth = get(array('width', 'w'));
+
+// Check to replace predefined size
+$sizes = call_user_func($config['size_constant']);
+if (isset($sizes[$newWidth])) {
+    $newWidth = $sizes[$newWidth];
+}
+
+// Support width as % of original width
+if ($newWidth[strlen($newWidth)-1] == '%') {
+    is_numeric(substr($newWidth, 0, -1)) 
+        or errorPage('Width % not numeric.');  
+} else {
+    is_null($newWidth) 
+        or ($newWidth > 10 && $newWidth <= $config['max_width']) 
+        or errorPage('Width out of range.');  
+}
+
+verbose("new width = $newWidth");
+
+
+
+/**
+ * height, h - set target height, affecting the resulting image width, height and resize options
+ */
+$newHeight = get(array('height', 'h'));
+
+// Check to replace predefined size
+if (isset($sizes[$newHeight])) {
+    $newHeight = $sizes[$newHeight];
+}
+
+// height
+if ($newHeight[strlen($newHeight)-1] == '%') {
+    is_numeric(substr($newHeight, 0, -1)) 
+        or errorPage('Height % out of range.');  
+} else {
+    is_null($newHeight) 
+        or ($newHeight > 10 && $newHeight <= $config['max_height']) 
+        or errorPage('Hight out of range.');
+}
+
+verbose("new height = $newHeight");
+
+
+
+/**
+ * aspect-ratio, ar - affecting the resulting image width, height and resize options
+ */
+$aspectRatio = get(array('aspect-ratio', 'ar'));
+
+// Check to replace predefined aspect ratio
+$aspectRatios = call_user_func($config['aspect_ratio_constant']);
+$negateAspectRatio = ($aspectRatio[0] == '!') ? true : false;
+$aspectRatio = $negateAspectRatio ? substr($aspectRatio, 1) : $aspectRatio;
+
+if (isset($aspectRatios[$aspectRatio])) {
+    $aspectRatio = $aspectRatios[$aspectRatio];
+}
+
+if ($negateAspectRatio) {
+    $aspectRatio = 1 / $aspectRatio;
+}
+
+is_null($aspectRatio) 
+    or is_numeric($aspectRatio) 
+    or errorPage('Aspect ratio out of range');
+
+verbose("aspect ratio = $aspectRatio");
+
+
+
+/**
+ * crop-to-fit, cf - affecting the resulting image width, height and resize options
+ */
+$cropToFit = getDefined(array('crop-to-fit', 'cf'), true, false);
+
+verbose("crop to fit = $cropToFit");
+
+
+
+/**
+ * no-ratio, nr, stretch - affecting the resulting image width, height and resize options
+ */
+$keepRatio = getDefined(array('no-ratio', 'nr', 'stretch'), false, true);
+
+verbose("keep ratio = $keepRatio");
+
+
+
+/**
+ * crop, c - affecting the resulting image width, height and resize options
+ */
+$crop = get(array('crop', 'c'));
+
+verbose("crop = $crop");
+
+
+
+/**
+ * area, a - affecting the resulting image width, height and resize options
+ */
+$area = get(array('area', 'a'));
+
+verbose("area = $area");
+
+
+
+/**
+ * skip-original, so - skip the original image and always process a new image
+ */
+$useOriginal = getDefined(array('save-as', 'sa'), false, true);
+
+verbose("use original = $useOriginal");
+
+
+
+/**
+ * no-cache, nc - skip the cached version and process and create a new version in cache.
+ */
+$useCache = getDefined(array('no-cache', 'nc'), false, true);
+
+verbose("use cache = $useCache");
+
+
+
+/**
+ * quality, q - set level of quality for jpeg images
+ */
+$quality = get(array('quality', 'q'));
+
+is_null($quality) 
+    or ($quality > 0 and $quality <= 100) 
+    or errorPage('Quality out of range');
+
+verbose("quality = $quality");
+
+
+
+/**
+ * compress, co - what strategy to use when compressing png images
+ */
+$compress = get(array('compress', 'co'));
+
+    
+is_null($compress) 
+    or ($compress > 0 and $compress <= 9) 
+    or errorPage('Compress out of range');
+
+verbose("compress = $compress");
+
+
+
+/**
+ * save-as, sa - what type of image to save
+ */
+$saveAs = get(array('save-as', 'sa'));
+
+verbose("save as = $saveAs");
+
+
+
+/**
+ * scale, s - Processing option, scale up or down the image prior actual resize
+ */
+$scale = get(array('scale', 's'));
+
+is_null($scale) 
+    or ($scale >= 0 and $quality <= 400) 
+    or errorPage('Scale out of range');
+
+verbose("scale = $scale");
+
+
+
+/**
+ * palette, p - Processing option, create a palette version of the image
+ */
+$palette = getDefined(array('palette', 'p'), true, false);
+
+verbose("palette = $palette");
+
+
+
+/**
+ * sharpen - Processing option, post filter for sharpen effect
+ */
+$sharpen = getDefined('sharpen', true, null);
+
+verbose("sharpen = $sharpen");
+
+
+
+/**
+ * emboss - Processing option, post filter for emboss effect
+ */
+$emboss = getDefined('emboss', true, null);
+
+verbose("emboss = $emboss");
+
+
+
+/**
+ * blur - Processing option, post filter for blur effect
+ */
+$blur = getDefined('blur', true, null);
+
+verbose("blur = $blur");
+
+
+
+/**
+ * filter, f, f0-f9 - Processing option, post filter for various effects using imagefilter()
+ */
+$filters = array();
+$filter = get(array('filter', 'f'));
+if ($filter) { 
+    $filters[] = $filter; 
+}
+
+for ($i = 0; $i < 10; $i++) {
+    $filter = get(array("filter{$i}", "f{$i}"));
+    if ($filter) { 
+        $filters[] = $filter; 
+    }
+}
+
+verbose("filters = " . print_r($filters, 1));
+
+
+
+/**
+ * Display image if verbose mode
+ */
+if ($verbose) {
+    $query = array();
+    parse_str($_SERVER['QUERY_STRING'], $query);
+    unset($query['verbose']);
+    unset($query['v']);
+    unset($query['nocache']);
+    unset($query['nc']);
+    $url1 = '?' . http_build_query($query);
+    $log = htmlentities(print_r(verbose(), 1));
+    echo <<<EOD
+<a href=$url1><code>$url1</code></a><br>
+<img src='{$url1}' />
+<pre>$log</pre>
+EOD;
+}
+
+
+
+/**
+ * Create and output the image
+ */
+require $config['cimage_class'];
+
+$img = new CImage();
+
+$img->setVerbose($verbose)
+    ->setSource($srcImage, $config['image_path'])
+    ->setOptions(
+        array(
+          // Options for calculate dimensions
+          'newWidth'  => $newWidth, 
+          'newHeight' => $newHeight, 
+          'aspectRatio' => $aspectRatio, 
+          'keepRatio' => $keepRatio, 
+          'cropToFit' => $cropToFit,
+          'crop'      => $crop, 
+          'area'      => $area, 
+
+          // Pre-processing, before resizing is done
+          'scale'     => $scale, 
+
+          // Post-processing, after resizing is done
+          'palette'   => $palette,
+          'filters'   => $filters,
+          'sharpen'   => $sharpen,
+          'emboss'    => $emboss,
+          'blur'      => $blur,
+        )
+    )
+    ->initDimensions()
+    ->calculateNewWidthAndHeight()
+    ->setSaveAsExtension($saveAs)
+    ->setJpegQuality($quality)
+    ->setPngCompression($compress)
+    ->useOriginalIfPossible($useOriginal)
+    ->generateFilename($config['cache_path'])
+    ->useCacheIfPossible($useCache)
+    ->load()
+    ->preResize()
+    ->resize()
+    ->postResize()
+    ->setPostProcessingOptions($config['postprocessing'])
+    ->save()
+    ->output();

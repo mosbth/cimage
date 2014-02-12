@@ -11,9 +11,9 @@ return array(
      * Paths, where are all the stuff I should use? 
      * Append ending slash on directories.
      */
-    'cimage_class' =>  __DIR__.'/CImage.php',
+    'cimage_class' =>  __DIR__.'/../CImage.php',
     'image_path'   =>  __DIR__.'/img/',
-    'cache_path'   =>  __DIR__.'/cache/',
+    'cache_path'   =>  __DIR__.'/../cache/',
 
 
 
@@ -94,27 +94,5 @@ return array(
         error_reporting(-1);
         set_time_limit(20);
     },
-
-
-
-    /**
-     * Set callable handler for exception handeler or set null to use default. 
-     */
-    'exception_handler' => null,
-    /*'exception_handler' => function($exception) {
-        header("Status: 404 Not Found");
-        die('404: ' . $msg);
-    },*/
-
-
-
-    /**
-     * Set callable handler for error page or set null to use default. 
-     */
-    'error_page' => null,
-    /*'error_page' => function($msg) {
-    header("Status: 404 Not Found");
-    die('404: ' . $msg);
-    },*/
 );
 
