@@ -1249,13 +1249,13 @@ class CImage
                 imagejpeg($this->image, $this->cacheFileName, $this->quality);
           
                 // Use JPEG optimize if defined
-                if ($this->jpegOptimize) {
+                if ($this->jpegOptimizeCmd) {
                     if ($this->verbose) { 
                         clearstatcache(); 
                         $this->log("Filesize before optimize: " . filesize($this->cacheFileName) . " bytes."); 
                     }
                     $res = array();
-                    $cmd = $this->jpegOptimize . " -outfile $this->cacheFileName $this->cacheFileName";
+                    $cmd = $this->jpegOptimizeCmd . " -outfile $this->cacheFileName $this->cacheFileName";
                     exec($cmd, $res);
                     $this->log($cmd);
                     $this->log($res);
@@ -1278,26 +1278,26 @@ class CImage
                 imagepng($this->image, $this->cacheFileName, $this->compress);  
               
                 // Use external program to filter PNG, if defined
-                if ($this->pngFilter) {
+                if ($this->pngFilterCmd) {
                     if ($this->verbose) { 
                         clearstatcache(); 
                         $this->Log("Filesize before filter optimize: " . filesize($this->cacheFileName) . " bytes."); 
                     }
                     $res = array();
-                    $cmd = $this->pngFilter . " $this->cacheFileName";
+                    $cmd = $this->pngFilterCmd . " $this->cacheFileName";
                     exec($cmd, $res);
                     $this->Log($cmd);
                     $this->Log($res);
                 }
 
                 // Use external program to deflate PNG, if defined
-                if ($this->pngDeflate) {
+                if ($this->pngDeflateCmd) {
                     if ($this->verbose) { 
                         clearstatcache(); 
                         $this->Log("Filesize before deflate optimize: " . filesize($this->cacheFileName) . " bytes."); 
                     }
                     $res = array();
-                    $cmd = $this->pngDeflate . " $this->cacheFileName";
+                    $cmd = $this->pngDeflateCmd . " $this->cacheFileName";
                     exec($cmd, $res);
                     $this->Log($cmd);
                     $this->Log($res);

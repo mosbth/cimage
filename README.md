@@ -26,7 +26,7 @@ This is free software and open source software, licensed according MIT.
 Installation and get going
 -------------------------------------
 
-**Latest stable version is v0.5 released 2014-02-11.**
+**Latest stable version is v0.5 released 2014-02-12.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
@@ -142,6 +142,7 @@ v0.5 (2014-02-07)
 * This version is supporting PHP 5.3, later versions will require 5.5 or later.
 * Using GitHub issue tracking for feature requests and planning.
 * Rewrote [the manual](http://dbwebb.se/opensource/cimage).
+* Created directory `webroot` and moved some files there.
 
 
 v0.4.1 (2014-01-27)
