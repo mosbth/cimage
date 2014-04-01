@@ -95,16 +95,23 @@ function verbose($msg = null)
 
 
 /**
- * Default configuration options, can be overridden in own config-file.
+ * Get configuration options from file.
  */
-$config = array(
-
-);
-
 $configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
-$config = array_merge($config, require $configFile);
+$config = require $configFile;
 
 call_user_func($config['error_reporting']);
+
+
+
+/**
+ * Set default timezone if not set or if its set in the config-file.
+ */
+if (isset($config['default_timezone'])) {
+    date_default_timezone_set($config['default_timezone']);
+} else if (!ini_get('default_timezone')) {
+    date_default_timezone_set('UTC');
+}
 
 
 

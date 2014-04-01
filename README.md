@@ -26,12 +26,12 @@ This is free software and open source software, licensed according MIT.
 Installation and get going
 -------------------------------------
 
-**Latest stable version is v0.5.1 released 2014-02-12.**
+**Latest stable version is v0.5.2 released 2014-04-01.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.5.1
+git checkout v0.5.2
 ```
 
 Make the cache-directory writable by the webserver.
@@ -129,6 +129,13 @@ Options for saving the target image.
 
 Revision history
 -------------------------------------
+
+
+v0.5.2 (2014-04-01)
+
+* Correcting issue #26 providing error message when not using postprocessing.
+* Correcting issue #27 warning of default timezone.
+* Removed default $config options in `img.php`, was not used, all configuration should be in `img_config.php`.
 
 
 v0.5.1 (2014-02-12)

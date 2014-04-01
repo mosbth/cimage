@@ -18,6 +18,14 @@ return array(
 
 
     /**
+     * Set default timezone, it defaults to UTC if not specified otherwise.
+     * 
+     */
+    //'default_timezone'     => 'UTC',
+
+
+
+    /**
      * Max image dimensions,
      * 
      */
