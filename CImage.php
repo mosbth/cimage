@@ -1212,14 +1212,20 @@ class CImage
     {
         if (isset($options['jpeg_optimize']) && $options['jpeg_optimize']) {
             $this->jpegOptimizeCmd = $options['jpeg_optimize_cmd'];
+        } else {
+            $this->jpegOptimizeCmd = null;            
         }
 
         if (isset($options['png_filter']) && $options['png_filter']) {
             $this->pngFilterCmd = $options['png_filter_cmd'];
+        } else {
+            $this->pngFilterCmd = null;
         }
 
         if (isset($options['png_deflate']) && $options['png_deflate']) {
             $this->pngDeflateCmd = $options['png_deflate_cmd'];
+        } else {
+            $this->pngDeflateCmd = null;
         }
     
         return $this;
