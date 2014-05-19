@@ -12,7 +12,7 @@
  *
  * @return void
  */
-function errorPage($msg) 
+function errorPage($msg)
 {
     header("Status: 404 Not Found");
     die('img.php say 404: ' . $msg);
@@ -23,7 +23,7 @@ function errorPage($msg)
 /**
  * Custom exception handler.
  */
-set_exception_handler(function($exception) {
+set_exception_handler(function ($exception) {
     errorPage("<p><b>img.php: Uncaught exception:</b> <p>" . $exception->getMessage() . "</p><pre>" . $exception->getTraceAsString(), "</pre>");
 });
 
@@ -37,7 +37,7 @@ set_exception_handler(function($exception) {
  *
  * @return mixed value from $_GET or default value.
  */
-function get($key, $default = null) 
+function get($key, $default = null)
 {
     if (is_array($key)) {
         foreach ($key as $val) {
@@ -62,9 +62,9 @@ function get($key, $default = null)
  *
  * @return mixed value as $defined or $undefined.
  */
-function getDefined($key, $defined, $undefined) 
+function getDefined($key, $defined, $undefined)
 {
-    return get($key) === null ? $undefined : $defined; 
+    return get($key) === null ? $undefined : $defined;
 }
 
 
@@ -76,7 +76,7 @@ function getDefined($key, $defined, $undefined)
  *
  * @return void or array.
  */
-function verbose($msg = null) 
+function verbose($msg = null)
 {
     global $verbose;
     static $log = array();
@@ -128,7 +128,7 @@ $verbose = getDefined(array('verbose', 'v'), true, false);
 $srcImage = get('src')
     or errorPage('Must set src-attribute.');
 
-preg_match('#^[a-z0-9A-Z-/_\.]+$#', $srcImage) 
+preg_match('#^[a-z0-9A-Z-/_\.]+$#', $srcImage)
     or errorPage('Filename contains invalid characters.');
 
 verbose("src = $srcImage");
@@ -148,12 +148,12 @@ if (isset($sizes[$newWidth])) {
 
 // Support width as % of original width
 if ($newWidth[strlen($newWidth)-1] == '%') {
-    is_numeric(substr($newWidth, 0, -1)) 
-        or errorPage('Width % not numeric.');  
+    is_numeric(substr($newWidth, 0, -1))
+        or errorPage('Width % not numeric.');
 } else {
-    is_null($newWidth) 
-        or ($newWidth > 10 && $newWidth <= $config['max_width']) 
-        or errorPage('Width out of range.');  
+    is_null($newWidth)
+        or ($newWidth > 10 && $newWidth <= $config['max_width'])
+        or errorPage('Width out of range.');
 }
 
 verbose("new width = $newWidth");
@@ -172,11 +172,11 @@ if (isset($sizes[$newHeight])) {
 
 // height
 if ($newHeight[strlen($newHeight)-1] == '%') {
-    is_numeric(substr($newHeight, 0, -1)) 
-        or errorPage('Height % out of range.');  
+    is_numeric(substr($newHeight, 0, -1))
+        or errorPage('Height % out of range.');
 } else {
-    is_null($newHeight) 
-        or ($newHeight > 10 && $newHeight <= $config['max_height']) 
+    is_null($newHeight)
+        or ($newHeight > 10 && $newHeight <= $config['max_height'])
         or errorPage('Hight out of range.');
 }
 
@@ -202,8 +202,8 @@ if ($negateAspectRatio) {
     $aspectRatio = 1 / $aspectRatio;
 }
 
-is_null($aspectRatio) 
-    or is_numeric($aspectRatio) 
+is_null($aspectRatio)
+    or is_numeric($aspectRatio)
     or errorPage('Aspect ratio out of range');
 
 verbose("aspect ratio = $aspectRatio");
@@ -269,8 +269,8 @@ verbose("use cache = $useCache");
  */
 $quality = get(array('quality', 'q'));
 
-is_null($quality) 
-    or ($quality > 0 and $quality <= 100) 
+is_null($quality)
+    or ($quality > 0 and $quality <= 100)
     or errorPage('Quality out of range');
 
 verbose("quality = $quality");
@@ -283,8 +283,8 @@ verbose("quality = $quality");
 $compress = get(array('compress', 'co'));
 
     
-is_null($compress) 
-    or ($compress > 0 and $compress <= 9) 
+is_null($compress)
+    or ($compress > 0 and $compress <= 9)
     or errorPage('Compress out of range');
 
 verbose("compress = $compress");
@@ -305,8 +305,8 @@ verbose("save as = $saveAs");
  */
 $scale = get(array('scale', 's'));
 
-is_null($scale) 
-    or ($scale >= 0 and $quality <= 400) 
+is_null($scale)
+    or ($scale >= 0 and $quality <= 400)
     or errorPage('Scale out of range');
 
 verbose("scale = $scale");
@@ -354,14 +354,14 @@ verbose("blur = $blur");
  */
 $filters = array();
 $filter = get(array('filter', 'f'));
-if ($filter) { 
-    $filters[] = $filter; 
+if ($filter) {
+    $filters[] = $filter;
 }
 
 for ($i = 0; $i < 10; $i++) {
     $filter = get(array("filter{$i}", "f{$i}"));
-    if ($filter) { 
-        $filters[] = $filter; 
+    if ($filter) {
+        $filters[] = $filter;
     }
 }
 
@@ -380,11 +380,9 @@ if ($verbose) {
     unset($query['nocache']);
     unset($query['nc']);
     $url1 = '?' . http_build_query($query);
-    $log = htmlentities(print_r(verbose(), 1));
     echo <<<EOD
 <a href=$url1><code>$url1</code></a><br>
 <img src='{$url1}' />
-<pre>$log</pre>
 EOD;
 }
 
@@ -398,20 +396,21 @@ require $config['cimage_class'];
 $img = new CImage();
 
 $img->setVerbose($verbose)
+    ->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSource($srcImage, $config['image_path'])
     ->setOptions(
         array(
           // Options for calculate dimensions
-          'newWidth'  => $newWidth, 
-          'newHeight' => $newHeight, 
-          'aspectRatio' => $aspectRatio, 
-          'keepRatio' => $keepRatio, 
+          'newWidth'  => $newWidth,
+          'newHeight' => $newHeight,
+          'aspectRatio' => $aspectRatio,
+          'keepRatio' => $keepRatio,
           'cropToFit' => $cropToFit,
-          'crop'      => $crop, 
-          'area'      => $area, 
+          'crop'      => $crop,
+          'area'      => $area,
 
           // Pre-processing, before resizing is done
-          'scale'     => $scale, 
+          'scale'     => $scale,
 
           // Post-processing, after resizing is done
           'palette'   => $palette,
