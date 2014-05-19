@@ -55,7 +55,7 @@ return array(
      * Predefined size constants. 
      * 
      */
-    'size_constant' => function() {
+    'size_constant' => function () {
 
         // Set sizes to map constant to value, easier to use with width or height
         $sizes = array(
@@ -69,7 +69,7 @@ return array(
         $gridColumns     = 24;
 
         for ($i = 1; $i <= $gridColumns; $i++) {
-            $sizes['c' . $i] = ($gridColumnWidth + $gridGutterWidth) * $i - $gridGutterWidth; 
+            $sizes['c' . $i] = ($gridColumnWidth + $gridGutterWidth) * $i - $gridGutterWidth;
         }
 
         return $sizes;
@@ -81,7 +81,7 @@ return array(
      * Predefined aspect ratios. 
      * 
      */
-    'aspect_ratio_constant' => function() {
+    'aspect_ratio_constant' => function () {
         return array(
             '3:1'   => 3/1,
             '3:2'   => 3/2,
@@ -98,9 +98,9 @@ return array(
     /**
      * Set error reporting to match development or production environment 
      */
-    'error_reporting' => function() {
+    'error_reporting' => function () {
         error_reporting(-1);              // Report all type of errors
-        ini_set('display_errors', 1);     // Display all errors 
+        ini_set('display_errors', 1);     // Display all errors
         ini_set('output_buffering', 0);   // Do not buffer outputs, write directly
         set_time_limit(20);
     },
