@@ -1183,7 +1183,7 @@ class CImage
      * @param int $height of the new image.
      * @return image resource.
     */
-    private function CreateImageKeepTransparency($width, $height) 
+    private function createImageKeepTransparency($width, $height) 
     {
         $this->log("Creating a new working image width={$width}px, height={$height}px.");
         $img = imagecreatetruecolor($width, $height);
@@ -1347,11 +1347,11 @@ class CImage
         $info = list($width, $height, $type, $attr) = getimagesize($file);
         !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
         $mime = $info['mime'];
-        $lastModified = filemtime($file);  
+        $lastModified = filemtime($file);
         $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
 
-        if (!$this->verbose) { 
-            header('Last-Modified: ' . $gmdate . " GMT"); 
+        if (!$this->verbose) {
+            header('Last-Modified: ' . $gmdate . " GMT");
         }
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
@@ -1364,7 +1364,7 @@ class CImage
             
             header("HTTP/1.0 304 Not Modified");
         
-        } else {  
+        } else {
         
             if ($this->verbose) {
                 $this->log("Last modified: " . $gmdate . " GMT");
@@ -1372,7 +1372,7 @@ class CImage
                 exit;
             }
 
-            header('Content-type: ' . $mime);  
+            header('Content-type: ' . $mime);
             readfile($file);
         }
         
@@ -1386,13 +1386,15 @@ class CImage
      *
      * @param string $message to log.
      *
-     * @return void
+     * @return this
      */
-    private function log($message) 
+    public function log($message)
     {
         if ($this->verbose) {
-            $this->log[] = $message; 
+            $this->log[] = $message;
         }
+
+        return $this;
     }
   
   
@@ -1402,7 +1404,7 @@ class CImage
      *
      * @return void
      */
-    private function verboseOutput() 
+    private function verboseOutput()
     {
         $log = null;
         $this->log("Memory peak: " . round(memory_get_peak_usage() /1024/1024) . "M");
@@ -1442,8 +1444,8 @@ EOD;
      * @return void 
      * @throws Exception
      */
-    private function raiseError($message) 
+    private function raiseError($message)
     {
         throw new Exception($message);
     }
-}  
+}
