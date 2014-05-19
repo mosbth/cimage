@@ -67,7 +67,7 @@ $testcase = array(
 <?php foreach($testcase as $tc) : ?>
 <h4><?=$tc?></h4>
 
-<p><code><a href="img/<?=$image . $tc?>"><?=$image . $tc?></a></code><br>
+<p><code><a href="<?=$imgphp . $image . $tc?>"><?=$image . $tc?></a></code><br>
 <img src="<?=$imgphp . $image . $tc?>"></p>
 
 <?php endforeach; ?>
