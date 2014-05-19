@@ -99,7 +99,9 @@ return array(
      * Set error reporting to match development or production environment 
      */
     'error_reporting' => function() {
-        error_reporting(-1);
+        error_reporting(-1);              // Report all type of errors
+        ini_set('display_errors', 1);     // Display all errors 
+        ini_set('output_buffering', 0);   // Do not buffer outputs, write directly
         set_time_limit(20);
     },
 );
