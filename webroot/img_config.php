@@ -63,7 +63,7 @@ return array(
           'w2' => 630,
         );
 
-        // Add column width to $area, useful for use as predefined size for width (or height).
+        // Add grid column width, useful for use as predefined size for width (or height).
         $gridColumnWidth = 30;
         $gridGutterWidth = 10;
         $gridColumns     = 24;
