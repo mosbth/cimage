@@ -131,6 +131,14 @@ Revision history
 -------------------------------------
 
 
+v0.5.x (latest)
+
+* Trying to verify issue #29, but can not.
+* Adding structure for testprograms together with, use `webroot/test_issue29.php` as sample.
+* Improving code formatting.
+* Moving parts of verbose output from img.php to CImage.php.
+
+
 v0.5.2 (2014-04-01)
 
 * Correcting issue #26 providing error message when not using postprocessing.
