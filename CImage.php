@@ -656,7 +656,7 @@ class CImage
 
 
     /**
-     * Use original image if possible, check options wchich affects image processing.
+     * Use original image if possible, check options which affects image processing.
      *
      * @param boolean $useOrig default is to use original if possible, else set to false.
      *
