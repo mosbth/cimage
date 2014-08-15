@@ -329,7 +329,7 @@ class CImage
             //'saveAs'      => null,
         );
 
-        // Convert crop settins from string to array
+        // Convert crop settings from string to array
         if (isset($args['crop']) && !is_array($args['crop'])) {
             $pices = explode(',', $args['crop']);
             $args['crop'] = array(
@@ -340,7 +340,7 @@ class CImage
             );
         }
 
-        // Convert area settins from string to array
+        // Convert area settings from string to array
         if (isset($args['area']) && !is_array($args['area'])) {
                 $pices = explode(',', $args['area']);
                 $args['area'] = array(
@@ -351,7 +351,7 @@ class CImage
                 );
         }
 
-        // Convert filter settins from array of string to array of array
+        // Convert filter settings from array of string to array of array
         if (isset($args['filters']) && is_array($args['filters'])) {
             foreach ($args['filters'] as $key => $filterStr) {
                 $parts = explode(',', $filterStr);
