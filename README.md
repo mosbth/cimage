@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Setting gd.jpeg_ignore_warning to true as default #34.
 * `webroot/check_system.php` now outputs version of PHP and GD.
 * #32 correctly send 404 header when serving an error message.
 * Trying to verify issue #29, but can not.
