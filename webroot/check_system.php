@@ -8,5 +8,5 @@ $no = extension_loaded('gd') ? null : 'NOT';
 echo "Extension gd is $no loaded.<br>";
 
 if (!$no) {
-    var_dump(gd_info());
+    echo "<pre>", var_dump(gd_info()), "</pre>";
 }
