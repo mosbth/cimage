@@ -14,7 +14,7 @@
  */
 function errorPage($msg)
 {
-    header("Status: 404 Not Found");
+    header("HTTP/1.0 404 Not Found");
     die('img.php say 404: ' . $msg);
 }
 
