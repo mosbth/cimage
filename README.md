@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* #32 correctly send 404 header when serving an error message.
 * Trying to verify issue #29, but can not.
 * Adding structure for testprograms together with, use `webroot/test_issue29.php` as sample.
 * Improving code formatting.
