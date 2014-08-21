@@ -789,6 +789,37 @@ class CImage
 
     
     /**
+     * Error message when failing to load somehow corrupt image.
+     *
+     * @return void
+     *
+     */
+    public function failedToLoad()
+    {
+        header("HTTP/1.0 404 Not Found");
+        echo("Fatal error when opening image.<br>");
+
+        switch ($this->fileExtension) {
+            case 'jpg':
+            case 'jpeg':
+                $this->image = imagecreatefromjpeg($this->pathToImage);
+                break;
+      
+            case 'gif':
+                $this->image = imagecreatefromgif($this->pathToImage);
+                break;
+      
+            case 'png':
+                $this->image = imagecreatefrompng($this->pathToImage);
+                break;
+        }
+
+        exit();
+    }
+
+
+
+    /**
      * Load image from disk.
      *
      * @param string $src of image.
@@ -797,7 +828,7 @@ class CImage
      * @return $this
      *
      */
-    public function load($src = null, $dir = null) 
+    public function load($src = null, $dir = null)
     {
         if (isset($src)) {
             $this->setSource($src, $dir);
@@ -805,21 +836,21 @@ class CImage
 
         $this->log("Opening file as {$this->fileExtension}.");
 
-        switch ($this->fileExtension) {  
+        switch ($this->fileExtension) {
             case 'jpg':
-            case 'jpeg': 
+            case 'jpeg':
                 $this->image = @imagecreatefromjpeg($this->pathToImage);
-                $this->image or die("Fatal error when opening image.");
-                break;  
+                $this->image or failedToLoad();
+                break;
       
             case 'gif':
-                $this->image = @imagecreatefromgif($this->pathToImage); 
-                $this->image or die("Fatal error when opening image.");
-                break;  
+                $this->image = @imagecreatefromgif($this->pathToImage);
+                $this->image or failedToLoad();
+                break;
       
-            case 'png':  
-                $this->image = @imagecreatefrompng($this->pathToImage); 
-                $this->image or die("Fatal error when opening image.");
+            case 'png':
+                $this->image = @imagecreatefrompng($this->pathToImage);
+                $this->image or failedToLoad();
 
                 $type = $this->getPngType();
                 $hasFewColors = imagecolorstotal($this->image);
@@ -830,10 +861,10 @@ class CImage
                     }
                     $this->palette = true;
                 }
-                break;  
+                break;
 
-            default: 
-                $this->image = false; 
+            default:
+                $this->image = false;
                 throw new Exception('No support for this file extension.');
         }
 
