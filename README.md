@@ -133,7 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
-* Removed @ from opening images, better to display correct warning when failing #34.
+* Removed @ from opening images, better to display correct warning when failing #34, but put it back again.
 * Setting gd.jpeg_ignore_warning to true as default #34.
 * `webroot/check_system.php` now outputs version of PHP and GD.
 * #32 correctly send 404 header when serving an error message.
