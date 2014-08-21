@@ -809,14 +809,18 @@ class CImage
             case 'jpg':
             case 'jpeg': 
                 $this->image = imagecreatefromjpeg($this->pathToImage);
+                $this->image or die("Fatal error when opening image.");
                 break;  
       
             case 'gif':
                 $this->image = imagecreatefromgif($this->pathToImage); 
+                $this->image or die("Fatal error when opening image.");
                 break;  
       
             case 'png':  
                 $this->image = imagecreatefrompng($this->pathToImage); 
+                $this->image or die("Fatal error when opening image.");
+
                 $type = $this->getPngType();
                 $hasFewColors = imagecolorstotal($this->image);
         
