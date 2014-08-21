@@ -797,7 +797,7 @@ class CImage
     public function failedToLoad()
     {
         header("HTTP/1.0 404 Not Found");
-        echo("Fatal error when opening image.<br>");
+        echo("CImage.php says 404: Fatal error when opening image.<br>");
 
         switch ($this->fileExtension) {
             case 'jpg':
