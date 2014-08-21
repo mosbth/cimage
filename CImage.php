@@ -808,15 +808,15 @@ class CImage
         switch ($this->fileExtension) {  
             case 'jpg':
             case 'jpeg': 
-                $this->image = @imagecreatefromjpeg($this->pathToImage);
+                $this->image = imagecreatefromjpeg($this->pathToImage);
                 break;  
       
             case 'gif':
-                $this->image = @imagecreatefromgif($this->pathToImage); 
+                $this->image = imagecreatefromgif($this->pathToImage); 
                 break;  
       
             case 'png':  
-                $this->image = @imagecreatefrompng($this->pathToImage); 
+                $this->image = imagecreatefrompng($this->pathToImage); 
                 $type = $this->getPngType();
                 $hasFewColors = imagecolorstotal($this->image);
         
@@ -1241,7 +1241,7 @@ class CImage
      *
      * @return $this or false if no folder is set.
      */
-    public function save($src = null, $base = null) 
+    public function save($src = null, $base = null)
     {
         if (isset($src)) {
             $this->setTarget($src, $base);
@@ -1249,8 +1249,8 @@ class CImage
 
         switch($this->extension) {
             
-            case 'jpeg':  
-            case 'jpg':  
+            case 'jpeg':
+            case 'jpg':
                 $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");
                 imagejpeg($this->image, $this->cacheFileName, $this->quality);
           

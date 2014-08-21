@@ -103,6 +103,6 @@ return array(
         ini_set('display_errors', 1);     // Display all errors
         ini_set('output_buffering', 0);   // Do not buffer outputs, write directly
         set_time_limit(20);
-        ini_set('gd.jpeg_ignore_warning', 1); // Ignore warning of corrupt jpegs
+        ini_set('gd.jpeg_ignore_warning', 0); // Ignore warning of corrupt jpegs
     },
 );
