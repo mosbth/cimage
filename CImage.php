@@ -840,17 +840,17 @@ class CImage
             case 'jpg':
             case 'jpeg':
                 $this->image = @imagecreatefromjpeg($this->pathToImage);
-                $this->image or failedToLoad();
+                $this->image or $this->failedToLoad();
                 break;
       
             case 'gif':
                 $this->image = @imagecreatefromgif($this->pathToImage);
-                $this->image or failedToLoad();
+                $this->image or $this->failedToLoad();
                 break;
       
             case 'png':
                 $this->image = @imagecreatefrompng($this->pathToImage);
-                $this->image or failedToLoad();
+                $this->image or $this->failedToLoad();
 
                 $type = $this->getPngType();
                 $hasFewColors = imagecolorstotal($this->image);
