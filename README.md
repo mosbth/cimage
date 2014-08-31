@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* `webroot/check_system.php` now outputs if extension for exif is loaded.
 * Broke API when `initDimensions()` split into two methods, new `initDimensions()` and `loadImageDetails()`.
 * Added `autoRotate,`aro` to auto rotate image based on EXIF information.
 * Added `bgColor,`bgc` to use as backgroundcolor when needing a filler color, for example rotate 45.
