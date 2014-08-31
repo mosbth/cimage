@@ -133,6 +133,13 @@ Revision history
 
 v0.5.x (latest)
 
+* Broke API when `initDimensions()` split into two methods, new `initDimensions()` and `loadImageDetails()`.
+* Added `autoRotate,`aro` to auto rotate image based on EXIF information.
+* Added `bgColor,`bgc` to use as backgroundcolor when needing a filler color.
+* Added `rotate,`r` as an alias to `rotateAfter`.
+* Added `rotateBefore,`rb` to rotate image a certain angle before processing.
+* Added `rotateAfter,`ra` to rotate image a certain angle after processing.
+* Cleaned up code formatting, removed trailing spaces.
 * Removed @ from opening images, better to display correct warning when failing #34, but put it back again.
 * Setting gd.jpeg_ignore_warning to true as default #34.
 * `webroot/check_system.php` now outputs version of PHP and GD.

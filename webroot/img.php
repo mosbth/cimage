@@ -306,7 +306,7 @@ verbose("save as = $saveAs");
 $scale = get(array('scale', 's'));
 
 is_null($scale)
-    or ($scale >= 0 and $quality <= 400)
+    or ($scale >= 0 and $scale <= 400)
     or errorPage('Scale out of range');
 
 verbose("scale = $scale");
@@ -346,6 +346,68 @@ verbose("emboss = $emboss");
 $blur = getDefined('blur', true, null);
 
 verbose("blur = $blur");
+
+
+
+/**
+ * rotate - Rotate the image with an angle, before processing
+ */
+/*
+$rotate = get(array('rotate', 'r'));
+
+is_null($rotate)
+    or ($rotate >= -360 and $rotate <= 360)
+    or errorPage('Rotate out of range');
+
+verbose("rotate = $rotate");
+*/
+
+
+/**
+ * rotateBefore - Rotate the image with an angle, before processing
+ */
+$rotateBefore = get(array('rotateBefore', 'rb'));
+
+is_null($rotateBefore)
+    or ($rotateBefore >= -360 and $rotateBefore <= 360)
+    or errorPage('RotateBefore out of range');
+
+verbose("rotateBefore = $rotateBefore");
+
+
+
+/**
+ * rotateAfter - Rotate the image with an angle, before processing
+ */
+$rotateAfter = get(array('rotateAfter', 'ra', 'rotate', 'r'));
+
+is_null($rotateAfter)
+    or ($rotateAfter >= -360 and $rotateAfter <= 360)
+    or errorPage('RotateBefore out of range');
+
+verbose("rotateAfter = $rotateAfter");
+
+
+
+/**
+ * bgColor - Default background color to use
+ */
+$bgColor = hexdec(get(array('bgColor', 'bgc')));
+
+is_null($bgColor)
+    or ($bgColor >= 0 and $bgColor <= hexdec("FFFFFF"))
+    or errorPage('Background color needs a hex value');
+
+verbose("bgColor = $bgColor");
+
+
+
+/**
+ * autoRotate - Auto rotate based on EXIF information
+ */
+$autoRotate = getDefined(array('autoRotate', 'aro'), true, false);
+
+verbose("autoRotate = $autoRotate");
 
 
 
@@ -400,26 +462,33 @@ $img->setVerbose($verbose)
     ->setSource($srcImage, $config['image_path'])
     ->setOptions(
         array(
-          // Options for calculate dimensions
-          'newWidth'  => $newWidth,
-          'newHeight' => $newHeight,
-          'aspectRatio' => $aspectRatio,
-          'keepRatio' => $keepRatio,
-          'cropToFit' => $cropToFit,
-          'crop'      => $crop,
-          'area'      => $area,
+            // Options for calculate dimensions
+            'newWidth'  => $newWidth,
+            'newHeight' => $newHeight,
+            'aspectRatio' => $aspectRatio,
+            'keepRatio' => $keepRatio,
+            'cropToFit' => $cropToFit,
+            'crop'      => $crop,
+            'area'      => $area,
 
-          // Pre-processing, before resizing is done
-          'scale'     => $scale,
+            // Pre-processing, before resizing is done
+            'scale'        => $scale,
+            'rotateBefore' => $rotateBefore,
 
-          // Post-processing, after resizing is done
-          'palette'   => $palette,
-          'filters'   => $filters,
-          'sharpen'   => $sharpen,
-          'emboss'    => $emboss,
-          'blur'      => $blur,
+            // General processing options
+            'bgColor'    => $bgColor,
+
+            // Post-processing, after resizing is done
+            'palette'   => $palette,
+            'filters'   => $filters,
+            'sharpen'   => $sharpen,
+            'emboss'    => $emboss,
+            'blur'      => $blur,
+            'rotateAfter' => $rotateAfter,
+            'autoRotate'  => $autoRotate,
         )
     )
+    ->loadImageDetails()
     ->initDimensions()
     ->calculateNewWidthAndHeight()
     ->setSaveAsExtension($saveAs)
