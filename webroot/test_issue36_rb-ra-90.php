@@ -1,13 +1,15 @@
-<!doctype html>
+<?php
+$angle = 90;
+?><!doctype html>
 <head>
   <meta charset='utf-8'/>
-  <title>Testing img for issue 36</title>
+  <title>Testing img for issue 36 - rotateBefore, rotateAfter <?=$angle?></title>
   <style>
   body {background-color: #ccc;}
   </style>
 </head>
 <body>
-<h1>Testing issue 36</h1>
+<h1>Testing issue 36 - rotateBefore, rotateAfter <?=$angle?></h1>
 
 <?php
 error_reporting(-1);              // Report all type of errors
@@ -17,22 +19,19 @@ ini_set('output_buffering', 0);   // Do not buffer outputs, write directly
 $imgphp = "img.php?src=";
 
 $images = array(
-  'issue36/me-0.jpg',
-  'issue36/me-90.jpg',
-  'issue36/me-180.jpg',
-  'issue36/me-270.jpg',
-  'issue36/flower-0.jpg',
-  'issue36/flower-90.jpg',
-  'issue36/flower-180.jpg',
-  'issue36/flower-270.jpg',
+  'kodim08.png',
+  'kodim04.png',
 );
 
-
 $testcase = array(
-  '&aro&nc',
-  '&aro&nc&w=200',
-  '&aro&nc&h=200',
-  '&aro&nc&w=200&h=200&cf',
+  "&rb=$angle&nc",
+  "&rb=$angle&nc&w=200",
+  "&rb=$angle&nc&h=200",
+  "&rb=$angle&nc&w=200&h=200&cf",
+  "&ra=$angle&nc",
+  "&ra=$angle&nc&w=200",
+  "&ra=$angle&nc&h=200",
+  "&ra=$angle&nc&w=200&h=200&cf",
 );
 ?>
 

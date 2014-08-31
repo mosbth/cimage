@@ -168,13 +168,19 @@ class CImage
 
 
     /**
+     * Array with details on how to crop, incoming as argument and calculated.
+     */
+    public $crop;
+    public $cropOrig; // Save original value
+
+
+    /**
      * Properties (clean up these)
      */
     private $offset;
 
     public $keepRatio;
     public $cropToFit;
-    public $crop;
 
     private $cropWidth;
     private $cropHeight;
@@ -388,8 +394,10 @@ class CImage
             $this->{$key} = $args[$key];
         }
 
+        // Save original values to enable re-calculating
         $this->newWidthOrig  = $this->newWidth;
         $this->newHeightOrig = $this->newHeight;
+        $this->cropOrig      = $this->crop;
 
         return $this;
     }
@@ -642,6 +650,7 @@ class CImage
 
         $this->newWidth  = $this->newWidthOrig;
         $this->newHeight = $this->newHeightOrig;
+        $this->crop      = $this->cropOrig;
 
         $this->initDimensions()
              ->calculateNewWidthAndHeight();
