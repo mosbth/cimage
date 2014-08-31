@@ -135,7 +135,7 @@ v0.5.x (latest)
 
 * Broke API when `initDimensions()` split into two methods, new `initDimensions()` and `loadImageDetails()`.
 * Added `autoRotate,`aro` to auto rotate image based on EXIF information.
-* Added `bgColor,`bgc` to use as backgroundcolor when needing a filler color.
+* Added `bgColor,`bgc` to use as backgroundcolor when needing a filler color, for example rotate 45.
 * Added `rotate,`r` as an alias to `rotateAfter`.
 * Added `rotateBefore,`rb` to rotate image a certain angle before processing.
 * Added `rotateAfter,`ra` to rotate image a certain angle after processing.
