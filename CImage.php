@@ -237,7 +237,7 @@ class CImage
     {
         $valid = array('jpg', 'jpeg', 'png', 'gif');
 
-        in_array($extension, $valid)
+        in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
 
         return $this;
@@ -262,8 +262,8 @@ class CImage
         $this->imageSrc       = ltrim($src, '/');
         $this->imageFolder    = rtrim($dir, '/');
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
-        $this->fileExtension  = pathinfo($this->pathToImage, PATHINFO_EXTENSION);
-        $this->extension      = $this->fileExtension;
+        $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
+        $this->extension      = strtolower($this->fileExtension);
         
         $this->checkFileExtension($this->fileExtension);
 
@@ -671,8 +671,8 @@ class CImage
     {
         if (isset($saveAs)) {
             $this->checkFileExtension($saveAs);
-            $this->saveAs = $saveAs;
-            $this->extension = $saveAs;
+            $this->saveAs = strtolower($saveAs);
+            $this->extension = strtolower($saveAs);
         }
 
         $this->log("Prepare to save image using as: " . $this->extension);
@@ -812,7 +812,7 @@ class CImage
 
         $this->extension = isset($this->extension)
             ? $this->extension
-            : $parts['extension'];
+            : strtolower($parts['extension']);
 
         // Check optimizing options
         $optimize = null;
