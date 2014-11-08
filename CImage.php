@@ -1547,10 +1547,8 @@ class CImage
 
         $this->log("Outputting image: $file");
 
-        // Get details on image
-        $info = list($width, $height, $type, $attr) = getimagesize($file);
-        !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-        $mime = $info['mime'];
+        // Get image modification time
+        clearstatcache();
         $lastModified = filemtime($file);
         $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
 
@@ -1576,6 +1574,11 @@ class CImage
                 exit;
             }
 
+            // Check image and get MIME type
+            $info = getimagesize($file);
+            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
+            $mime = $info['mime'];
+            
             header('Content-type: ' . $mime);
             readfile($file);
         }
