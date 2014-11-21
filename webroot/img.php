@@ -128,8 +128,31 @@ $verbose = getDefined(array('verbose', 'v'), true, false);
 $srcImage = get('src')
     or errorPage('Must set src-attribute.');
 
+
+// Check for valid/invalid characters
 preg_match($config['valid_filename'], $srcImage)
     or errorPage('Filename contains invalid characters.');
+
+
+// Check that the image is a file below the directory 'image_path'.
+if ($config['image_path_constraint']) {
+    
+    $pathToImage = realpath($config['image_path'] . $srcImage);
+    $imageDir    = realpath($config['image_path']);
+
+    is_file($pathToImage)
+        or errorPage(
+            'Source image is not a valid file, check the filename and that a 
+            matching file exists on the filesystem.'
+        );
+
+    substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
+        or errorPage(
+            'Security constraint: Source image is not below the directory "image_path" 
+            as specified in the config file img_config.php.'
+        );
+}
+
 
 verbose("src = $srcImage");
 

@@ -18,6 +18,13 @@ return array(
 
 
     /**
+     * Check that the imagefile is a file below 'image_path' using realpath().
+     */
+    'image_path_constraint' => true,
+
+
+
+    /**
      * A regexp for validating characters in the image filename.
      */
     'valid_filename' => '#^[a-z0-9A-Z-/_\.]+$#',

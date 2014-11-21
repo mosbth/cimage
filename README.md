@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Adding security check that image filename is always below the path `image_path` as specified in `img_config.php` #37.
 * Adding configuration item in `img_config.php` for setting valid characters in image filename.
 * Moving `webroot/test*` into directory `webroot/test`.
 * `webroot/check_system.php` now outputs if extension for exif is loaded.
