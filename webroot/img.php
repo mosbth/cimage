@@ -128,7 +128,7 @@ $verbose = getDefined(array('verbose', 'v'), true, false);
 $srcImage = get('src')
     or errorPage('Must set src-attribute.');
 
-preg_match('#^[a-z0-9A-Z-/_\.]+$#', $srcImage)
+preg_match($config['error_reporting'], $srcImage)
     or errorPage('Filename contains invalid characters.');
 
 verbose("src = $srcImage");

@@ -18,6 +18,13 @@ return array(
 
 
     /**
+     * Check image filename that it only contain valid characters.
+     */
+    'valid_filename' => '#^[a-z0-9A-Z-/_\.]+$#',
+
+
+
+    /**
      * Set default timezone, it defaults to UTC if not specified otherwise.
      * 
      */
