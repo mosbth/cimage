@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Adding utility `cache.bash` to ease gathering stats on cache usage. #21
 * Cache-directory can now be readonly and serve all cached files, still failing when need to save files. #5
 * Cache now uses same file extension as original image #37. 
 * Can output image as json format using `json` #11.
