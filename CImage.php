@@ -91,7 +91,7 @@ class CImage
 
 
     /**
-     * File extension to use when saving image
+     * File extension to use when saving image.
      */
     private $extension;
 
@@ -237,7 +237,7 @@ class CImage
     {
         $valid = array('jpg', 'jpeg', 'png', 'gif');
 
-        in_array($extension, $valid)
+        in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
 
         return $this;
@@ -262,7 +262,7 @@ class CImage
         $this->imageSrc       = ltrim($src, '/');
         $this->imageFolder    = rtrim($dir, '/');
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
-        $this->fileExtension  = pathinfo($this->pathToImage, PATHINFO_EXTENSION);
+        $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
         $this->extension      = $this->fileExtension;
         
         $this->checkFileExtension($this->fileExtension);
@@ -670,6 +670,7 @@ class CImage
     public function setSaveAsExtension($saveAs = null)
     {
         if (isset($saveAs)) {
+            $saveAs = strtolower($saveAs);
             $this->checkFileExtension($saveAs);
             $this->saveAs = $saveAs;
             $this->extension = $saveAs;
@@ -810,9 +811,11 @@ class CImage
         
         $autoRotate = $this->autoRotate ? 'ar' : null;
 
+/*
         $this->extension = isset($this->extension)
             ? $this->extension
             : $parts['extension'];
+*/
 
         // Check optimizing options
         $optimize = null;

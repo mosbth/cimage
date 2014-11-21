@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Support filenames of uppercase JPEG, JPG, PNG and GIF, as proposed in #37.
 * Changing `CImage::output()` as proposed in #37.
 * Adding security check that image filename is always below the path `image_path` as specified in `img_config.php` #37.
 * Adding configuration item in `img_config.php` for setting valid characters in image filename.
