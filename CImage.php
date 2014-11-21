@@ -98,6 +98,13 @@ class CImage
 
 
     /**
+     * Output format, supports null (image) or json.
+     */
+    private $outputFormat = null;
+
+
+
+    /**
      * Verbose mode to print out a trace and display the created image
      */
     private $verbose = false;
@@ -263,7 +270,7 @@ class CImage
         $this->imageFolder    = rtrim($dir, '/');
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
         $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
-        $this->extension      = $this->fileExtension;
+        //$this->extension      = $this->fileExtension;
         
         $this->checkFileExtension($this->fileExtension);
 
@@ -341,6 +348,9 @@ class CImage
             'blur'        => null,
             'rotateAfter' => null,
             'autoRotate'  => false,
+
+            // Output format
+            'outputFormat' => null,
 
             // Options for saving
             //'quality'     => null,
@@ -811,11 +821,9 @@ class CImage
         
         $autoRotate = $this->autoRotate ? 'ar' : null;
 
-/*
         $this->extension = isset($this->extension)
             ? $this->extension
             : $parts['extension'];
-*/
 
         // Check optimizing options
         $optimize = null;
@@ -857,7 +865,7 @@ class CImage
                         $this->log("Use cached file.");
                         $this->log("Cached image filesize: " . filesize($this->cacheFileName) . " bytes.");
                     }
-                    $this->output($this->cacheFileName);
+                    $this->output($this->cacheFileName, $this->outputFormat);
                 } else {
                     $this->log("Cache is valid but ignoring it by intention.");
                 }
@@ -1454,7 +1462,7 @@ class CImage
             $this->setTarget($src, $base);
         }
 
-        switch($this->extension) {
+        switch(strtolower($this->extension)) {
             
             case 'jpeg':
             case 'jpg':
@@ -1538,14 +1546,27 @@ class CImage
     /**
      * Output image to browser using caching.
      *
-     * @param string $file to read and output, default is to use $this->cacheFileName
+     * @param string $file   to read and output, default is to use $this->cacheFileName
+     * @param string $format set to json to output file as json object with details
      *
      * @return void
      */
-    public function output($file = null)
+    public function output($file = null, $format = null)
     {
         if (is_null($file)) {
             $file = $this->cacheFileName;
+        }
+
+        if (is_null($format)) {
+            $format = $this->outputFormat;
+        }
+
+        $this->log("Output format is: $format");
+
+        if (!$this->verbose && $format == 'json') {
+            header('Content-type: application/json');
+            echo $this->json($file);
+            exit;
         }
 
         $this->log("Outputting image: $file");
@@ -1592,6 +1613,33 @@ class CImage
 
 
     /**
+     * Create a JSON object from the image details.
+     *
+     * @return string json-encoded representation of the image.
+     */
+    public function json()
+    {
+        $details = array();
+
+        clearstatcache();
+
+        $details['src']        = $this->imageSrc;
+        $lastModified          = filemtime($this->pathToImage);
+        $details['src-gmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
+
+        $details['cache']        = basename($this->cacheFileName);
+        $lastModified            = filemtime($this->cacheFileName);
+        $details['cache-gmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
+
+        $details['width']  = $this->width;
+        $details['height'] = $this->height;
+
+        return json_encode($details, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+
+
+    /**
      * Log an event if verbose mode.
      *
      * @param string $message to log.
@@ -1617,6 +1665,7 @@ class CImage
     private function verboseOutput()
     {
         $log = null;
+        $this->log("As JSON: \n" . $this->json());
         $this->log("Memory peak: " . round(memory_get_peak_usage() /1024/1024) . "M");
         $this->log("Memory limit: " . ini_get('memory_limit'));
 

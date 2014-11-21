@@ -455,6 +455,15 @@ verbose("filters = " . print_r($filters, 1));
 
 
 /**
+ * json - output the image as a JSON object with details on the image.
+ */
+$outputFormat = getDefined('json', 'json', null);
+
+verbose("json = $outputFormat");
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -464,6 +473,7 @@ if ($verbose) {
     unset($query['v']);
     unset($query['nocache']);
     unset($query['nc']);
+    unset($query['json']);
     $url1 = '?' . http_build_query($query);
     echo <<<EOD
 <a href=$url1><code>$url1</code></a><br>
@@ -509,6 +519,9 @@ $img->setVerbose($verbose)
             'blur'      => $blur,
             'rotateAfter' => $rotateAfter,
             'autoRotate'  => $autoRotate,
+
+            // Output format
+            'outputFormat' => $outputFormat,
         )
     )
     ->loadImageDetails()
