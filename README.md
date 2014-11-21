@@ -131,7 +131,7 @@ Revision history
 -------------------------------------
 
 
-v0.5.x (latest)
+v0.5.3 (2014-11-21)
 
 * Support filenames of uppercase JPEG, JPG, PNG and GIF, as proposed in #37.
 * Changing `CImage::output()` as proposed in #37.
