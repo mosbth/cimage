@@ -464,6 +464,15 @@ verbose("json = $outputFormat");
 
 
 /**
+ * ppi - change to get larger image to easier support larger ppi, such as retina.
+ */
+$ppi = get('ppi', 1);
+
+verbose("ppi = $ppi");
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -522,6 +531,7 @@ $img->setVerbose($verbose)
 
             // Output format
             'outputFormat' => $outputFormat,
+            'ppi'          => $ppi,
         )
     )
     ->loadImageDetails()

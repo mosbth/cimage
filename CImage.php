@@ -173,6 +173,12 @@ class CImage
     private $newHeight;
     private $newHeightOrig; // Save original value
 
+    
+    /**
+     * Change target height & width when different ppi, ppi 2 means double image dimensions.
+     */
+    private $ppi = 1;
+
 
     /**
      * Array with details on how to crop, incoming as argument and calculated.
@@ -353,6 +359,7 @@ class CImage
 
             // Output format
             'outputFormat' => null,
+            'ppi'          => 1,
 
             // Options for saving
             //'quality'     => null,
@@ -519,6 +526,18 @@ class CImage
         } elseif ($this->aspectRatio && is_null($this->newHeight)) {
             $this->newHeight  = $this->newWidth / $this->aspectRatio;
             $this->log("Setting new height based on aspect ratio to {$this->newHeight}");
+        }
+
+        // Change width & height based on ppi
+        if ($this->ppi != 1) {
+            if (!is_null($this->newWidth)) {
+                $this->newWidth  = round($this->newWidth * $this->ppi);
+                $this->log("Setting new width based on ppi={$this->ppi} - w={$this->newWidth}");
+            }
+            if (!is_null($this->newHeight)) {
+                $this->newHeight = round($this->newHeight * $this->ppi);
+                $this->log("Setting new height based on ppi={$this->ppi} - h={$this->newHeight}");
+            }
         }
 
         // Check values to be within domain

@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Adding option `ppi` which defaults to 1. Set to 2 to get a twice as large image. Useful for Retina displays. Basically a shortcut to enlarge the image.
 * Adding utility `cache.bash` to ease gathering stats on cache usage. #21
 * Cache-directory can now be readonly and serve all cached files, still failing when need to save files. #5
 * Cache now uses same file extension as original image #37. 
