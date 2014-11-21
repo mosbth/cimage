@@ -237,7 +237,7 @@ class CImage
     {
         $valid = array('jpg', 'jpeg', 'png', 'gif');
 
-        in_array($extension, $valid)
+        in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
 
         return $this;
@@ -262,8 +262,8 @@ class CImage
         $this->imageSrc       = ltrim($src, '/');
         $this->imageFolder    = rtrim($dir, '/');
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
-        $this->fileExtension  = pathinfo($this->pathToImage, PATHINFO_EXTENSION);
-        $this->extension      = $this->fileExtension;
+        $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
+        $this->extension      = strtolower($this->fileExtension);
         
         $this->checkFileExtension($this->fileExtension);
 
@@ -671,8 +671,8 @@ class CImage
     {
         if (isset($saveAs)) {
             $this->checkFileExtension($saveAs);
-            $this->saveAs = $saveAs;
-            $this->extension = $saveAs;
+            $this->saveAs = strtolower($saveAs);
+            $this->extension = strtolower($saveAs);
         }
 
         $this->log("Prepare to save image using as: " . $this->extension);
@@ -812,7 +812,7 @@ class CImage
 
         $this->extension = isset($this->extension)
             ? $this->extension
-            : $parts['extension'];
+            : strtolower($parts['extension']);
 
         // Check optimizing options
         $optimize = null;
@@ -1547,10 +1547,8 @@ class CImage
 
         $this->log("Outputting image: $file");
 
-        // Get details on image
-        $info = list($width, $height, $type, $attr) = getimagesize($file);
-        !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-        $mime = $info['mime'];
+        // Get image modification time
+        clearstatcache();
         $lastModified = filemtime($file);
         $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
 
@@ -1576,6 +1574,11 @@ class CImage
                 exit;
             }
 
+            // Check image and get MIME type
+            $info = getimagesize($file);
+            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
+            $mime = $info['mime'];
+            
             header('Content-type: ' . $mime);
             readfile($file);
         }
