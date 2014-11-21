@@ -18,7 +18,7 @@ return array(
 
 
     /**
-     * Check image filename that it only contain valid characters.
+     * A regexp for validating characters in the image filename.
      */
     'valid_filename' => '#^[a-z0-9A-Z-/_\.]+$#',
 
