@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Adding option `convolve` taking comma-separated list of 11 float-values, wraps and exposes `imageconvoluttion()`. #4 
 * Adding option `dpr, device-pixel-ratio` which defaults to 1. Set to 2 to get a twice as large image. Useful for Retina displays. Basically a shortcut to enlarge the image.
 * Adding utility `cache.bash` to ease gathering stats on cache usage. #21
 * Cache-directory can now be readonly and serve all cached files, still failing when need to save files. #5

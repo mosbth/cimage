@@ -473,6 +473,15 @@ verbose("dpr = $dpr");
 
 
 /**
+ * convolve - image convolution as in http://php.net/manual/en/function.imageconvolution.php
+ */
+$convolve = get('convolve', null);
+
+verbose("convolve = $convolve");
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -483,7 +492,7 @@ if ($verbose) {
     unset($query['nocache']);
     unset($query['nc']);
     unset($query['json']);
-    $url1 = '?' . http_build_query($query);
+    $url1 = '?' . htmlentities(urldecode(http_build_query($query)));
     echo <<<EOD
 <a href=$url1><code>$url1</code></a><br>
 <img src='{$url1}' />
@@ -526,6 +535,7 @@ $img->setVerbose($verbose)
             'sharpen'   => $sharpen,
             'emboss'    => $emboss,
             'blur'      => $blur,
+            'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
             'autoRotate'  => $autoRotate,
 

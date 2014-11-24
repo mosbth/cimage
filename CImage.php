@@ -188,6 +188,13 @@ class CImage
 
 
     /**
+     * Array with details on how to do image convolution.
+     */
+    private $convolve;
+    private $convolveString = null; // Original argument, if existing
+
+
+    /**
      * Properties (clean up these)
      */
     private $offset;
@@ -354,6 +361,7 @@ class CImage
             'sharpen'     => null,
             'emboss'      => null,
             'blur'        => null,
+            'convolve'    => null,
             'rotateAfter' => null,
             'autoRotate'  => false,
 
@@ -399,11 +407,42 @@ class CImage
                     if (isset($parts[$i])) {
                         $filter["arg{$i}"] = $parts[$i];
                     } else {
-                        throw new Exception('Missing arg to filter, review how many arguments are needed at http://php.net/manual/en/function.imagefilter.php');
+                        throw new Exception(
+                            'Missing arg to filter, review how many arguments are needed at 
+                            http://php.net/manual/en/function.imagefilter.php'
+                        );
                     }
                 }
                 $args['filters'][$key] = $filter;
             }
+        }
+
+        // Convert convolve settings from string to array
+        if (isset($args['convolve']) && !is_array($args['convolve'])) {
+            $part = explode(',', $args['convolve']);
+            $this->convolveString = $args['convolve'];
+
+            if (count($part) != 11) {
+                throw new Exception(
+                    'Missmatch in argument convolve. Expected comma-separated string with 11 float values.'
+                );
+            }
+            
+            array_walk($part, function ($item, $key) {
+                if (!is_numeric($item)) {
+                    throw new Exception("Argument convole should be float but is not.");
+                }
+            });
+            
+            $args['convolve'] = array(
+                'matrix'  => array(
+                    array($part[0], $part[1], $part[2]),
+                    array($part[3], $part[4], $part[5]),
+                    array($part[6], $part[7], $part[8]),
+                ),
+                'div'    => $part[9],
+                'offset' => $part[10],
+            );
         }
 
         // Merge default arguments with incoming and set properties.
@@ -528,7 +567,7 @@ class CImage
             $this->log("Setting new height based on aspect ratio to {$this->newHeight}");
         }
 
-        // Change width & height based on dpr 
+        // Change width & height based on dpr
         if ($this->dpr != 1) {
             if (!is_null($this->newWidth)) {
                 $this->newWidth  = round($this->newWidth * $this->dpr);
@@ -778,6 +817,7 @@ class CImage
             && !$this->sharpen
             && !$this->emboss
             && !$this->blur
+            && !$this->convolve
             && !$this->palette
             && !$this->quality
             && !$this->compress
@@ -855,12 +895,18 @@ class CImage
             $optimize .= $this->pngDeflate ? 'd' : null;
         }
 
+        $convolve = null;
+        if ($this->convolve) {
+            $convolve = 'convolve' . str_replace(',', '', $this->convolveString);
+        }
+
         $subdir = str_replace('/', '-', dirname($this->imageSrc));
         $subdir = ($subdir == '.') ? '_.' : $subdir;
         $file = $subdir . '_' . $parts['filename'] . '_' . round($this->newWidth) . '_'
             . round($this->newHeight) . $offset . $crop . $cropToFit . $crop_x . $crop_y
             . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
-            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . '.' . $this->extension;
+            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
+            . '.' . $this->extension;
 
         return $this->setTarget($file, $base);
     }
@@ -1244,6 +1290,12 @@ class CImage
             $this->sharpenImage();
         }
 
+        // Custom convolution
+        if ($this->convolve) {
+            $this->log("Convolve: " . $this->convolveString);
+            $this->imageConvolution();
+        }
+
         return $this;
     }
 
@@ -1406,6 +1458,30 @@ class CImage
         $offset  = 0;
     
         imageconvolution($this->image, $matrix, $divisor, $offset);
+    
+        return $this;
+    }
+
+
+
+    /**
+     * Image convolution.
+     * 
+     * @param array $matrix A 3x3 matrix: an array of three arrays of three floats.
+     * @param float $div    The divisor of the result of the convolution, used for normalization.
+     * @param float $offset Color offset.
+     *
+     * @return $this
+     */
+    public function imageConvolution($matrix = null, $div = null, $offset = null)
+    {
+        if ($matrix == null && $this->convolve) {
+            $matrix = $this->convolve['matrix'];
+            $div    = $this->convolve['div'];
+            $offset = $this->convolve['offset'];
+        }
+
+        imageconvolution($this->image, $matrix, $div, $offset);
     
         return $this;
     }
