@@ -464,11 +464,11 @@ verbose("json = $outputFormat");
 
 
 /**
- * ppi - change to get larger image to easier support larger ppi, such as retina.
+ * dpr - change to get larger image to easier support larger dpr, such as retina.
  */
-$ppi = get('ppi', 1);
+$dpr = get(array('ppi', 'dpr', 'device-pixel-ratio'), 1);
 
-verbose("ppi = $ppi");
+verbose("dpr = $dpr");
 
 
 
@@ -531,7 +531,7 @@ $img->setVerbose($verbose)
 
             // Output format
             'outputFormat' => $outputFormat,
-            'ppi'          => $ppi,
+            'dpr'          => $dpr,
         )
     )
     ->loadImageDetails()

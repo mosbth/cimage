@@ -175,9 +175,9 @@ class CImage
 
     
     /**
-     * Change target height & width when different ppi, ppi 2 means double image dimensions.
+     * Change target height & width when different dpr, dpr 2 means double image dimensions.
      */
-    private $ppi = 1;
+    private $dpr = 1;
 
 
     /**
@@ -359,7 +359,7 @@ class CImage
 
             // Output format
             'outputFormat' => null,
-            'ppi'          => 1,
+            'dpr'          => 1,
 
             // Options for saving
             //'quality'     => null,
@@ -528,15 +528,15 @@ class CImage
             $this->log("Setting new height based on aspect ratio to {$this->newHeight}");
         }
 
-        // Change width & height based on ppi
-        if ($this->ppi != 1) {
+        // Change width & height based on dpr 
+        if ($this->dpr != 1) {
             if (!is_null($this->newWidth)) {
-                $this->newWidth  = round($this->newWidth * $this->ppi);
-                $this->log("Setting new width based on ppi={$this->ppi} - w={$this->newWidth}");
+                $this->newWidth  = round($this->newWidth * $this->dpr);
+                $this->log("Setting new width based on dpr={$this->dpr} - w={$this->newWidth}");
             }
             if (!is_null($this->newHeight)) {
-                $this->newHeight = round($this->newHeight * $this->ppi);
-                $this->log("Setting new height based on ppi={$this->ppi} - h={$this->newHeight}");
+                $this->newHeight = round($this->newHeight * $this->dpr);
+                $this->log("Setting new height based on dpr={$this->dpr} - h={$this->newHeight}");
             }
         }
 
