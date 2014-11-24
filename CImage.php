@@ -1725,14 +1725,15 @@ class CImage
 
         $details['src']        = $this->imageSrc;
         $lastModified          = filemtime($this->pathToImage);
-        $details['src-gmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
+        $details['srcGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
         $details['cache']        = basename($this->cacheFileName);
         $lastModified            = filemtime($this->cacheFileName);
-        $details['cache-gmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
+        $details['cacheGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
         $details['width']  = $this->width;
         $details['height'] = $this->height;
+        $details['aspectRatio'] = round($this->width / $this->height, 3);
 
         return json_encode($details, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
