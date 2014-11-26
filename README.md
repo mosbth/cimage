@@ -133,6 +133,8 @@ Revision history
 
 v0.5.x (latest)
 
+* Restructured testprograms. Fix #41.
+* Corrected json on PHP 5.3. Fix #42.
 * Improving template for tests in `webroot/tests` when testing out #40.
 * Adding testcase for #40.
 * Adding option `convolve` taking comma-separated list of 11 float-values, wraps and exposes `imageconvoluttion()`. #4 
