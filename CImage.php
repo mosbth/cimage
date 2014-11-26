@@ -1735,7 +1735,12 @@ class CImage
         $details['height'] = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
 
-        return json_encode($details, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $options = null;
+        if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {
+            $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
+        }
+  
+        return json_encode($details, $options);
     }
 
 
