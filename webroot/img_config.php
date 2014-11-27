@@ -11,14 +11,16 @@ return array(
      * Paths, where are all the stuff I should use? 
      * Append ending slash on directories.
      */
-    'cimage_class' =>  __DIR__.'/../CImage.php',
-    'image_path'   =>  __DIR__.'/img/',
-    'cache_path'   =>  __DIR__.'/../cache/',
+    'cimage_class' =>  __DIR__ . '/../CImage.php',
+    'image_path'   =>  __DIR__ . '/img/',
+    'cache_path'   =>  __DIR__ . '/../cache/',
 
 
 
     /**
      * Check that the imagefile is a file below 'image_path' using realpath().
+     * Security constraint to avoid reaching images outside image_path. 
+     * This means that symbolic links to images outside the image_path will fail.
      */
     'image_path_constraint' => true,
 
@@ -32,7 +34,7 @@ return array(
 
 
     /**
-     * Set default timezone, it defaults to UTC if not specified otherwise.
+     * Set default timezone, it defaults to UTC if not specified.
      * 
      */
     //'default_timezone'     => 'UTC',
@@ -40,7 +42,9 @@ return array(
 
 
     /**
-     * Max image dimensions,
+     * Max image dimensions, larger dimensions results in 404.
+     * This is basically a security constraint to avoid using resources on creating 
+     * large (unwanted) images.
      * 
      */
     'max_width'     => 2000,
@@ -66,8 +70,32 @@ return array(
 
 
     /**
+     * Create custom convolution expressions, matrix 3x3, divisor and 
+     * offset.
+     */
+    'convolution_constant' => array(
+        'edge'         => '-1,-1,-1, -1,8,-1, -1,-1,-1, 9, 0',
+        'edge-alt'     => '0,1,0, 1,-4,1, 0,1,0, 1, 0',
+        'draw'         => '0,-1,0, -1,5,-1, 0,-1,0, 0, 0',
+        'sharpen-alt'  => '0,-1,0, -1,5,-1, 0,-1,0, 1, 0',
+        'emboss-alt'   => '-2,-1,0, -1,1,1, 0,1,2, 1, 0',
+        'mean'         => '1,1,1, 1,1,1, 1,1,1, 9, 0',
+        'motion'       => '1,0,0, 0,1,0, 0,0,1, 3, 0',
+    ),
+
+
+
+    /**
      * Predefined size constants. 
-     * 
+     *
+     * These can be used together with &width or &height to create a constant value 
+     * for a width or height where can be changed in one place.
+     * Useful when your site changes its layout or if you have a grid to fit images into.
+     *
+     * Example: 
+     *  &width=w1  // results in width=613
+     *  &width=c2  // results in spanning two columns with a gutter, 30*2+10=70
+     *  &width=c24 // results in spanning whole grid 24*30+((24-1)*10)=950
      */
     'size_constant' => function () {
 
@@ -115,8 +143,10 @@ return array(
     'error_reporting' => function () {
         error_reporting(-1);              // Report all type of errors
         ini_set('display_errors', 1);     // Display all errors
-        ini_set('output_buffering', 0);   // Do not buffer outputs, write directly
         set_time_limit(20);
         ini_set('gd.jpeg_ignore_warning', 1); // Ignore warning of corrupt jpegs
+        if (!extension_loaded('gd')) {
+            throw new Exception("Extension gd is nod loaded.");
+        }
     },
 );

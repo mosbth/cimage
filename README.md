@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Added support for custom convolutions. Fix #49.
 * Restructured testprograms. Fix #41.
 * Corrected json on PHP 5.3. Fix #42.
 * Improving template for tests in `webroot/tests` when testing out #40.

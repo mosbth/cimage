@@ -188,14 +188,30 @@ class CImage
 
 
     /**
-     * Array with details on how to do image convolution.
+     * String with details on how to do image convolution. String
+     * should map a key in the $convolvs array or be a string of
+     * 11 float values separated by comma. The first nine builds
+     * up the matrix, then divisor and last offset. 
      */
     private $convolve;
-    private $convolveString = null; // Original argument, if existing
 
 
     /**
-     * Properties (clean up these)
+     * Custom convolution expressions, matrix 3x3, divisor and offset. 
+     */
+    private $convolves = array(
+        'lighten'  => '0,0,0, 0,12,0, 0,0,0, 9, 0',
+        'darken'   => '0,0,0, 0,6,0, 0,0,0, 9, 0',
+        'sharpen'  => '-1,-1,-1, -1,16,-1, -1,-1,-1, 8, 0',
+        'emboss'   => '1,1,-1, 1,3,-1, 1,-1,-1, 3, 0',
+        'blur'     => '1,1,1, 1,15,1, 1,1,1, 23, 0',
+        'gblur'    => '1,2,1, 2,4,2, 1,2,1, 16, 0',
+    );
+
+
+    /**
+     * Properties 
+     * @todo Clean up these and check if and how they are used)
      */
     private $offset;
 
@@ -361,7 +377,7 @@ class CImage
             'sharpen'     => null,
             'emboss'      => null,
             'blur'        => null,
-            'convolve'    => null,
+            'convolve'       => null,
             'rotateAfter' => null,
             'autoRotate'  => false,
 
@@ -415,34 +431,6 @@ class CImage
                 }
                 $args['filters'][$key] = $filter;
             }
-        }
-
-        // Convert convolve settings from string to array
-        if (isset($args['convolve']) && !is_array($args['convolve'])) {
-            $part = explode(',', $args['convolve']);
-            $this->convolveString = $args['convolve'];
-
-            if (count($part) != 11) {
-                throw new Exception(
-                    'Missmatch in argument convolve. Expected comma-separated string with 11 float values.'
-                );
-            }
-            
-            array_walk($part, function ($item, $key) {
-                if (!is_numeric($item)) {
-                    throw new Exception("Argument convole should be float but is not.");
-                }
-            });
-            
-            $args['convolve'] = array(
-                'matrix'  => array(
-                    array($part[0], $part[1], $part[2]),
-                    array($part[3], $part[4], $part[5]),
-                    array($part[6], $part[7], $part[8]),
-                ),
-                'div'    => $part[9],
-                'offset' => $part[10],
-            );
         }
 
         // Merge default arguments with incoming and set properties.
@@ -897,7 +885,7 @@ class CImage
 
         $convolve = null;
         if ($this->convolve) {
-            $convolve = 'convolve' . str_replace(',', '', $this->convolveString);
+            $convolve = 'convolve' . preg_replace('/[^a-zA-Z0-9]/', '', $this->convolve);
         }
 
         $subdir = str_replace('/', '-', dirname($this->imageSrc));
@@ -1292,14 +1280,14 @@ class CImage
 
         // Custom convolution
         if ($this->convolve) {
-            $this->log("Convolve: " . $this->convolveString);
+            //$this->log("Convolve: " . $this->convolve);
             $this->imageConvolution();
         }
 
         return $this;
     }
 
-
+    
 
     /**
      * Rotate image using angle.
@@ -1395,70 +1383,100 @@ class CImage
 
 
     /**
-     * Sharpen image as http://php.net/manual/en/ref.image.php#56144
-     * http://loriweb.pair.com/8udf-sharpen.html
+     * Sharpen image using image convolution.
      * 
      * @return $this
      */
     public function sharpenImage()
     {
-        $matrix = array(
-            array(-1,-1,-1,),
-            array(-1,16,-1,),
-            array(-1,-1,-1,),
-        );
-
-        $divisor = 8;
-        $offset  = 0;
-        
-        imageconvolution($this->image, $matrix, $divisor, $offset);
-        
+        $this->imageConvolution('sharpen');
         return $this;
     }
 
 
 
     /**
-     * Emboss image as http://loriweb.pair.com/8udf-emboss.html
+     * Emboss image using image convolution.
      * 
      * @return $this
      */
     public function embossImage()
     {
-        $matrix = array(
-            array( 1, 1,-1,),
-            array( 1, 3,-1,),
-            array( 1,-1,-1,),
-        );
-    
-        $divisor = 3;
-        $offset  = 0;
-    
-        imageconvolution($this->image, $matrix, $divisor, $offset);
-    
+        $this->imageConvolution('emboss');
         return $this;
     }
 
 
 
     /**
-     * Blur image as http://loriweb.pair.com/8udf-basics.html
+     * Blur image using image convolution.
      * 
      * @return $this
      */
     public function blurImage()
     {
-        $matrix = array(
-            array( 1, 1, 1,),
-            array( 1,15, 1,),
-            array( 1, 1, 1,),
+        $this->imageConvolution('blur');
+        return $this;
+    }
+
+
+
+    /**
+     * Create convolve expression and return arguments for image convolution.
+     * 
+     * @param string $expression constant string which evaluates to a list of
+     *                           11 numbers separated by komma or such a list.
+     *
+     * @return array as $matrix (3x3), $divisor and $offset
+     */
+    public function createConvolveArguments($expression)
+    {
+        // Check of matching constant
+        if (isset($this->convolves[$expression])) {
+            $expression = $this->convolves[$expression];
+        }
+
+        $part = explode(',', $expression);
+        $this->log("Creating convolution expressen: $expression");
+
+        // Expect list of 11 numbers, split by , and build up arguments
+        if (count($part) != 11) {
+            throw new Exception(
+                "Missmatch in argument convolve. Expected comma-separated string with 
+                11 float values. Got $expression."
+            );
+        }
+            
+        array_walk($part, function ($item, $key) {
+            if (!is_numeric($item)) {
+                throw new Exception("Argument to convolve expression should be float but is not.");
+            }
+        });
+            
+        return array(
+            array(
+                array($part[0], $part[1], $part[2]),
+                array($part[3], $part[4], $part[5]),
+                array($part[6], $part[7], $part[8]),
+            ),
+            $part[9],
+            $part[10],
         );
-    
-        $divisor = 23;
-        $offset  = 0;
-    
-        imageconvolution($this->image, $matrix, $divisor, $offset);
-    
+    }
+
+
+
+    /**
+     * Add custom expressions (or overwrite existing) for image convolution.
+     * 
+     * @param array $options Key value array with strings to be converted
+     *                       to convolution expressions.
+     *
+     * @return $this
+     */
+    public function addConvolveExpressions($options)
+    {
+        $this->convolves = array_merge($this->convolves, $options);
         return $this;
     }
 
@@ -1467,22 +1485,25 @@ class CImage
     /**
      * Image convolution.
      * 
-     * @param array $matrix A 3x3 matrix: an array of three arrays of three floats.
-     * @param float $div    The divisor of the result of the convolution, used for normalization.
-     * @param float $offset Color offset.
+     * @param string $options A string with 11 float separated by comma.
      *
      * @return $this
      */
-    public function imageConvolution($matrix = null, $div = null, $offset = null)
+    public function imageConvolution($options = null)
     {
-        if ($matrix == null && $this->convolve) {
-            $matrix = $this->convolve['matrix'];
-            $div    = $this->convolve['div'];
-            $offset = $this->convolve['offset'];
-        }
+        // Use incoming options or use $this.
+        $options = $options ? $options : $this->convolve;
 
-        imageconvolution($this->image, $matrix, $div, $offset);
-    
+        // Treat incoming as string, split by +
+        $this->log("Convolution with '$options'");
+        $options = explode(":", $options);
+
+        // Check each option if it matches constant value
+        foreach($options as $option) {
+            list($matrix, $divisor, $offset) = $this->createConvolveArguments($option);
+            imageconvolution($this->image, $matrix, $divisor, $offset);
+        }
+        
         return $this;
     }
 

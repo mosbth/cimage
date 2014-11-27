@@ -465,10 +465,20 @@ verbose("json = $outputFormat");
 
 /**
  * dpr - change to get larger image to easier support larger dpr, such as retina.
- */
+ */ 
 $dpr = get(array('ppi', 'dpr', 'device-pixel-ratio'), 1);
 
 verbose("dpr = $dpr");
+
+
+
+/**
+ * Create the class for the image.
+ */
+require $config['cimage_class'];
+
+$img = new CImage();
+$img->setVerbose($verbose);
 
 
 
@@ -477,7 +487,13 @@ verbose("dpr = $dpr");
  */
 $convolve = get('convolve', null);
 
-verbose("convolve = $convolve");
+// Check if the convolve is matching an existing constant 
+if ($convolve && isset($config['convolution_constant'])) {
+    $img->addConvolveExpressions($config['convolution_constant']);
+    verbose("convolve = " . print_r($config['convolution_constant'], 1));
+}
+
+verbose("convolve = " . print_r($convolve, 1));
 
 
 
@@ -502,14 +518,10 @@ EOD;
 
 
 /**
- * Create and output the image
+ * Load, process and output the image
  */
-require $config['cimage_class'];
 
-$img = new CImage();
-
-$img->setVerbose($verbose)
-    ->log("Incoming arguments: " . print_r(verbose(), 1))
+$img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSource($srcImage, $config['image_path'])
     ->setOptions(
         array(
