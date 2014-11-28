@@ -1227,7 +1227,7 @@ class CImage
         if (isset($this->filters) && is_array($this->filters)) {
             
             foreach ($this->filters as $filter) {
-                $this->log("Applying filter $filter.");
+                $this->log("Applying filter {$filter['type']}.");
             
                 switch ($filter['argc']) {
             

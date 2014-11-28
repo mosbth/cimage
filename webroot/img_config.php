@@ -86,6 +86,15 @@ return array(
 
 
     /**
+     * Create custom shortcuts for more advanced expressions.
+     */
+    'shortcut' => array(
+        'sepia' => "&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen",
+    ),
+
+
+
+    /**
      * Predefined size constants. 
      *
      * These can be used together with &width or &height to create a constant value 

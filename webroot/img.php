@@ -5,6 +5,7 @@
  */
 
 
+
 /**
  * Default configuration options, can be overridden in own config-file.
  *
@@ -111,6 +112,25 @@ if (isset($config['default_timezone'])) {
     date_default_timezone_set($config['default_timezone']);
 } else if (!ini_get('default_timezone')) {
     date_default_timezone_set('UTC');
+}
+
+
+
+/**
+ * shortcut, sc - extend arguments with a constant value, defined
+ * in config-file.
+ */
+$shortcut = get(array('shortcut', 'sc'), null);
+
+verbose("shortcut = $shortcut");
+
+if (isset($shortcut) 
+    && isset($config['shortcut'])
+    && isset($config['shortcut'][$shortcut])) {
+    
+    parse_str($config['shortcut'][$shortcut], $get);
+    verbose("shortcut-constant = {$config['shortcut'][$shortcut]}");
+    $_GET = array_merge($_GET, $get);
 }
 
 
