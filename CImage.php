@@ -50,21 +50,31 @@ class CImage
 
     /**
      * Default background color, red, green, blue, alpha.
+     *
+     * @todo remake when upgrading to PHP 5.5
      */
+    /*
     const BACKGROUND_COLOR = array(
         'red'   => 0,
         'green' => 0,
         'blue'  => 0,
         'alpha' => null,
-    );
+    );*/
 
 
 
     /**
      * Default background color to use.
+     *
+     * @todo remake when upgrading to PHP 5.5
      */
-    private $bgColorDefault = self::BACKGROUND_COLOR;
-
+    //private $bgColorDefault = self::BACKGROUND_COLOR;
+    private $bgColorDefault = array(
+        'red'   => 0,
+        'green' => 0,
+        'blue'  => 0,
+        'alpha' => null,
+    );
 
 
     /**
