@@ -10,7 +10,8 @@
 #  image/me.jpg?w=300  Using options to img.php.
 # 
 # Subdirectories also work.
-#  img/me/me.jpg    Direct access to the image.
-#  image/me/me.jpg  Accessed through img.php.
+#  img/me/me.jpg          Direct access to the image.
+#  image/me/me.jpg        Accessed through img.php.
+#  image/me/me.jpg?w=300  Using options to img.php.
 #
 RewriteRule ^image/(.*)$        img/img.php?src=$1 [QSA,NC,L]
