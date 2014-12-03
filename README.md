@@ -133,7 +133,8 @@ Revision history
 
 v0.5.x (latest)
 
-* Added option `shortcut, sc` to enable configuration of complex expressions. Fix 2.
+* Added option `fill-to-fit, ff`. Fix #38.
+* Added option `shortcut, sc` to enable configuration of complex expressions. Fix #2.
 * Added support for custom convolutions. Fix #49.
 * Restructured testprograms. Fix #41.
 * Corrected json on PHP 5.3. Fix #42.
