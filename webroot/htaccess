@@ -1,0 +1,16 @@
+#
+# Rewrite to have friendly urls to img.php, edit it to suite your environment.
+#
+# The example is set up as following.
+#
+#  img                 A directory where all images are stored
+#  img/me.jpg          Access a image as usually.
+#  img/img.php         This is where I choose to place img.php (and img_config.php).
+#  image/me.jpg        Access a image though img.php using htaccess rewrite.
+#  image/me.jpg?w=300  Using options to img.php.
+# 
+# Subdirectories also work.
+#  img/me/me.jpg    Direct access to the image.
+#  image/me/me.jpg  Accessed through img.php.
+#
+RewriteRule ^image/(.*)$        img/img.php?src=$1 [QSA,NC,L]
