@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Adding `webroot/htaccess` to show off how friendly urls can be created for `img.php`. Fix #45.
 * Added option `fill-to-fit, ff`. Fix #38.
 * Added option `shortcut, sc` to enable configuration of complex expressions. Fix #2.
 * Added support for custom convolutions. Fix #49.
