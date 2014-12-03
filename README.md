@@ -133,6 +133,7 @@ Revision history
 
 v0.5.x (latest)
 
+* Minor cleaning of properties in `CImage`. Fix #23.
 * Adding `webroot/htaccess` to show off how friendly urls can be created for `img.php`. Fix #45.
 * Added option `fill-to-fit, ff`. Fix #38.
 * Added option `shortcut, sc` to enable configuration of complex expressions. Fix #2.

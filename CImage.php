@@ -253,23 +253,29 @@ class CImage
 
 
     /**
-     * Properties 
-     * @todo Clean up these and check if and how they are used)
+     * Used with option area to set which parts of the image to use. 
      */
     private $offset;
 
-    public $keepRatio;
-    public $cropToFit;
 
-    private $cropWidth;
-    private $cropHeight;
-    public $crop_x;
-    public $crop_y;
-    public $filters;
-    private $type; // Calculated from source image
-    private $attr; // Calculated from source image
-    private $useCache; // Use the cache if true, set to false to ignore the cached file.
-    private $useOriginal; // Use original image if possible
+    /**
+     * Properties, the class is mutable and the method setOptions()
+     * decides (partly) what properties are created.  
+     *
+     * @todo Clean up these and check if and how they are used
+     */
+
+    //public $keepRatio;
+    //public $cropToFit;
+    //private $cropWidth;
+    //private $cropHeight;
+    //public $crop_x;
+    //public $crop_y;
+    //public $filters;
+    //private $type; // Calculated from source image
+    //private $attr; // Calculated from source image
+    //private $useCache; // Use the cache if true, set to false to ignore the cached file.
+    //private $useOriginal; // Use original image if possible
 
 
 
