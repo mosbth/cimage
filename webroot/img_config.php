@@ -53,6 +53,18 @@ return array(
 
 
     /**
+     * Set default background color for all images. Override it using
+     * option bgColor.
+     * Colorvalue is 6 digit hex string or 8 digit hex string if using
+     * the alpha channel where 00 is opaqe and 7f is transparent.
+     *
+     */
+    //'background_color' => "FFFFFF",
+    //'background_color' => "FFFFFF7F",
+
+
+
+    /**
      * Post processing of images using external tools, set to true or false 
      * and set command to be executed. 
      */

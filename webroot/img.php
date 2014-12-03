@@ -117,6 +117,23 @@ if (isset($config['default_timezone'])) {
 
 
 /**
+ * verbose, v - do a verbose dump of what happens
+ */
+$verbose = getDefined(array('verbose', 'v'), true, false);
+
+
+
+/**
+ * Create the class for the image.
+ */
+require $config['cimage_class'];
+
+$img = new CImage();
+$img->setVerbose($verbose);
+
+
+
+/**
  * shortcut, sc - extend arguments with a constant value, defined
  * in config-file.
  */
@@ -132,13 +149,6 @@ if (isset($shortcut)
     verbose("shortcut-constant = {$config['shortcut'][$shortcut]}");
     $_GET = array_merge($_GET, $get);
 }
-
-
-
-/**
- * verbose, v - do a verbose dump of what happens
- */
-$verbose = getDefined(array('verbose', 'v'), true, false);
 
 
 
@@ -259,6 +269,45 @@ verbose("aspect ratio = $aspectRatio");
 $cropToFit = getDefined(array('crop-to-fit', 'cf'), true, false);
 
 verbose("crop to fit = $cropToFit");
+
+
+
+/**
+ * Set default background color from config file.
+ */
+if (isset($config['background_color'])) {
+    $img->setDefaultBackgroundColor($config['background_color']);
+    verbose("Using default background_color = {$config['background_color']}");
+}
+
+
+
+/**
+ * bgColor - Default background color to use
+ */
+$bgColor = get(array('bgColor', 'bgc'), null);
+
+verbose("bgColor = $bgColor");
+
+
+
+/**
+ * fill-to-fit, ff - affecting the resulting image width, height and resize options
+ */
+$fillToFit = get(array('fill-to-fit', 'ff'), null);
+
+verbose("fill-to-fit = $fillToFit");
+
+if ($fillToFit !== null) {
+
+    if (!empty($fillToFit)) {
+        $bgColor   = $fillToFit;
+        verbose("fillToFit changed bgColor to = $bgColor");
+    }
+
+    $fillToFit = true;
+    verbose("fill-to-fit (fixed) = $fillToFit");
+}
 
 
 
@@ -393,20 +442,6 @@ verbose("blur = $blur");
 
 
 /**
- * rotate - Rotate the image with an angle, before processing
- */
-/*
-$rotate = get(array('rotate', 'r'));
-
-is_null($rotate)
-    or ($rotate >= -360 and $rotate <= 360)
-    or errorPage('Rotate out of range');
-
-verbose("rotate = $rotate");
-*/
-
-
-/**
  * rotateBefore - Rotate the image with an angle, before processing
  */
 $rotateBefore = get(array('rotateBefore', 'rb'));
@@ -429,19 +464,6 @@ is_null($rotateAfter)
     or errorPage('RotateBefore out of range');
 
 verbose("rotateAfter = $rotateAfter");
-
-
-
-/**
- * bgColor - Default background color to use
- */
-$bgColor = hexdec(get(array('bgColor', 'bgc')));
-
-is_null($bgColor)
-    or ($bgColor >= 0 and $bgColor <= hexdec("FFFFFF"))
-    or errorPage('Background color needs a hex value');
-
-verbose("bgColor = $bgColor");
 
 
 
@@ -493,16 +515,6 @@ verbose("dpr = $dpr");
 
 
 /**
- * Create the class for the image.
- */
-require $config['cimage_class'];
-
-$img = new CImage();
-$img->setVerbose($verbose);
-
-
-
-/**
  * convolve - image convolution as in http://php.net/manual/en/function.imageconvolution.php
  */
 $convolve = get('convolve', null);
@@ -540,7 +552,6 @@ EOD;
 /**
  * Load, process and output the image
  */
-
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSource($srcImage, $config['image_path'])
     ->setOptions(
@@ -551,6 +562,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             'aspectRatio' => $aspectRatio,
             'keepRatio' => $keepRatio,
             'cropToFit' => $cropToFit,
+            'fillToFit' => $fillToFit,
             'crop'      => $crop,
             'area'      => $area,
 

@@ -49,6 +49,32 @@ class CImage
 
 
     /**
+     * Default background color, red, green, blue, alpha.
+     */
+    const BACKGROUND_COLOR = array(
+        'red'   => 0,
+        'green' => 0,
+        'blue'  => 0,
+        'alpha' => null,
+    );
+
+
+
+    /**
+     * Default background color to use.
+     */
+    private $bgColorDefault = self::BACKGROUND_COLOR;
+
+
+
+    /**
+     * Background color to use, specified as part of options.
+     */
+    private $bgColor;
+
+
+
+    /**
      * Where to save the target file.
      */
     private $saveFolder;
@@ -210,6 +236,13 @@ class CImage
 
 
     /**
+     * Resize strategy to fill extra area with background color. 
+     * True or false.
+     */
+    private $fillToFit;
+
+
+    /**
      * Properties 
      * @todo Clean up these and check if and how they are used)
      */
@@ -357,6 +390,7 @@ class CImage
             'aspectRatio' => null,
             'keepRatio'   => true,
             'cropToFit'   => false,
+            'fillToFit'   => null,
             'crop'        => null, //array('width'=>null, 'height'=>null, 'start_x'=>0, 'start_y'=>0),
             'area'        => null, //'0,0,0,0',
 
@@ -369,7 +403,7 @@ class CImage
             'rotateBefore' => null,
 
             // General options
-            'bgColor'     => 0,
+            'bgColor'     => null,
 
             // Post-processing, after resizing is done
             'palette'     => null,
@@ -438,6 +472,10 @@ class CImage
         $args = array_merge($defaults, $args);
         foreach ($defaults as $key => $val) {
             $this->{$key} = $args[$key];
+        }
+
+        if ($this->bgColor) {
+            $this->setDefaultBackgroundColor($this->bgColor);
         }
 
         // Save original values to enable re-calculating
@@ -669,8 +707,10 @@ class CImage
             
             }
       
-            // Use newWidth and newHeigh as defined width/height, image should fit the area.
             if ($this->cropToFit) {
+    
+                // Use newWidth and newHeigh as defined width/height,
+                // image should fit the area.
                 $this->log("Crop to fit.");
                 $ratioWidth  = $width  / $this->newWidth;
                 $ratioHeight = $height / $this->newHeight;
@@ -801,6 +841,8 @@ class CImage
             && ($this->newHeight == $this->height)
             && !$this->area
             && !$this->crop
+            && !$this->cropToFit
+            && !$this->fillToFit
             && !$this->filters
             && !$this->sharpen
             && !$this->emboss
@@ -834,6 +876,7 @@ class CImage
     {
         $parts        = pathinfo($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
+        $fillToFit    = $this->fillToFit    ? '_ff'                      : null;
         $crop_x       = $this->crop_x       ? "_x{$this->crop_x}"        : null;
         $crop_y       = $this->crop_y       ? "_y{$this->crop_y}"        : null;
         $scale        = $this->scale        ? "_s{$this->scale}"         : null;
@@ -842,6 +885,14 @@ class CImage
         $compress     = $this->compress     ? "_co{$this->compress}"     : null;
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
+
+        if ($fillToFit) {
+            $width  = $this->newWidthOrig;
+            $height = $this->newHeightOrig;
+        } else {
+            $width  = $this->newWidth;
+            $height = $this->newHeight;
+        }
 
         $offset = isset($this->offset)
             ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left']
@@ -874,7 +925,6 @@ class CImage
             ? $this->extension
             : $parts['extension'];
 
-        // Check optimizing options
         $optimize = null;
         if ($this->extension == 'jpeg' || $this->extension == 'jpg') {
             $optimize = $this->jpegOptimize ? 'o' : null;
@@ -890,8 +940,9 @@ class CImage
 
         $subdir = str_replace('/', '-', dirname($this->imageSrc));
         $subdir = ($subdir == '.') ? '_.' : $subdir;
-        $file = $subdir . '_' . $parts['filename'] . '_' . round($this->newWidth) . '_'
-            . round($this->newHeight) . $offset . $crop . $cropToFit . $crop_x . $crop_y
+        $file = $subdir . '_' . $parts['filename'] . '_' . $width . '_'
+            . $height . $offset . $crop . $cropToFit . $fillToFit
+            . $crop_x . $crop_y
             . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
             . '.' . $this->extension;
@@ -1166,9 +1217,9 @@ class CImage
             $this->image = $img;
         }
 
-        // Do as crop, take only part of image
         if ($this->crop) {
 
+            // Do as crop, take only part of image
             $this->log("Cropping area width={$this->crop['width']}, height={$this->crop['height']}, start_x={$this->crop['start_x']}, start_y={$this->crop['start_y']}");
             $img = $this->CreateImageKeepTransparency($this->crop['width'], $this->crop['height']);
             imagecopyresampled($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height'], $this->crop['width'], $this->crop['height']);
@@ -1177,9 +1228,9 @@ class CImage
             $this->height = $this->crop['height'];
         }
     
-        // Resize by crop to fit
         if ($this->cropToFit) {
             
+            // Resize by crop to fit
             $this->log("Crop to fit");
             $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
             $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
@@ -1190,6 +1241,26 @@ class CImage
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
+        
+        } else if ($this->fillToFit) {
+            
+            // Resize by fill to fit
+            $this->log("Fill to fit");
+
+            $posX = 0;
+            $posY = 0;
+
+            if ($this->newWidth == $this->newWidthOrig) {
+                $posY = round(($this->newHeightOrig - $this->newHeight) / 2);
+            } else {
+                $posX = round(($this->newWidthOrig - $this->newWidth) / 2);
+            }
+
+            $imageResized = $this->CreateImageKeepTransparency($this->newWidthOrig, $this->newHeightOrig);
+            imagecopyresampled($imageResized, $this->image, $posX, $posY, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
+            $this->image = $imageResized;
+            $this->width = $this->newWidthOrig;
+            $this->height = $this->newHeightOrig;
         
         } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
             
@@ -1299,9 +1370,10 @@ class CImage
      */
     public function rotate($angle, $bgColor)
     {
-        $this->log("Rotate image " . $angle . " degrees with filler color " . $bgColor);
+        $this->log("Rotate image " . $angle . " degrees with filler color.");
 
-        $this->image = imagerotate($this->image, $angle, $bgColor);
+        $color = $this->getBackgroundColor();
+        $this->image = imagerotate($this->image, $angle, $color);
         
         $this->width  = imagesx($this->image);
         $this->height = imagesy($this->image);
@@ -1499,7 +1571,7 @@ class CImage
         $options = explode(":", $options);
 
         // Check each option if it matches constant value
-        foreach($options as $option) {
+        foreach ($options as $option) {
             list($matrix, $divisor, $offset) = $this->createConvolveArguments($option);
             imageconvolution($this->image, $matrix, $divisor, $offset);
         }
@@ -1510,10 +1582,97 @@ class CImage
 
 
     /**
+     * Set default background color between 000000-FFFFFF or if using
+     * alpha 00000000-FFFFFF7F.
+     *
+     * @param string $color as hex value.
+     *
+     * @return $this
+    */
+    public function setDefaultBackgroundColor($color)
+    {
+        $this->log("Setting default background color to '$color'.");
+
+        if (!(strlen($color) == 6 || strlen($color) == 8)) {
+            throw new Exception(
+                "Background color needs a hex value of 6 or 8
+                digits. 000000-FFFFFF or 00000000-FFFFFF7F.
+                Current value was: '$color'."
+            );
+        }
+
+        $red    = hexdec(substr($color, 0, 2));
+        $green  = hexdec(substr($color, 2, 2));
+        $blue   = hexdec(substr($color, 4, 2));
+
+        $alpha = (strlen($color) == 8)
+            ? hexdec(substr($color, 6, 2))
+            : null;
+
+        if (($red < 0 || $red > 255)
+            || ($green < 0 || $green > 255)
+            || ($blue < 0 || $blue > 255)
+            || ($alpha < 0 || $alpha > 127)
+        ) {
+            throw new Exception(
+                "Background color out of range. Red, green blue
+                should be 00-FF and alpha should be 00-7F.
+                Current value was: '$color'."
+            );
+        }
+
+        $this->bgColor = strtolower($color);
+        $this->bgColorDefault = array(
+            'red'   => $red,
+            'green' => $green,
+            'blue'  => $blue,
+            'alpha' => $alpha
+        );
+
+        return $this;
+    }
+
+
+
+    /**
+     * Get the background color.
+     *
+     * @param resource $img the image to work with or null if using $this->image.
+     *
+     * @return color value or null if no background color is set.
+    */
+    private function getBackgroundColor($img = null)
+    {
+        $img = isset($img) ? $img : $this->image;
+
+        if ($this->bgColorDefault) {
+
+            $red   = $this->bgColorDefault['red'];
+            $green = $this->bgColorDefault['green'];
+            $blue  = $this->bgColorDefault['blue'];
+            $alpha = $this->bgColorDefault['alpha'];
+
+            if ($alpha) {
+                $color = imagecolorallocatealpha($img, $red, $green, $blue, $alpha);
+            } else {
+                $color = imagecolorallocate($img, $red, $green, $blue);
+            }
+
+            return $color;
+
+        } else {
+            return 0;
+        }
+    }
+
+ 
+
+    /**
      * Create a image and keep transparency for png and gifs.
      *
      * @param int $width of the new image.
      * @param int $height of the new image.
+     *
      * @return image resource.
     */
     private function createImageKeepTransparency($width, $height)
@@ -1523,11 +1682,12 @@ class CImage
         imagealphablending($img, false);
         imagesavealpha($img, true);
 
-        /*
-        $this->Log("Filling image with background color.");
-        $bg = imagecolorallocate($img, 255, 255, 255);
-        imagefill($img, 0, 0, $bg);
-        */
+        if ($this->bgColorDefault) {
+
+            $color = $this->getBackgroundColor($img);
+            imagefill($img, 0, 0, $color);
+            $this->Log("Filling image with background color.");
+        }
 
         return $img;
     }
@@ -1535,7 +1695,7 @@ class CImage
  
 
     /**
-     * Set optimizing  and post-processing options. CHANGE FROM DEFINE TO INJECT INTO CLASS, TO BE ABLE TO SET OFF POSTPROCESSING
+     * Set optimizing  and post-processing options. 
      *
      * @param array $options with config for postprocessing with external tools.
      *
