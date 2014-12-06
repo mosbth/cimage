@@ -236,12 +236,19 @@ class CImage
      * Custom convolution expressions, matrix 3x3, divisor and offset. 
      */
     private $convolves = array(
-        'lighten'  => '0,0,0, 0,12,0, 0,0,0, 9, 0',
-        'darken'   => '0,0,0, 0,6,0, 0,0,0, 9, 0',
-        'sharpen'  => '-1,-1,-1, -1,16,-1, -1,-1,-1, 8, 0',
-        'emboss'   => '1,1,-1, 1,3,-1, 1,-1,-1, 3, 0',
-        'blur'     => '1,1,1, 1,15,1, 1,1,1, 23, 0',
-        'gblur'    => '1,2,1, 2,4,2, 1,2,1, 16, 0',
+        'lighten'       => '0,0,0, 0,12,0, 0,0,0, 9, 0',
+        'darken'        => '0,0,0, 0,6,0, 0,0,0, 9, 0',
+        'sharpen'       => '-1,-1,-1, -1,16,-1, -1,-1,-1, 8, 0',
+        'sharpen-alt'   => '0,-1,0, -1,5,-1, 0,-1,0, 1, 0',
+        'emboss'        => '1,1,-1, 1,3,-1, 1,-1,-1, 3, 0',
+        'emboss-alt'    => '-2,-1,0, -1,1,1, 0,1,2, 1, 0',
+        'blur'          => '1,1,1, 1,15,1, 1,1,1, 23, 0',
+        'gblur'         => '1,2,1, 2,4,2, 1,2,1, 16, 0',
+        'edge'          => '-1,-1,-1, -1,8,-1, -1,-1,-1, 9, 0',
+        'edge-alt'      => '0,1,0, 1,-4,1, 0,1,0, 1, 0',
+        'draw'          => '0,-1,0, -1,5,-1, 0,-1,0, 0, 0',
+        'mean'          => '1,1,1, 1,1,1, 1,1,1, 9, 0',
+        'motion'        => '1,0,0, 0,1,0, 0,0,1, 3, 0',
     );
 
 
@@ -265,17 +272,17 @@ class CImage
      * @todo Clean up these and check if and how they are used
      */
 
-    //public $keepRatio;
-    //public $cropToFit;
-    //private $cropWidth;
-    //private $cropHeight;
-    //public $crop_x;
-    //public $crop_y;
-    //public $filters;
-    //private $type; // Calculated from source image
-    //private $attr; // Calculated from source image
-    //private $useCache; // Use the cache if true, set to false to ignore the cached file.
-    //private $useOriginal; // Use original image if possible
+    public $keepRatio;
+    public $cropToFit;
+    private $cropWidth;
+    private $cropHeight;
+    public $crop_x;
+    public $crop_y;
+    public $filters;
+    private $type; // Calculated from source image
+    private $attr; // Calculated from source image
+    private $useCache; // Use the cache if true, set to false to ignore the cached file.
+    private $useOriginal; // Use original image if possible
 
 
 
@@ -417,6 +424,7 @@ class CImage
             // Pre-processing, before resizing is done
             'scale'        => null,
             'rotateBefore' => null,
+            'autoRotate'  => false,
 
             // General options
             'bgColor'     => null,
@@ -429,7 +437,6 @@ class CImage
             'blur'        => null,
             'convolve'       => null,
             'rotateAfter' => null,
-            'autoRotate'  => false,
 
             // Output format
             'outputFormat' => null,

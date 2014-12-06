@@ -141,7 +141,7 @@ $shortcut = get(array('shortcut', 'sc'), null);
 
 verbose("shortcut = $shortcut");
 
-if (isset($shortcut) 
+if (isset($shortcut)
     && isset($config['shortcut'])
     && isset($config['shortcut'][$shortcut])) {
     
@@ -285,7 +285,7 @@ if (isset($config['background_color'])) {
 /**
  * bgColor - Default background color to use
  */
-$bgColor = get(array('bgColor', 'bgc'), null);
+$bgColor = get(array('bgColor', 'bg-color', 'bgc'), null);
 
 verbose("bgColor = $bgColor");
 
@@ -444,7 +444,7 @@ verbose("blur = $blur");
 /**
  * rotateBefore - Rotate the image with an angle, before processing
  */
-$rotateBefore = get(array('rotateBefore', 'rb'));
+$rotateBefore = get(array('rotateBefore', 'rotate-before', 'rb'));
 
 is_null($rotateBefore)
     or ($rotateBefore >= -360 and $rotateBefore <= 360)
@@ -457,7 +457,7 @@ verbose("rotateBefore = $rotateBefore");
 /**
  * rotateAfter - Rotate the image with an angle, before processing
  */
-$rotateAfter = get(array('rotateAfter', 'ra', 'rotate', 'r'));
+$rotateAfter = get(array('rotateAfter', 'rotate-after', 'ra', 'rotate', 'r'));
 
 is_null($rotateAfter)
     or ($rotateAfter >= -360 and $rotateAfter <= 360)
@@ -470,7 +470,7 @@ verbose("rotateAfter = $rotateAfter");
 /**
  * autoRotate - Auto rotate based on EXIF information
  */
-$autoRotate = getDefined(array('autoRotate', 'aro'), true, false);
+$autoRotate = getDefined(array('autoRotate', 'auto-rotate', 'aro'), true, false);
 
 verbose("autoRotate = $autoRotate");
 
@@ -507,7 +507,7 @@ verbose("json = $outputFormat");
 
 /**
  * dpr - change to get larger image to easier support larger dpr, such as retina.
- */ 
+ */
 $dpr = get(array('ppi', 'dpr', 'device-pixel-ratio'), 1);
 
 verbose("dpr = $dpr");
@@ -522,7 +522,7 @@ $convolve = get('convolve', null);
 // Check if the convolve is matching an existing constant 
 if ($convolve && isset($config['convolution_constant'])) {
     $img->addConvolveExpressions($config['convolution_constant']);
-    verbose("convolve = " . print_r($config['convolution_constant'], 1));
+    verbose("convolve constant = " . print_r($config['convolution_constant'], 1));
 }
 
 verbose("convolve = " . print_r($convolve, 1));
@@ -569,6 +569,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             // Pre-processing, before resizing is done
             'scale'        => $scale,
             'rotateBefore' => $rotateBefore,
+            'autoRotate'  => $autoRotate,
 
             // General processing options
             'bgColor'    => $bgColor,
@@ -581,7 +582,6 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             'blur'      => $blur,
             'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
-            'autoRotate'  => $autoRotate,
 
             // Output format
             'outputFormat' => $outputFormat,

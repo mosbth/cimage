@@ -133,6 +133,8 @@ Revision history
 
 v0.5.x (latest)
 
+* Rewrote and added documentation.
+* Moved conolution expressesion from `img_config.php` to `CImage`.
 * Minor cleaning of properties in `CImage`. Fix #23.
 * Adding `webroot/htaccess` to show off how friendly urls can be created for `img.php`. Fix #45.
 * Added option `fill-to-fit, ff`. Fix #38.
@@ -159,10 +161,10 @@ v0.5.3 (2014-11-21)
 * Moving `webroot/test*` into directory `webroot/test`.
 * `webroot/check_system.php` now outputs if extension for exif is loaded.
 * Broke API when `initDimensions()` split into two methods, new `initDimensions()` and `loadImageDetails()`.
-* Added `autoRotate,`aro` to auto rotate image based on EXIF information.
-* Added `bgColor,`bgc` to use as backgroundcolor when needing a filler color, for example rotate 45.
-* Added `rotateBefore,`rb` to rotate image a certain angle before processing.
-* Added `rotateAfter,`ra` to rotate image a certain angle after processing.
+* Added `autoRotate, aro` to auto rotate image based on EXIF information.
+* Added `bgColor, bgc` to use as backgroundcolor when needing a filler color, for example rotate 45.
+* Added `rotateBefore, rb` to rotate image a certain angle before processing.
+* Added `rotateAfter, ra` to rotate image a certain angle after processing.
 * Cleaned up code formatting, removed trailing spaces.
 * Removed @ from opening images, better to display correct warning when failing #34, but put it back again.
 * Setting gd.jpeg_ignore_warning to true as default #34.
