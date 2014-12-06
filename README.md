@@ -70,7 +70,7 @@ Get going quickly
 
 
 
-###Check out the test page {#testpage}
+###Check out the test page
 
 Try it out by pointing your browser to the test file `webroot/test/test.php`. It will show some images and you can review how they are created.
 
@@ -84,7 +84,7 @@ Try it yourself by opening up an image in your browser. Start with `webroot/img.
 
 
 
-###What does "processing the image" involves? {#processverbose}
+###What does "processing the image" involves? 
 
 Add `&verbose` to the link to get a verbose output of what is happens during image processing. This is useful for developers or those who seek a deeper understanding on how it all works.
 
@@ -125,7 +125,7 @@ Open an image through `img.php` by using its `src` attribute.
 
 It looks like this.
 
-[FIGURE src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=w1&save-as=jpg caption="A river, [kodimg13.png](/kod-exempel/cimage_/webroot/img/kodim13.png), from The Kodak Colorset." nolink]
+<img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=w1&save-as=jpg alt="">
 
 All images are stored in a directory structure and you access them as `?src=dir1/dir2/image.png`. 
 
@@ -264,6 +264,13 @@ These options are executed *after* the image is resized.
 | `f0, f1-f9`    | Same as `filter`, just add more filters. Applied in order `f`, `f0-f9`.  |
 | `sc, shortcut` | Save longer expressions in `img_config.php`. One place to change your favorite processing options, use as `sc=sepia` which is a shortcut for `&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen`. |
 
+
+
+Documentation 
+--------------------------------------
+
+Read full documentation at:
+http://dbwebb.se/opensource/cimage
 
 
 
