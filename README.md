@@ -19,7 +19,7 @@ You got an image from your friend who took it with the iPhone and you want to pu
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=300" alt="">
 
-The original image is looking like the one to the right, scaled down to a width of 300 pixels. 
+The original image is looking like this one, scaled down to a width of 300 pixels. 
 
 So, you need to rotate it and crop off some parts to make it intresting. 
 
