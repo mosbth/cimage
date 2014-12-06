@@ -12,12 +12,12 @@ This software is free and open source, licensed according MIT.
 
 
 
-Use case {#usecase}
+Use case 
 --------------------------------------
 
 You got an image from your friend who took it with the iPhone and you want to put it up on your website.
 
-[FIGURE class="right" src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=300" caption="Me from the iPhone." nolink]
+<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=300" alt="">
 
 The original image is looking like the one to the right, scaled down to a width of 300 pixels. 
 
@@ -29,20 +29,20 @@ Lets call this *the URL-Photoshopper*. This is how the magic looks like.
 
 `img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale`<br>`&convolve=sharpen-alt`
 
-[FIGURE src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale&convolve=sharpen-alt" caption="Me as a thumbnail." nolink]
+<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale&convolve=sharpen-alt" alt="">
 
 For myself, I use `img.php` to put up all images on my website, it gives me the power of affecting the resulting images - without opening up a photo-editing application.
 
 
 
-Requirements {#reqs}
+Requirements
 --------------------------------------
 
 `CImage` and `img.php` supports GIF (with transparency), JPEG and PNG (8bit transparent, 24bit semi transparent) images. It requires PHP 5.3 and PHP GD. You optionally need the EXIF extension to support auto-rotation of JPEG-images. 
 
 
 
-Installation {#install}
+Installation
 --------------------------------------
 
 The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
@@ -65,7 +65,7 @@ chmod 777 cache
 
 
 
-Get going quickly {#getgoing}
+Get going quickly 
 --------------------------------------
 
 
@@ -76,7 +76,7 @@ Try it out by pointing your browser to the test file `webroot/test/test.php`. It
 
 
 
-###Process your first image {#first}
+###Process your first image 
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&amp;w=w2&amp;a=40,0,50,0" alt=''>
 
@@ -90,13 +90,13 @@ Add `&verbose` to the link to get a verbose output of what is happens during ima
 
 
 
-###Check your system {#checksystem}
+###Check your system 
 
 Open up `webroot/check_system.php` if you need to troubleshoot or if you are uncertain if your system has the right extensions loaded. 
 
 
 
-###How does it work? {#workflow}
+###How does it work?
 
 Review the settings in `webroot/img_config.php` and check out `webroot/img.php` on how it uses `CImage`.
 
@@ -112,12 +112,12 @@ Read on to learn more on how to use `img.php`.
 
 
 
-Basic usage {#usage}
+Basic usage 
 --------------------------------------
 
 
 
-###Select the source {#select}
+###Select the source
 
 Open an image through `img.php` by using its `src` attribute.
 
@@ -131,7 +131,7 @@ All images are stored in a directory structure and you access them as `?src=dir1
 
 
 
-###Resize using constraints on width and height {#resize}
+###Resize using constraints on width and height 
 
 Create a thumbnail of the image by applying constraints on width and height, or one of them.
 
@@ -145,7 +145,7 @@ Think of the constraints as a imaginary box where the image should fit. With `wi
 
 
 
-###Resize to fit a certain dimension {#resize-fit}
+###Resize to fit a certain dimension 
 
 Creating a thumbnail with a certain dimension of width and height, usually involves stretching or cropping the image to fit in the selected dimensions. Here is how you create a image that has the exact dimensions of 300x150 pixels, by either *stretching*, *cropping* or *fill to fit*.
 
@@ -165,7 +165,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 
 
 
-###List of parameters {#parameters}
+###List of parameters 
 
 `img.php` supports a lot of parameters. Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it using width, aspect-ratio and crop-to-fit, apply a sharpen effect, save the image as JPEG using quality 30.
 
@@ -176,7 +176,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
 
 
-####Mandatory options and debugging {#option-man}
+####Mandatory options and debugging
 
 Option `src` is the only mandatory option. The other in this section is useful for debugging or deciding what version of the target image is used.
 
@@ -190,7 +190,7 @@ Option `src` is the only mandatory option. The other in this section is useful f
 
 
 
-####Options for deciding width and height of target image {#option-res}
+####Options for deciding width and height of target image 
 
 These options are all affecting the final dimensions, width and height, of the resulting image.
 
@@ -203,7 +203,7 @@ These options are all affecting the final dimensions, width and height, of the r
 
 
 
-####Options for resize strategy {#option-strat}
+####Options for resize strategy 
 
 These options affect strategy to use when resizing an image into a target image that has both width and height set.
 
@@ -215,7 +215,7 @@ These options affect strategy to use when resizing an image into a target image 
 
 
 
-####Options for cropping part of image {#option-crop}
+####Options for cropping part of image 
 
 These options enable to decide what part of image to crop out.
 
@@ -226,7 +226,7 @@ These options enable to decide what part of image to crop out.
 
 
 
-####General processing options {#option-general}
+####General processing options 
 
 These options are general options affecting processing.
 
@@ -236,7 +236,7 @@ These options are general options affecting processing.
 
 
 
-####Processing of image before resizing {#option-before}
+####Processing of image before resizing 
 
 This option are executed *before* the image is resized.
 
@@ -248,7 +248,7 @@ This option are executed *before* the image is resized.
 
 
 
-####Processing of image after resizing  {#option-after}
+####Processing of image after resizing 
 
 These options are executed *after* the image is resized.
 
