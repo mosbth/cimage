@@ -35,6 +35,13 @@ class CImage
 
 
     /**
+     * Is the quality level set from external use (true) or is it default (false)?
+     */
+    private $useQuality = false;
+
+
+
+    /**
      * Constant for default image quality when not set
      */
     const PNG_COMPRESSION_DEFAULT = -1;
@@ -45,6 +52,14 @@ class CImage
      * Compression level for PNG images.
      */
     private $compress;
+
+
+
+    /**
+     * Is the compress level set from external use (true) or is it default (false)?
+     */
+    private $useCompress = false;
+
 
 
 
@@ -548,22 +563,26 @@ class CImage
     /**
      * Load image details from original image file.
      *
+     * @param string $file the file to load or null to use $this->pathToImage.
+     *
      * @return $this
      * @throws Exception
      */
-    public function loadImageDetails()
+    public function loadImageDetails($file = null)
     {
-        is_readable($this->pathToImage)
+        $file = $file ? $file : $this->pathToImage;
+
+        is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
         // Get details on image
-        $info = list($this->width, $this->height, $this->type, $this->attr) = getimagesize($this->pathToImage);
+        $info = list($this->width, $this->height, $this->type, $this->attr) = getimagesize($file);
         !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
 
         if ($this->verbose) {
-            $this->log("Image file: {$this->pathToImage}");
+            $this->log("Image file: {$file}");
             $this->log("Image width x height (type): {$this->width} x {$this->height} ({$this->type}).");
-            $this->log("Image filesize: " . filesize($this->pathToImage) . " bytes.");
+            $this->log("Image filesize: " . filesize($file) . " bytes.");
         }
 
         return $this;
@@ -813,6 +832,10 @@ class CImage
      */
     public function setJpegQuality($quality = null)
     {
+        if ($quality) {
+            $this->useQuality = true;
+        }
+
         $this->quality = isset($quality)
             ? $quality
             : self::JPEG_QUALITY_DEFAULT;
@@ -836,6 +859,10 @@ class CImage
      */
     public function setPngCompression($compress = null)
     {
+        if ($compress) {
+            $this->useCompress = true;
+        }
+
         $this->compress = isset($compress)
             ? $compress
             : self::PNG_COMPRESSION_DEFAULT;
@@ -872,8 +899,8 @@ class CImage
             && !$this->blur
             && !$this->convolve
             && !$this->palette
-            && !$this->quality
-            && !$this->compress
+            && !$this->useQuality
+            && !$this->useCompress
             && !$this->saveAs
             && !$this->rotateBefore
             && !$this->rotateAfter
@@ -883,6 +910,7 @@ class CImage
             $this->log("Using original image.");
             $this->output($this->pathToImage);
         }
+
         return $this;
     }
 
@@ -1919,10 +1947,14 @@ class CImage
     /**
      * Create a JSON object from the image details.
      *
+     * @param string $file the file to output.
+     *
      * @return string json-encoded representation of the image.
      */
-    public function json()
+    public function json($file = null)
     {
+        $file = $file ? $file : $this->cacheFileName;
+
         $details = array();
 
         clearstatcache();
@@ -1935,9 +1967,13 @@ class CImage
         $lastModified            = filemtime($this->cacheFileName);
         $details['cacheGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
+        $this->loadImageDetails($file);
+
+        $details['filename'] = basename($file);
         $details['width']  = $this->width;
         $details['height'] = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
+        $details['size'] = filesize($file);
 
         $options = null;
         if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {

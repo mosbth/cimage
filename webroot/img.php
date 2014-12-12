@@ -341,7 +341,7 @@ verbose("area = $area");
 /**
  * skip-original, so - skip the original image and always process a new image
  */
-$useOriginal = getDefined(array('save-as', 'sa'), false, true);
+$useOriginal = getDefined(array('skip-original', 'so'), false, true);
 
 verbose("use original = $useOriginal");
 

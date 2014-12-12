@@ -278,6 +278,11 @@ Revision history
 -------------------------------------
 
 
+v0.6.x (latest)
+
+* Corrected behaviour for skip-original. Fix #60.
+
+
 v0.6 (2014-12-06)
 
 * Rewrote and added documentation.
