@@ -280,6 +280,7 @@ Revision history
 
 v0.6.x (latest)
 
+* JSON returns correct values for resulting image. Fix #58.
 * Corrected behaviour for skip-original. Fix #60.
 
 
