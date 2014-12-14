@@ -22,7 +22,7 @@ $images = array(
 
 
 // For each image, apply these testcases
-$nc = '&nc'; 
+$nc = null; //&nc'; 
 $testcase = array(
     $nc . '&w=300&h=300&fill-to-fit',
     $nc . '&w=300&ar=1&fill-to-fit',
