@@ -280,6 +280,15 @@ class CImage
     private $offset;
 
 
+
+    /**
+     * Calculate target dimension for image when using fill-to-fit resize strategy. 
+     */
+    private $fillWidth;
+    private $fillHeight;
+
+
+
     /**
      * Properties, the class is mutable and the method setOptions()
      * decides (partly) what properties are created.  
@@ -599,6 +608,8 @@ class CImage
      */
     public function initDimensions()
     {
+        $this->log("Init dimension (before) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
+
         // width as %
         if ($this->newWidth[strlen($this->newWidth)-1] == '%') {
             $this->newWidth = $this->width * substr($this->newWidth, 0, -1) / 100;
@@ -656,6 +667,8 @@ class CImage
             or is_numeric($this->newHeight)
             or $this->raiseError('Height not numeric');
 
+        $this->log("Init dimension (after) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
+
         return $this;
     }
 
@@ -671,7 +684,9 @@ class CImage
         // Crop, use cropped width and height as base for calulations
         $this->log("Calculate new width and height.");
         $this->log("Original width x height is {$this->width} x {$this->height}.");
+        $this->log("Target dimension (before calculating) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
 
+        // Check if there is an area to crop off
         if (isset($this->area)) {
             $this->offset['top']    = round($this->area['top'] / 100 * $this->height);
             $this->offset['right']  = round($this->area['right'] / 100 * $this->width);
@@ -688,6 +703,7 @@ class CImage
         $width  = $this->width;
         $height = $this->height;
 
+        // Check if crop is set
         if ($this->crop) {
             $width  = $this->crop['width']  = $this->crop['width'] <= 0 ? $this->width + $this->crop['width'] : $this->crop['width'];
             $height = $this->crop['height'] = $this->crop['height'] <= 0 ? $this->height + $this->crop['height'] : $this->crop['height'];
@@ -717,7 +733,7 @@ class CImage
             $this->log("Keep aspect ratio.");
 
             // Crop-to-fit and both new width and height are set.
-            if ($this->cropToFit && isset($this->newWidth) && isset($this->newHeight)) {
+            if (($this->cropToFit || $this->fillToFit) && isset($this->newWidth) && isset($this->newHeight)) {
                 
                 // Use newWidth and newHeigh as width/height, image should fit in box.
                 $this->log("Use newWidth and newHeigh as width/height, image should fit in box.");
@@ -749,16 +765,33 @@ class CImage
             
             }
       
-            if ($this->cropToFit) {
-    
-                // Use newWidth and newHeigh as defined width/height,
-                // image should fit the area.
-                $this->log("Crop to fit.");
+            // Get image dimensions for pre-resize image.
+            if ($this->cropToFit || $this->fillToFit) {
+
+                // Get relations of original & target image
                 $ratioWidth  = $width  / $this->newWidth;
                 $ratioHeight = $height / $this->newHeight;
-                $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
-                $this->cropWidth  = round($width  / $ratio);
-                $this->cropHeight = round($height / $ratio);
+
+                if ($this->cropToFit) {
+        
+                    // Use newWidth and newHeigh as defined width/height,
+                    // image should fit the area.
+                    $this->log("Crop to fit.");
+                    $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
+                    $this->cropWidth  = round($width  / $ratio);
+                    $this->cropHeight = round($height / $ratio);
+                    $this->log("Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
+                
+                } else if ($this->fillToFit) {
+        
+                    // Use newWidth and newHeigh as defined width/height,
+                    // image should fit the area.
+                    $this->log("Fill to fit.");
+                    $ratio = ($ratioWidth < $ratioHeight) ? $ratioHeight : $ratioWidth;
+                    $this->fillWidth  = round($width  / $ratio);
+                    $this->fillHeight = round($height / $ratio);
+                    $this->log("Fill width, height, ratio: $this->fillWidth x $this->fillHeight ($ratio).");
+                }
             }
         }
 
@@ -768,6 +801,13 @@ class CImage
             $this->newWidth = round(isset($this->newWidth) ? $this->newWidth : $this->crop['width']);
             $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->crop['height']);
         }
+
+        // Fill to fit, ensure to set new width and height
+        /*if ($this->fillToFit) {
+            $this->log("FillToFit.");
+            $this->newWidth = round(isset($this->newWidth) ? $this->newWidth : $this->crop['width']);
+            $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->crop['height']);
+        }*/
 
         // No new height or width is set, use existing measures.
         $this->newWidth  = round(isset($this->newWidth) ? $this->newWidth : $this->width);
@@ -937,13 +977,8 @@ class CImage
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
 
-        if ($fillToFit) {
-            $width  = $this->newWidthOrig;
-            $height = $this->newHeightOrig;
-        } else {
-            $width  = $this->newWidth;
-            $height = $this->newHeight;
-        }
+        $width  = $this->newWidth;
+        $height = $this->newHeight;
 
         $offset = isset($this->offset)
             ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left']
@@ -1288,7 +1323,8 @@ class CImage
             $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
             $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
             imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
-            imagecopyresampled($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight, $this->newWidth, $this->newHeight);
+            //imagecopyresampled($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight, $this->newWidth, $this->newHeight);
+            imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
@@ -1301,17 +1337,23 @@ class CImage
             $posX = 0;
             $posY = 0;
 
-            if ($this->newWidth == $this->newWidthOrig) {
-                $posY = round(($this->newHeightOrig - $this->newHeight) / 2);
+            $ratioOrig = $this->width / $this->height;
+            $ratioNew  = $this->newWidth / $this->newHeight;
+
+            // Check ratio for landscape or portrait
+            if ($ratioOrig < $ratioNew) {
+                $posX = round(($this->newWidth - $this->fillWidth) / 2);
             } else {
-                $posX = round(($this->newWidthOrig - $this->newWidth) / 2);
+                $posY = round(($this->newHeight - $this->fillHeight) / 2);
             }
 
-            $imageResized = $this->CreateImageKeepTransparency($this->newWidthOrig, $this->newHeightOrig);
-            imagecopyresampled($imageResized, $this->image, $posX, $posY, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
+            $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
+            $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+            imagecopyresampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
+            imagecopy($imageResized, $imgPreFill, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
             $this->image = $imageResized;
-            $this->width = $this->newWidthOrig;
-            $this->height = $this->newHeightOrig;
+            $this->width = $this->newWidth;
+            $this->height = $this->newHeight;
         
         } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
             
@@ -1319,7 +1361,6 @@ class CImage
             $this->log("Resizing, new height and/or width");
             $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
             imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
-            //imagecopyresized($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
