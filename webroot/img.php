@@ -550,9 +550,21 @@ if ($verbose) {
     unset($query['nc']);
     unset($query['json']);
     $url1 = '?' . htmlentities(urldecode(http_build_query($query)));
+    $url2 = '?' . urldecode(http_build_query($query));
     echo <<<EOD
 <a href=$url1><code>$url1</code></a><br>
 <img src='{$url1}' />
+<pre id="json"></pre>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+window.getDetails = function (url, id) {
+  $.getJSON(url, function(data) {
+    element = document.getElementById(id);
+    element.innerHTML = "filename: " + data.filename + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
+  });
+}
+</script>
+<script type="text/javascript">window.getDetails("{$url2}&json", "json")</script>
 EOD;
 }
 

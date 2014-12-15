@@ -22,7 +22,7 @@ $images = array(
 
 
 // For each image, apply these testcases
-$nc = null; //"&nc"; //null; //&nc'; 
+$nc = "&nc"; //null; //&nc'; 
 $testcase = array(
     $nc . '&w=600',
     $nc . '&w=600&no-upscale',
@@ -30,10 +30,18 @@ $testcase = array(
     $nc . '&h=400&no-upscale',
     $nc . '&w=600&h=400',
     $nc . '&w=600&h=400&no-upscale',
-    $nc . '&w=600&h=400&stretch',
-    $nc . '&w=600&h=400&no-upscale&stretch',
+    $nc . '&w=700&h=400&stretch',
+    $nc . '&w=700&h=400&no-upscale&stretch',
+    $nc . '&w=700&h=200&stretch',
+    $nc . '&w=700&h=200&no-upscale&stretch',
+    $nc . '&w=300&h=400&stretch',
+    $nc . '&w=300&h=400&no-upscale&stretch',
     $nc . '&w=600&h=400&crop-to-fit',
     $nc . '&w=600&h=400&no-upscale&crop-to-fit',
+    $nc . '&w=600&h=200&crop-to-fit',
+    $nc . '&w=600&h=200&no-upscale&crop-to-fit',
+    $nc . '&w=300&h=400&crop-to-fit',
+    $nc . '&w=300&h=400&no-upscale&crop-to-fit',
     $nc . '&w=600&h=400&fill-to-fit',
     $nc . '&w=600&h=400&no-upscale&fill-to-fit',
 /*
