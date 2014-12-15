@@ -1302,8 +1302,8 @@ class CImage
             // Do as crop, take only part of image
             $this->log("Cropping area width={$this->crop['width']}, height={$this->crop['height']}, start_x={$this->crop['start_x']}, start_y={$this->crop['start_y']}");
             $img = $this->CreateImageKeepTransparency($this->crop['width'], $this->crop['height']);
-            //imgcopy
-            imagecopyresampled($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height'], $this->crop['width'], $this->crop['height']);
+            //imagecopyresampled($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height'], $this->crop['width'], $this->crop['height']);
+            imagecopy($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height']);
             $this->image = $img;
             $this->width = $this->crop['width'];
             $this->height = $this->crop['height'];

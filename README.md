@@ -280,6 +280,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Minor change in `CImage::resize()`, crop now does imagecopy without resamling.
 * Correcting internal details for save-as and response json which indicated wrong colors. Fix #62.
 * Fixed fill-to-fit that failed when using aspect-ratio. Fix #52.
 * JSON returns correct values for resulting image. Fix #58.
