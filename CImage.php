@@ -1323,6 +1323,12 @@ class CImage
             $this->width = $this->crop['width'];
             $this->height = $this->crop['height'];
         }
+
+        if (!$this->upscale) {
+            // Consider rewriting the no-upscale code to fit within this if-statement,
+            // likely to be more readable code.
+            // The code is more or leass equal in below crop-to-fit, fill-to-fit and stretch
+        }
     
         if ($this->cropToFit) {
             
