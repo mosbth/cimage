@@ -22,7 +22,7 @@ $images = array(
 
 
 // For each image, apply these testcases
-$nc = "&nc"; //null; //&nc'; 
+$nc = null; //"&nc"; //null; //&nc'; 
 $testcase = array(
     $nc . '&w=600',
     $nc . '&w=600&no-upscale',
