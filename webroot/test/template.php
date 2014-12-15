@@ -11,7 +11,7 @@
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio;
+    element.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio;
   });  
 }
 </script>

@@ -369,10 +369,13 @@ class CImage
      *
      * @return $this
      */
-    public function setSource($src = null, $dir = null)
+    public function setSource($src, $dir = null)
     {
-        if (!(isset($src) && isset($dir))) {
+        if (!isset($src)) {
             return $this;
+        } else if (!isset($dir)) {
+            $dir = dirname($src);
+            $src = basename($src);
         }
 
         $this->imageSrc       = ltrim($src, '/');
@@ -1215,6 +1218,7 @@ class CImage
     private function colorsTotal($im)
     {
         if (imageistruecolor($im)) {
+            $this->log("Colors as true color.");
             $h = imagesy($im);
             $w = imagesx($im);
             $c = array();
@@ -1225,6 +1229,7 @@ class CImage
             }
             return count($c);
         } else {
+            $this->log("Colors as palette.");
             return imagecolorstotal($im);
         }
     }
@@ -1292,22 +1297,12 @@ class CImage
             $this->height = $this->offset['height'];
         }
         
-        // SaveAs need to copy image to remove transparency, if any
-        if ($this->saveAs) {
-            
-            $this->log("Copying image before saving as another format, loosing transparency, width={$this->width}, height={$this->height}.");
-            $img = imagecreatetruecolor($this->width, $this->height);
-            $bg = imagecolorallocate($img, 255, 255, 255);
-            imagefill($img, 0, 0, $bg);
-            imagecopy($img, $this->image, 0, 0, 0, 0, $this->width, $this->height);
-            $this->image = $img;
-        }
-
         if ($this->crop) {
 
             // Do as crop, take only part of image
             $this->log("Cropping area width={$this->crop['width']}, height={$this->crop['height']}, start_x={$this->crop['start_x']}, start_y={$this->crop['start_y']}");
             $img = $this->CreateImageKeepTransparency($this->crop['width'], $this->crop['height']);
+            //imgcopy
             imagecopyresampled($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height'], $this->crop['width'], $this->crop['height']);
             $this->image = $img;
             $this->width = $this->crop['width'];
@@ -2015,6 +2010,9 @@ class CImage
         $details['height'] = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
         $details['size'] = filesize($file);
+
+        $this->load($file);
+        $details['colors'] = $this->colorsTotal($this->image);
 
         $options = null;
         if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {

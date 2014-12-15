@@ -280,6 +280,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Correcting internal details for save-as and response json which indicated wrong colors. Fix #62.
 * Fixed fill-to-fit that failed when using aspect-ratio. Fix #52.
 * JSON returns correct values for resulting image. Fix #58.
 * Corrected behaviour for skip-original. Fix #60.
