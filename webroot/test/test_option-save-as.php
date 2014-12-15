@@ -17,6 +17,8 @@ $description = "";
 // Use these images in the test
 $images = array(
     'car.png',
+    'car.gif',
+    'car.jpg',
     'ball24.png',
     'wider.jpg',
 );
@@ -26,9 +28,11 @@ $images = array(
 // For each image, apply these testcases
 $nc = "&nc"; //null; //&nc'; 
 $testcase = array(
+    $nc . '&w=300',
     $nc . '&w=300&sa=jpg',
     $nc . '&w=300&sa=png',
     $nc . '&w=300&sa=gif',
+    $nc . '&w=300&palette',
     $nc . '&w=300&sa=png&palette',
 );
 
