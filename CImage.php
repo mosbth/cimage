@@ -232,6 +232,14 @@ class CImage
 
 
     /**
+     * Always upscale images, even if they are smaller than target image.
+     */
+    const UPSCALE_DEFAULT = true;    
+    private $upscale = self::UPSCALE_DEFAULT;
+
+
+
+    /**
      * Array with details on how to crop, incoming as argument and calculated.
      */
     public $crop;
@@ -443,6 +451,7 @@ class CImage
             'fillToFit'   => null,
             'crop'        => null, //array('width'=>null, 'height'=>null, 'start_x'=>0, 'start_y'=>0),
             'area'        => null, //'0,0,0,0',
+            'upscale'     => self::UPSCALE_DEFAULT,
 
             // Options for caching or using original
             'useCache'    => true,
@@ -949,6 +958,7 @@ class CImage
             && !$this->rotateAfter
             && !$this->autoRotate
             && !$this->bgColor
+            && ($this->upscale === self::UPSCALE_DEFAULT)
         ) {
             $this->log("Using original image.");
             $this->output($this->pathToImage);
@@ -1027,11 +1037,16 @@ class CImage
             $convolve = 'convolve' . preg_replace('/[^a-zA-Z0-9]/', '', $this->convolve);
         }
 
+        $upscale = null;
+        if ($this->upscale !== self::UPSCALE_DEFAULT) {
+            $upscale = 'nu';
+        }
+
         $subdir = str_replace('/', '-', dirname($this->imageSrc));
         $subdir = ($subdir == '.') ? '_.' : $subdir;
         $file = $subdir . '_' . $parts['filename'] . '_' . $width . '_'
             . $height . $offset . $crop . $cropToFit . $fillToFit
-            . $crop_x . $crop_y
+            . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
             . '.' . $this->extension;
@@ -1285,6 +1300,7 @@ class CImage
     {
 
         $this->log("Starting to Resize()");
+        $this->log("Upscale = '$this->upscale'");
 
         // Only use a specified area of the image, $this->offset is defining the area to use
         if (isset($this->offset)) {
@@ -1302,7 +1318,6 @@ class CImage
             // Do as crop, take only part of image
             $this->log("Cropping area width={$this->crop['width']}, height={$this->crop['height']}, start_x={$this->crop['start_x']}, start_y={$this->crop['start_y']}");
             $img = $this->CreateImageKeepTransparency($this->crop['width'], $this->crop['height']);
-            //imagecopyresampled($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height'], $this->crop['width'], $this->crop['height']);
             imagecopy($img, $this->image, 0, 0, $this->crop['start_x'], $this->crop['start_y'], $this->crop['width'], $this->crop['height']);
             $this->image = $img;
             $this->width = $this->crop['width'];
@@ -1312,22 +1327,26 @@ class CImage
         if ($this->cropToFit) {
             
             // Resize by crop to fit
-            $this->log("Crop to fit");
-            $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
-            $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
-            $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
-            $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-            imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
-            //imagecopyresampled($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight, $this->newWidth, $this->newHeight);
-            imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
-            $this->image = $imageResized;
-            $this->width = $this->newWidth;
-            $this->height = $this->newHeight;
+            $this->log("Resizing using strategy - Crop to fit");
+
+            if (!$this->upscale && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
+                $this->log("Resizing - smaller image, do not upscale.");
+            } else {
+                $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
+                $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
+                $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
+                $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+                imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
+                imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
+                $this->image = $imageResized;
+                $this->width = $this->newWidth;
+                $this->height = $this->newHeight;
+            }
         
         } else if ($this->fillToFit) {
             
             // Resize by fill to fit
-            $this->log("Fill to fit");
+            $this->log("Resizing using strategy - Fill to fit");
 
             $posX = 0;
             $posY = 0;
@@ -1342,23 +1361,41 @@ class CImage
                 $posY = round(($this->newHeight - $this->fillHeight) / 2);
             }
 
-            $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
-            $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-            imagecopyresampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
-            imagecopy($imageResized, $imgPreFill, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
-            $this->image = $imageResized;
-            $this->width = $this->newWidth;
-            $this->height = $this->newHeight;
+            if (!$this->upscale && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
+                
+                $this->log("Resizing - smaller image, do not upscale.");
+                $posX = round(($this->fillWidth - $this->width) / 2);
+                $posY = round(($this->fillHeight - $this->height) / 2);
+                $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+                imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
+                $this->image = $imageResized;
+                $this->width = $this->newWidth;
+                $this->height = $this->newHeight;
+            
+            } else {
+                $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
+                $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+                imagecopyresampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
+                imagecopy($imageResized, $imgPreFill, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
+                $this->image = $imageResized;
+                $this->width = $this->newWidth;
+                $this->height = $this->newHeight;
+            }
         
         } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
             
             // Resize it
             $this->log("Resizing, new height and/or width");
-            $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-            imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
-            $this->image = $imageResized;
-            $this->width = $this->newWidth;
-            $this->height = $this->newHeight;
+
+            if (!$this->upscale && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
+                $this->log("Resizing - smaller image, do not upscale.");
+            } else {
+                $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+                imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
+                $this->image = $imageResized;
+                $this->width = $this->newWidth;
+                $this->height = $this->newHeight;
+            }
         }
 
         return $this;

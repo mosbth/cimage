@@ -212,6 +212,7 @@ These options affect strategy to use when resizing an image into a target image 
 | `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing and using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
 | `cf, crop-to-fit`  | Set together with both `h` and `w` to make the image fit into dimensions, and crop out the rest of the image. |
 | `ff, fill-to-fit` | Set together with both `h` and `w` to make the image fit into dimensions, and fill the rest using a background color. You can optionally supply a background color as this `ff=00ff00`, or `ff=00ff007f` when using the alpha channel. |
+| `nu, no-upscale` | Avoid smaller images from being upscaled to larger ones. Combine with `fill-to-fit` to get the smaller image centered on a larger canvas. |
 
 
 
@@ -280,6 +281,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Added option `no-upscale, nu` as resizing strategy to decline upscaling of smaller images. Fix #61.
 * Minor change in `CImage::resize()`, crop now does imagecopy without resamling.
 * Correcting internal details for save-as and response json which indicated wrong colors. Fix #62.
 * Fixed fill-to-fit that failed when using aspect-ratio. Fix #52.

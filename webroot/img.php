@@ -530,6 +530,15 @@ verbose("convolve = " . print_r($convolve, 1));
 
 
 /**
+ * no-upscale, nu - Do not upscale smaller image to larger dimension.
+ */
+$upscale = getDefined(array('no-upscale', 'nu'), false, true);
+
+verbose("upscale = $upscale");
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -565,6 +574,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             'fillToFit' => $fillToFit,
             'crop'      => $crop,
             'area'      => $area,
+            'upscale'   => $upscale,
 
             // Pre-processing, before resizing is done
             'scale'        => $scale,
