@@ -281,6 +281,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Adding compare-page for comparing images. Issue #20.
 * Added option `no-upscale, nu` as resizing strategy to decline upscaling of smaller images. Fix #61.
 * Minor change in `CImage::resize()`, crop now does imagecopy without resamling.
 * Correcting internal details for save-as and response json which indicated wrong colors. Fix #62.
