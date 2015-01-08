@@ -279,7 +279,7 @@ Revision history
 -------------------------------------
 
 
-v0.6.x (latest)
+v0.6.1 (2015-01-08)
 
 * Adding compare-page for comparing images. Issue #20.
 * Added option `no-upscale, nu` as resizing strategy to decline upscaling of smaller images. Fix #61.
