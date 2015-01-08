@@ -49,12 +49,12 @@ The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, 
 
 I prefer cloning like this. Do switch to the latest stable version.
 
-**Latest stable version is v0.6 released 2014-12-06.**
+**Latest stable version is v0.6.1 released 2015-01-08.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.6
+git checkout v0.6.1
 ```
 
 Make the cache-directory writable by the webserver.
