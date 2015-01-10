@@ -134,6 +134,21 @@ $img->setVerbose($verbose);
 
 
 /**
+ * Allow or disallow remote download of images from other servers.
+ *
+ */
+$allowRemote = $config['remote_allow'];
+
+if ($allowRemote) {
+    $pattern = isset($config['remote_pattern'])
+        ? $config['remote_pattern']
+        : null;
+    $img->setRemoteDownload($allowRemote, $pattern);
+}
+
+
+
+/**
  * shortcut, sc - extend arguments with a constant value, defined
  * in config-file.
  */
@@ -144,7 +159,7 @@ verbose("shortcut = $shortcut");
 if (isset($shortcut)
     && isset($config['shortcut'])
     && isset($config['shortcut'][$shortcut])) {
-    
+
     parse_str($config['shortcut'][$shortcut], $get);
     verbose("shortcut-constant = {$config['shortcut'][$shortcut]}");
     $_GET = array_merge($_GET, $get);
@@ -164,21 +179,25 @@ preg_match($config['valid_filename'], $srcImage)
     or errorPage('Filename contains invalid characters.');
 
 
-// Check that the image is a file below the directory 'image_path'.
-if ($config['image_path_constraint']) {
-    
+if ($allowRemote && $img->isRemoteSource($srcImage)) {
+
+    // If source is a remote file, ignore local file checks.
+
+} else if ($config['image_path_constraint']) {
+
+    // Check that the image is a file below the directory 'image_path'.
     $pathToImage = realpath($config['image_path'] . $srcImage);
     $imageDir    = realpath($config['image_path']);
 
     is_file($pathToImage)
         or errorPage(
-            'Source image is not a valid file, check the filename and that a 
+            'Source image is not a valid file, check the filename and that a
             matching file exists on the filesystem.'
         );
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
-            'Security constraint: Source image is not below the directory "image_path" 
+            'Security constraint: Source image is not below the directory "image_path"
             as specified in the config file img_config.php.'
         );
 }
@@ -374,7 +393,7 @@ verbose("quality = $quality");
  */
 $compress = get(array('compress', 'co'));
 
-    
+
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
     or errorPage('Compress out of range');
@@ -519,7 +538,7 @@ verbose("dpr = $dpr");
  */
 $convolve = get('convolve', null);
 
-// Check if the convolve is matching an existing constant 
+// Check if the convolve is matching an existing constant
 if ($convolve && isset($config['convolution_constant'])) {
     $img->addConvolveExpressions($config['convolution_constant']);
     verbose("convolve constant = " . print_r($config['convolution_constant'], 1));
@@ -574,6 +593,8 @@ EOD;
  * Load, process and output the image
  */
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
+    ->setSaveFolder($config['cache_path'])
+    ->useCache($useCache)
     ->setSource($srcImage, $config['image_path'])
     ->setOptions(
         array(
@@ -591,7 +612,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             // Pre-processing, before resizing is done
             'scale'        => $scale,
             'rotateBefore' => $rotateBefore,
-            'autoRotate'  => $autoRotate,
+            'autoRotate'   => $autoRotate,
 
             // General processing options
             'bgColor'    => $bgColor,

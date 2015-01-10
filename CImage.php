@@ -17,7 +17,7 @@ class CImage
     const PNG_RGB_PALETTE       = 3;
     const PNG_GREYSCALE_ALPHA   = 4;
     const PNG_RGB_ALPHA         = 6;
-    
+
 
 
     /**
@@ -224,7 +224,7 @@ class CImage
     private $newHeight;
     private $newHeightOrig; // Save original value
 
-    
+
     /**
      * Change target height & width when different dpr, dpr 2 means double image dimensions.
      */
@@ -250,13 +250,13 @@ class CImage
      * String with details on how to do image convolution. String
      * should map a key in the $convolvs array or be a string of
      * 11 float values separated by comma. The first nine builds
-     * up the matrix, then divisor and last offset. 
+     * up the matrix, then divisor and last offset.
      */
     private $convolve;
 
 
     /**
-     * Custom convolution expressions, matrix 3x3, divisor and offset. 
+     * Custom convolution expressions, matrix 3x3, divisor and offset.
      */
     private $convolves = array(
         'lighten'       => '0,0,0, 0,12,0, 0,0,0, 9, 0',
@@ -276,30 +276,50 @@ class CImage
 
 
     /**
-     * Resize strategy to fill extra area with background color. 
+     * Resize strategy to fill extra area with background color.
      * True or false.
      */
     private $fillToFit;
 
 
     /**
-     * Used with option area to set which parts of the image to use. 
+     * Used with option area to set which parts of the image to use.
      */
     private $offset;
 
 
 
     /**
-     * Calculate target dimension for image when using fill-to-fit resize strategy. 
-     */
+    * Calculate target dimension for image when using fill-to-fit resize strategy.
+    */
     private $fillWidth;
     private $fillHeight;
 
 
 
     /**
+    * Allow remote file download, default is to disallow remote file download.
+    */
+    private $allowRemote = false;
+
+
+
+    /**
+     * Pattern to recognize a remote file.
+     */
+    private $remotePattern = '#^[http|https]://#';
+
+
+
+    /**
+     * Use the cache if true, set to false to ignore the cached file.
+     */
+    private $useCache = true;
+
+
+    /**
      * Properties, the class is mutable and the method setOptions()
-     * decides (partly) what properties are created.  
+     * decides (partly) what properties are created.
      *
      * @todo Clean up these and check if and how they are used
      */
@@ -313,7 +333,6 @@ class CImage
     public $filters;
     private $type; // Calculated from source image
     private $attr; // Calculated from source image
-    private $useCache; // Use the cache if true, set to false to ignore the cached file.
     private $useOriginal; // Use original image if possible
 
 
@@ -338,7 +357,8 @@ class CImage
     /**
      * Set verbose mode.
      *
-     * @param boolean $mode true or false to enable and disable versbose mode, default is true.
+     * @param boolean $mode true or false to enable and disable verbose mode,
+     *                      default is true.
      *
      * @return $this
      */
@@ -347,8 +367,84 @@ class CImage
         $this->verbose = $mode;
         return $this;
     }
-  
-  
+
+
+
+    /**
+     * Set save folder, base folder for saving cache files.
+     *
+     * @todo clean up how $this->saveFolder is used in other methods.
+     *
+     * @param string $path where to store cached files.
+     *
+     * @return $this
+     */
+    public function setSaveFolder($path)
+    {
+        $this->saveFolder = $path;
+        return $this;
+    }
+
+
+
+    /**
+     * Use cache or not.
+     *
+     * @todo clean up how $this->noCache is used in other methods.
+     *
+     * @param string $use true or false to use cache.
+     *
+     * @return $this
+     */
+    public function useCache($use = true)
+    {
+        $this->useCache = $use;
+        return $this;
+    }
+
+
+
+    /**
+     * Allow or disallow remote image download.
+     *
+     * @param boolean $allow   true or false to enable and disable.
+     * @param string  $pattern to use to detect if its a remote file.
+     *
+     * @return $this
+     */
+    public function setRemoteDownload($allow, $pattern = null)
+    {
+        $this->allowRemote = $allow;
+        $this->remotePattern = $pattern ? $pattern : $this->remotePattern;
+
+        $this->log("Set remote download to: "
+            . ($this->allowRemote ? "true" : "false")
+            . " using pattern "
+            . $this->remotePattern);
+
+        return $this;
+    }
+
+
+
+    /**
+     * Check if the image resource is a remote file or not.
+     *
+     * @param string $src check if src is remote.
+     *
+     * @return boolean true if $src is a remote file, else false.
+     */
+    public function isRemoteSource($src)
+    {
+        $remote = $this->allowRemote
+            && preg_match($this->remotePattern, $src);
+
+        $this->log("Detected remote image: " . ($remote ? "true" : "false"));
+
+        return $remote;
+    }
+
+
 
     /**
      * Check if file extension is valid as a file extension.
@@ -366,9 +462,9 @@ class CImage
 
         return $this;
     }
-  
-  
-  
+
+
+
     /**
      * Set src file.
      *
@@ -381,7 +477,26 @@ class CImage
     {
         if (!isset($src)) {
             return $this;
-        } else if (!isset($dir)) {
+        }
+
+        if ($this->isRemoteSource($src)) {
+            $remote = new CRemoteImage();
+
+            $cache = $this->saveFolder . "/remote/";
+            if (!is_writable($cache)) {
+                $this->log("The remote cache is not writable.");
+            }
+
+            $remote->setCache($cache);
+            $remote->useCache($this->useCache);
+            $src = $remote->download($src);
+            $this->log("Remote HTTP status: " . $remote->getStatus());
+            $this->log("Remote item has local cached file: $src");
+            $this->log("Remote details on cache:" . print_r($remote->getDetails(), true));
+            $dir = null;
+        }
+
+        if (!isset($dir)) {
             $dir = dirname($src);
             $src = basename($src);
         }
@@ -391,14 +506,14 @@ class CImage
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
         $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
         //$this->extension      = $this->fileExtension;
-        
+
         $this->checkFileExtension($this->fileExtension);
 
         return $this;
     }
-  
-  
-  
+
+
+
     /**
      * Set target file.
      *
@@ -424,12 +539,12 @@ class CImage
         // Sanitize filename
         $this->cacheFileName = preg_replace('/^a-zA-Z0-9\.-_/', '', $this->cacheFileName);
         $this->log("The cache file name is: " . $this->cacheFileName);
-        
+
         return $this;
     }
-  
-  
-  
+
+
+
     /**
      * Set options to use when processing image.
      *
@@ -517,7 +632,7 @@ class CImage
                         $filter["arg{$i}"] = $parts[$i];
                     } else {
                         throw new Exception(
-                            'Missing arg to filter, review how many arguments are needed at 
+                            'Missing arg to filter, review how many arguments are needed at
                             http://php.net/manual/en/function.imagefilter.php'
                         );
                     }
@@ -553,7 +668,7 @@ class CImage
      * @param string $name the name of the filter.
      *
      * @return array with filter settings
-     * @throws Exception 
+     * @throws Exception
      */
     private function mapFilter($name)
     {
@@ -578,8 +693,8 @@ class CImage
             throw new Exception('No such filter.');
         }
     }
-  
-  
+
+
 
     /**
      * Load image details from original image file.
@@ -612,8 +727,8 @@ class CImage
 
 
     /**
-     * Init new width and height and do some sanity checks on constraints, before any 
-     * processing can be done. 
+     * Init new width and height and do some sanity checks on constraints, before any
+     * processing can be done.
      *
      * @return $this
      * @throws Exception
@@ -746,12 +861,12 @@ class CImage
 
             // Crop-to-fit and both new width and height are set.
             if (($this->cropToFit || $this->fillToFit) && isset($this->newWidth) && isset($this->newHeight)) {
-                
+
                 // Use newWidth and newHeigh as width/height, image should fit in box.
                 $this->log("Use newWidth and newHeigh as width/height, image should fit in box.");
 
             } elseif (isset($this->newWidth) && isset($this->newHeight)) {
-                
+
                 // Both new width and height are set.
                 // Use newWidth and newHeigh as max width/height, image should not be larger.
                 $ratioWidth  = $width  / $this->newWidth;
@@ -760,23 +875,23 @@ class CImage
                 $this->newWidth  = round($width  / $ratio);
                 $this->newHeight = round($height / $ratio);
                 $this->log("New width and height was set.");
-            
+
             } elseif (isset($this->newWidth)) {
-                
+
                 // Use new width as max-width
                 $factor = (float)$this->newWidth / (float)$width;
                 $this->newHeight = round($factor * $height);
                 $this->log("New width was set.");
-            
+
             } elseif (isset($this->newHeight)) {
-            
+
                 // Use new height as max-hight
                 $factor = (float)$this->newHeight / (float)$height;
                 $this->newWidth = round($factor * $width);
                 $this->log("New height was set.");
-            
+
             }
-      
+
             // Get image dimensions for pre-resize image.
             if ($this->cropToFit || $this->fillToFit) {
 
@@ -785,7 +900,7 @@ class CImage
                 $ratioHeight = $height / $this->newHeight;
 
                 if ($this->cropToFit) {
-        
+
                     // Use newWidth and newHeigh as defined width/height,
                     // image should fit the area.
                     $this->log("Crop to fit.");
@@ -793,9 +908,9 @@ class CImage
                     $this->cropWidth  = round($width  / $ratio);
                     $this->cropHeight = round($height / $ratio);
                     $this->log("Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
-                
+
                 } else if ($this->fillToFit) {
-        
+
                     // Use newWidth and newHeigh as defined width/height,
                     // image should fit the area.
                     $this->log("Fill to fit.");
@@ -834,7 +949,7 @@ class CImage
     /**
      * Re-calculate image dimensions when original image dimension has changed.
      *
-     * @return $this 
+     * @return $this
      */
     public function reCalculateDimensions()
     {
@@ -857,7 +972,7 @@ class CImage
      *
      * @param string $saveas extension to save image as
      *
-     * @return $this 
+     * @return $this
      */
     public function setSaveAsExtension($saveAs = null)
     {
@@ -879,7 +994,7 @@ class CImage
      * Set JPEG quality to use when saving image
      *
      * @param int $quality as the quality to set.
-     * 
+     *
      * @return $this
      */
     public function setJpegQuality($quality = null)
@@ -906,7 +1021,7 @@ class CImage
      * Set PNG compressen algorithm to use when saving image
      *
      * @param int $compress as the algorithm to use.
-     * 
+     *
      * @return $this
      */
     public function setPngCompression($compress = null)
@@ -967,7 +1082,7 @@ class CImage
         return $this;
     }
 
- 
+
 
     /**
      * Generate filename to save file in cache.
@@ -1000,7 +1115,7 @@ class CImage
         $crop = $this->crop
             ? '_c' . $this->crop['width'] . '-' . $this->crop['height'] . '-' . $this->crop['start_x'] . '-' . $this->crop['start_y']
             : null;
-    
+
         $filters = null;
         if (isset($this->filters)) {
             foreach ($this->filters as $filter) {
@@ -1017,7 +1132,7 @@ class CImage
         $emboss  = $this->emboss  ? 'e' : null;
         $blur    = $this->blur    ? 'b' : null;
         $palette = $this->palette ? 'p' : null;
-        
+
         $autoRotate = $this->autoRotate ? 'ar' : null;
 
         $this->extension = isset($this->extension)
@@ -1058,7 +1173,7 @@ class CImage
 
     /**
      * Use cached version of image, if possible.
-     * 
+     *
      * @param boolean $useCache is default true, set to false to avoid using cached object.
      *
      * @return $this
@@ -1068,7 +1183,7 @@ class CImage
         if ($useCache && is_readable($this->cacheFileName)) {
             $fileTime   = filemtime($this->pathToImage);
             $cacheTime  = filemtime($this->cacheFileName);
-            
+
             if ($fileTime <= $cacheTime) {
                 if ($this->useCache) {
                     if ($this->verbose) {
@@ -1090,7 +1205,7 @@ class CImage
     }
 
 
-    
+
     /**
      * Error message when failing to load somehow corrupt image.
      *
@@ -1107,11 +1222,11 @@ class CImage
             case 'jpeg':
                 $this->image = imagecreatefromjpeg($this->pathToImage);
                 break;
-      
+
             case 'gif':
                 $this->image = imagecreatefromgif($this->pathToImage);
                 break;
-      
+
             case 'png':
                 $this->image = imagecreatefrompng($this->pathToImage);
                 break;
@@ -1145,19 +1260,19 @@ class CImage
                 $this->image = @imagecreatefromjpeg($this->pathToImage);
                 $this->image or $this->failedToLoad();
                 break;
-      
+
             case 'gif':
                 $this->image = @imagecreatefromgif($this->pathToImage);
                 $this->image or $this->failedToLoad();
                 break;
-      
+
             case 'png':
                 $this->image = @imagecreatefrompng($this->pathToImage);
                 $this->image or $this->failedToLoad();
 
                 $type = $this->getPngType();
                 $hasFewColors = imagecolorstotal($this->image);
-        
+
                 if ($type == self::PNG_RGB_PALETTE || ($hasFewColors > 0 && $hasFewColors <= 256)) {
                     if ($this->verbose) {
                         $this->log("Handle this image as a palette image.");
@@ -1193,7 +1308,7 @@ class CImage
         $pngType = ord(file_get_contents($this->pathToImage, false, null, 25, 1));
 
         switch ($pngType) {
-            
+
             case self::PNG_GREYSCALE:
                 $this->log("PNG is type 0, Greyscale.");
                 break;
@@ -1209,7 +1324,7 @@ class CImage
             case self::PNG_GREYSCALE_ALPHA:
                 $this->Log("PNG is type 4, Greyscale with alpha channel");
                 break;
-            
+
             case self::PNG_RGB_ALPHA:
                 $this->Log("PNG is type 6, RGB with alpha channel (PNG 32-bit)");
                 break;
@@ -1223,12 +1338,12 @@ class CImage
 
 
 
-    /** 
+    /**
      * Calculate number of colors in an image.
      *
      * @param resource $im the image.
      *
-     * @return int 
+     * @return int
      */
     private function colorsTotal($im)
     {
@@ -1304,7 +1419,7 @@ class CImage
 
         // Only use a specified area of the image, $this->offset is defining the area to use
         if (isset($this->offset)) {
-            
+
             $this->log("Offset for area to use, cropping it width={$this->offset['width']}, height={$this->offset['height']}, start_x={$this->offset['left']}, start_y={$this->offset['top']}");
             $img = $this->CreateImageKeepTransparency($this->offset['width'], $this->offset['height']);
             imagecopy($img, $this->image, 0, 0, $this->offset['left'], $this->offset['top'], $this->offset['width'], $this->offset['height']);
@@ -1312,7 +1427,7 @@ class CImage
             $this->width = $this->offset['width'];
             $this->height = $this->offset['height'];
         }
-        
+
         if ($this->crop) {
 
             // Do as crop, take only part of image
@@ -1329,15 +1444,15 @@ class CImage
             // likely to be more readable code.
             // The code is more or leass equal in below crop-to-fit, fill-to-fit and stretch
         }
-    
+
         if ($this->cropToFit) {
-            
+
             // Resize by crop to fit
             $this->log("Resizing using strategy - Crop to fit");
 
             if (!$this->upscale && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
-                
+
                 $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
                 $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
 
@@ -1347,7 +1462,7 @@ class CImage
                 if ($this->newWidth > $this->width) {
                     $posX = round(($this->newWidth - $this->width) / 2);
                 }
-    
+
                 if ($this->newHeight > $this->height) {
                     $posY = round(($this->newHeight - $this->height) / 2);
                 }
@@ -1366,9 +1481,9 @@ class CImage
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
-        
+
         } else if ($this->fillToFit) {
-            
+
             // Resize by fill to fit
             $this->log("Resizing using strategy - Fill to fit");
 
@@ -1388,13 +1503,13 @@ class CImage
             if (!$this->upscale
                 && ($this->width < $this->newWidth || $this->height < $this->newHeight)
             ) {
-                
+
                 $this->log("Resizing - smaller image, do not upscale.");
                 $posX = round(($this->fillWidth - $this->width) / 2);
                 $posY = round(($this->fillHeight - $this->height) / 2);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
                 imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
-            
+
             } else {
                 $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
@@ -1405,9 +1520,9 @@ class CImage
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
-        
+
         } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
-            
+
             // Resize it
             $this->log("Resizing, new height and/or width");
 
@@ -1473,24 +1588,24 @@ class CImage
 
         // Apply filters
         if (isset($this->filters) && is_array($this->filters)) {
-            
+
             foreach ($this->filters as $filter) {
                 $this->log("Applying filter {$filter['type']}.");
-            
+
                 switch ($filter['argc']) {
-            
+
                     case 0:
                         imagefilter($this->image, $filter['type']);
                         break;
-            
+
                     case 1:
                         imagefilter($this->image, $filter['type'], $filter['arg1']);
                         break;
-            
+
                     case 2:
                         imagefilter($this->image, $filter['type'], $filter['arg1'], $filter['arg2']);
                         break;
-            
+
                     case 3:
                         imagefilter($this->image, $filter['type'], $filter['arg1'], $filter['arg2'], $filter['arg3']);
                         break;
@@ -1535,11 +1650,11 @@ class CImage
         return $this;
     }
 
-    
+
 
     /**
      * Rotate image using angle.
-     * 
+     *
      * @param float $angle        to rotate image.
      * @param int   $anglebgColor to fill image with if needed.
      *
@@ -1551,7 +1666,7 @@ class CImage
 
         $color = $this->getBackgroundColor();
         $this->image = imagerotate($this->image, $angle, $color);
-        
+
         $this->width  = imagesx($this->image);
         $this->height = imagesy($this->image);
 
@@ -1564,7 +1679,7 @@ class CImage
 
     /**
      * Rotate image using information in EXIF.
-     * 
+     *
      * @return $this
      */
     public function rotateExif()
@@ -1599,7 +1714,7 @@ class CImage
         } else {
             $this->log("Autorotate ignored, no orientation in EXIF.");
         }
-        
+
         return $this;
     }
 
@@ -1633,7 +1748,7 @@ class CImage
 
     /**
      * Sharpen image using image convolution.
-     * 
+     *
      * @return $this
      */
     public function sharpenImage()
@@ -1646,7 +1761,7 @@ class CImage
 
     /**
      * Emboss image using image convolution.
-     * 
+     *
      * @return $this
      */
     public function embossImage()
@@ -1659,7 +1774,7 @@ class CImage
 
     /**
      * Blur image using image convolution.
-     * 
+     *
      * @return $this
      */
     public function blurImage()
@@ -1672,7 +1787,7 @@ class CImage
 
     /**
      * Create convolve expression and return arguments for image convolution.
-     * 
+     *
      * @param string $expression constant string which evaluates to a list of
      *                           11 numbers separated by komma or such a list.
      *
@@ -1691,17 +1806,17 @@ class CImage
         // Expect list of 11 numbers, split by , and build up arguments
         if (count($part) != 11) {
             throw new Exception(
-                "Missmatch in argument convolve. Expected comma-separated string with 
+                "Missmatch in argument convolve. Expected comma-separated string with
                 11 float values. Got $expression."
             );
         }
-            
+
         array_walk($part, function ($item, $key) {
             if (!is_numeric($item)) {
                 throw new Exception("Argument to convolve expression should be float but is not.");
             }
         });
-            
+
         return array(
             array(
                 array($part[0], $part[1], $part[2]),
@@ -1717,7 +1832,7 @@ class CImage
 
     /**
      * Add custom expressions (or overwrite existing) for image convolution.
-     * 
+     *
      * @param array $options Key value array with strings to be converted
      *                       to convolution expressions.
      *
@@ -1733,7 +1848,7 @@ class CImage
 
     /**
      * Image convolution.
-     * 
+     *
      * @param string $options A string with 11 float separated by comma.
      *
      * @return $this
@@ -1752,7 +1867,7 @@ class CImage
             list($matrix, $divisor, $offset) = $this->createConvolveArguments($option);
             imageconvolution($this->image, $matrix, $divisor, $offset);
         }
-        
+
         return $this;
     }
 
@@ -1842,7 +1957,7 @@ class CImage
         }
     }
 
- 
+
 
     /**
      * Create a image and keep transparency for png and gifs.
@@ -1869,10 +1984,10 @@ class CImage
         return $img;
     }
 
- 
+
 
     /**
-     * Set optimizing  and post-processing options. 
+     * Set optimizing  and post-processing options.
      *
      * @param array $options with config for postprocessing with external tools.
      *
@@ -1897,7 +2012,7 @@ class CImage
         } else {
             $this->pngDeflateCmd = null;
         }
-    
+
         return $this;
     }
 
@@ -1921,12 +2036,12 @@ class CImage
             or $this->raiseError('Target directory is not writable.');
 
         switch(strtolower($this->extension)) {
-            
+
             case 'jpeg':
             case 'jpg':
                 $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");
                 imagejpeg($this->image, $this->cacheFileName, $this->quality);
-          
+
                 // Use JPEG optimize if defined
                 if ($this->jpegOptimizeCmd) {
                     if ($this->verbose) {
@@ -1942,10 +2057,8 @@ class CImage
                 break;
 
             case 'gif':
-                if ($this->saveFolder) {
-                    $this->Log("Saving image as GIF to cache.");
-                    imagegif($this->image, $this->cacheFileName);
-                }
+                $this->Log("Saving image as GIF to cache.");
+                imagegif($this->image, $this->cacheFileName);
                 break;
 
             case 'png':
@@ -1955,7 +2068,7 @@ class CImage
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
                 imagepng($this->image, $this->cacheFileName, $this->compress);
-              
+
                 // Use external program to filter PNG, if defined
                 if ($this->pngFilterCmd) {
                     if ($this->verbose) {
@@ -2039,17 +2152,17 @@ class CImage
         }
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
-            
+
             if ($this->verbose) {
                 $this->log("304 not modified");
                 $this->verboseOutput();
                 exit;
             }
-            
+
             header("HTTP/1.0 304 Not Modified");
-        
+
         } else {
-        
+
             if ($this->verbose) {
                 $this->log("Last modified: " . $gmdate . " GMT");
                 $this->verboseOutput();
@@ -2064,7 +2177,7 @@ class CImage
             header('Content-type: ' . $mime);
             readfile($file);
         }
-        
+
         exit;
     }
 
@@ -2108,7 +2221,7 @@ class CImage
         if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {
             $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
         }
-  
+
         return json_encode($details, $options);
     }
 
@@ -2129,9 +2242,9 @@ class CImage
 
         return $this;
     }
-  
-  
-  
+
+
+
     /**
      * Do verbose output and print out the log and the actual images.
      *
@@ -2146,7 +2259,7 @@ class CImage
 
         $included = get_included_files();
         $this->log("Included files: " . count($included));
-    
+
         foreach ($this->log as $val) {
             if (is_array($val)) {
                 foreach ($val as $val1) {
@@ -2175,7 +2288,7 @@ EOD;
      *
      * @param string $message the error message to display.
      *
-     * @return void 
+     * @return void
      * @throws Exception
      */
     private function raiseError($message)

@@ -1,14 +1,17 @@
 <?php
 /**
- * Configuration for img.php, name the config file the same as your img.php and 
- * append _config. If you are testing out some in imgtest.php then label that 
+ * Configuration for img.php, name the config file the same as your img.php and
+ * append _config. If you are testing out some in imgtest.php then label that
  * config-file imgtest_config.php.
  *
  */
+include __DIR__ . "/../CHttpGet.php";
+include __DIR__ . "/../CRemoteImage.php";
+
 return array(
 
     /**
-     * Paths, where are all the stuff I should use? 
+     * Paths, where are all the stuff I should use?
      * Append ending slash on directories.
      */
     'cimage_class' =>  __DIR__ . '/../CImage.php',
@@ -19,7 +22,7 @@ return array(
 
     /**
      * Check that the imagefile is a file below 'image_path' using realpath().
-     * Security constraint to avoid reaching images outside image_path. 
+     * Security constraint to avoid reaching images outside image_path.
      * This means that symbolic links to images outside the image_path will fail.
      */
     'image_path_constraint' => true,
@@ -29,13 +32,22 @@ return array(
     /**
      * A regexp for validating characters in the image filename.
      */
-    'valid_filename' => '#^[a-z0-9A-Z-/_\.]+$#',
+    'valid_filename' => '#^[a-z0-9A-Z-/_\.:]+$#',
+
+
+
+    /**
+     * Allow or disallow downloading of remote files, images available on
+     * some remote server. Default is to disallow.
+     */
+    'remote_allow'   => true,
+    'remote_pattern' => '#^http#',
 
 
 
     /**
      * Set default timezone, it defaults to UTC if not specified.
-     * 
+     *
      */
     //'default_timezone'     => 'UTC',
 
@@ -43,9 +55,9 @@ return array(
 
     /**
      * Max image dimensions, larger dimensions results in 404.
-     * This is basically a security constraint to avoid using resources on creating 
+     * This is basically a security constraint to avoid using resources on creating
      * large (unwanted) images.
-     * 
+     *
      */
     'max_width'     => 2000,
     'max_height'    => 2000,
@@ -56,7 +68,7 @@ return array(
      * Set default background color for all images. Override it using
      * option bgColor.
      * Colorvalue is 6 digit hex string between 000000-FFFFFF
-     * or 8 digit hex string if using the alpha channel where 
+     * or 8 digit hex string if using the alpha channel where
      * the alpha value is between 00 (opaqe) and 7F (transparent),
      * that is between 00000000-FFFFFF7F.
      *
@@ -67,8 +79,8 @@ return array(
 
 
     /**
-     * Post processing of images using external tools, set to true or false 
-     * and set command to be executed. 
+     * Post processing of images using external tools, set to true or false
+     * and set command to be executed.
      */
     'postprocessing' => array(
         'png_filter'        => false,
@@ -84,7 +96,7 @@ return array(
 
 
     /**
-     * Create custom convolution expressions, matrix 3x3, divisor and 
+     * Create custom convolution expressions, matrix 3x3, divisor and
      * offset.
      */
     'convolution_constant' => array(
@@ -104,13 +116,13 @@ return array(
 
 
     /**
-     * Predefined size constants. 
+     * Predefined size constants.
      *
-     * These can be used together with &width or &height to create a constant value 
+     * These can be used together with &width or &height to create a constant value
      * for a width or height where can be changed in one place.
      * Useful when your site changes its layout or if you have a grid to fit images into.
      *
-     * Example: 
+     * Example:
      *  &width=w1  // results in width=613
      *  &width=c2  // results in spanning two columns with a gutter, 30*2+10=70
      *  &width=c24 // results in spanning whole grid 24*30+((24-1)*10)=950
@@ -138,8 +150,8 @@ return array(
 
 
     /**
-     * Predefined aspect ratios. 
-     * 
+     * Predefined aspect ratios.
+     *
      */
     'aspect_ratio_constant' => function () {
         return array(
@@ -156,7 +168,7 @@ return array(
 
 
     /**
-     * Set error reporting to match development or production environment 
+     * Set error reporting to match development or production environment
      */
     'error_reporting' => function () {
         error_reporting(-1);              // Report all type of errors
