@@ -71,6 +71,24 @@ function getDefined($key, $defined, $undefined)
 
 
 /**
+ * Get value from config array or default if key is not set in config array.
+ *
+ * @param string $key    the key in the config array.
+ * @param mixed $default value to be default if $key is not set in config.
+ *
+ * @return mixed value as $config[$key] or $default.
+ */
+function getConfig($key, $default)
+{
+    global $config;
+    return isset($config[$key])
+        ? $config[$key]
+        : $default;
+}
+
+
+
+/**
  * Log when verbose mode, when used without argument it returns the result.
  *
  * @param string $msg to log.
@@ -124,10 +142,22 @@ $verbose = getDefined(array('verbose', 'v'), true, false);
 
 
 /**
+ * Get the source files.
+ */
+$autoloader  = getConfig('autoloader', false);
+$cimageClass = getConfig('cimage_class', false);
+
+if ($autoloader) {
+    require $autoloader;
+} else if ($cimageClass) {
+    require $cimageClass;
+}
+
+
+
+/**
  * Create the class for the image.
  */
-require $config['cimage_class'];
-
 $img = new CImage();
 $img->setVerbose($verbose);
 
@@ -137,12 +167,23 @@ $img->setVerbose($verbose);
  * Allow or disallow remote download of images from other servers.
  *
  */
-$allowRemote = $config['remote_allow'];
+$allowRemote = getConfig('remote_allow', false);
+$remotePwd   = getConfig('remote_password', false);
+$pwd         = get(array('password', 'pwd'), null);
 
-if ($allowRemote) {
-    $pattern = isset($config['remote_pattern'])
-        ? $config['remote_pattern']
-        : null;
+// Check if passwords match, if configured to use passwords
+$passwordMatch = null;
+if ($remotePwd != false) {
+    if ($remotePwd == $pwd) {
+        $passwordMatch = true;
+    } else {
+        $passwordMatch = false;
+        errorPage('Trying to download remote image but missing password.');
+    }
+}
+
+if ($allowRemote && $passwordMatch !== false) {
+    $pattern = getConfig('remote_pattern', null);
     $img->setRemoteDownload($allowRemote, $pattern);
 }
 

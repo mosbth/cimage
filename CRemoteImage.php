@@ -297,7 +297,9 @@ class CRemoteImage
         $cacheFile = str_replace(["/", ":", "#", ".", "?"], "-", $this->url);
         $this->fileName = $this->saveFolder . $cacheFile;
         $this->fileJson = $this->fileName . ".json";
-        $this->cache = json_decode(file_get_contents($this->fileJson), true);
+        if (is_readable($this->fileJson)) {
+            $this->cache = json_decode(file_get_contents($this->fileJson), true);
+        }
     }
 
 

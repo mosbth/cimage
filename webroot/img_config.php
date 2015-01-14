@@ -5,16 +5,19 @@
  * config-file imgtest_config.php.
  *
  */
-include __DIR__ . "/../CHttpGet.php";
-include __DIR__ . "/../CRemoteImage.php";
-
 return array(
 
     /**
-     * Paths, where are all the stuff I should use?
-     * Append ending slash on directories.
+     * Where are the sources for the classfiles.
      */
-    'cimage_class' =>  __DIR__ . '/../CImage.php',
+    'autoloader'   =>  __DIR__ . '/../autoload.php',
+    //'cimage_class' =>  __DIR__ . '/../CImage.php',
+
+
+
+    /**
+     * Paths, where are the images stored and where is the cache.
+     */
     'image_path'   =>  __DIR__ . '/img/',
     'cache_path'   =>  __DIR__ . '/../cache/',
 
@@ -39,9 +42,17 @@ return array(
     /**
      * Allow or disallow downloading of remote files, images available on
      * some remote server. Default is to disallow.
+     * Use password to protect from missusage, send &pwd=... or &password=..
+     * with the request to match the password or set to false to disable.
+     *
+     * Default values.
+     *  remote_allow:    false
+     *  remote_password: false // as in do not use password
+     *  remote_pattern:  null  // use default values from CImage
      */
-    'remote_allow'   => true,
-    'remote_pattern' => '#^http#',
+    'remote_allow'    => true,
+    //'remote_password' => false, // "secret-password",
+    //'remote_pattern'  => '#^https?://#',
 
 
 

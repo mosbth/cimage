@@ -307,7 +307,8 @@ class CImage
     /**
      * Pattern to recognize a remote file.
      */
-    private $remotePattern = '#^[http|https]://#';
+    //private $remotePattern = '#^[http|https]://#';
+    private $remotePattern = '#^https?://#';
 
 
 
@@ -436,11 +437,8 @@ class CImage
      */
     public function isRemoteSource($src)
     {
-        $remote = $this->allowRemote
-            && preg_match($this->remotePattern, $src);
-
+        $remote = preg_match($this->remotePattern, $src);
         $this->log("Detected remote image: " . ($remote ? "true" : "false"));
-
         return $remote;
     }
 
@@ -466,6 +464,35 @@ class CImage
 
 
     /**
+     * Download a remote image and return path to its local copy.
+     *
+     * @param string $src remote path to image.
+     *
+     * @return string as path to downloaded remote source.
+     */
+    public function downloadRemoteSource($src)
+    {
+        $remote = new CRemoteImage();
+
+        $cache = $this->saveFolder . "/remote/";
+        if (!is_writable($cache)) {
+            $this->log("The remote cache is not writable.");
+        }
+
+        $remote->setCache($cache);
+        $remote->useCache($this->useCache);
+        $src = $remote->download($src);
+
+        $this->log("Remote HTTP status: " . $remote->getStatus());
+        $this->log("Remote item has local cached file: $src");
+        $this->log("Remote details on cache:" . print_r($remote->getDetails(), true));
+
+        return $src;
+    }
+
+
+
+    /**
      * Set src file.
      *
      * @param string $src of image.
@@ -479,20 +506,8 @@ class CImage
             return $this;
         }
 
-        if ($this->isRemoteSource($src)) {
-            $remote = new CRemoteImage();
-
-            $cache = $this->saveFolder . "/remote/";
-            if (!is_writable($cache)) {
-                $this->log("The remote cache is not writable.");
-            }
-
-            $remote->setCache($cache);
-            $remote->useCache($this->useCache);
-            $src = $remote->download($src);
-            $this->log("Remote HTTP status: " . $remote->getStatus());
-            $this->log("Remote item has local cached file: $src");
-            $this->log("Remote details on cache:" . print_r($remote->getDetails(), true));
+        if ($this->allowRemote && $this->isRemoteSource($src)) {
+            $src = $this->downloadRemoteSource($src);
             $dir = null;
         }
 
