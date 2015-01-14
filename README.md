@@ -49,12 +49,12 @@ The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, 
 
 I prefer cloning like this. Do switch to the latest stable version.
 
-**Latest stable version is v0.6 released 2014-12-06.**
+**Latest stable version is v0.6.1 released 2015-01-08.**
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.6
+git checkout v0.6.1
 ```
 
 Make the cache-directory writable by the webserver.
@@ -278,10 +278,11 @@ http://dbwebb.se/opensource/cimage
 Revision history
 -------------------------------------
 
-
-v0.6.x (latest)
-
+v0.6.2 (2015-01-14)
 * Added support for download of remote images #43.
+
+v0.6.1 (2015-01-08)
+
 * Adding compare-page for comparing images. Issue #20.
 * Added option `no-upscale, nu` as resizing strategy to decline upscaling of smaller images. Fix #61.
 * Minor change in `CImage::resize()`, crop now does imagecopy without resamling.

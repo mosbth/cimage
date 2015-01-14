@@ -41,7 +41,7 @@ input[type=text] {
 
 <body>
 <h1>Compare images</h1>
-<p>Add link to images and visually compare them. Change the link och press return to load the image.</p>
+<p>Add link to images and visually compare them. Change the link och press return to load the image. <a href="http://dbwebb.se/opensource/cimage">Read more...</a></p>
 
 <form>
     <p>
