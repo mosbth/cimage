@@ -12,20 +12,20 @@ This software is free and open source, licensed according MIT.
 
 
 
-Use case 
+Use case
 --------------------------------------
 
 You got an image from your friend who took it with the iPhone and you want to put it up on your website.
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=300" alt="">
 
-The original image is looking like this one, scaled down to a width of 300 pixels. 
+The original image is looking like this one, scaled down to a width of 300 pixels.
 
-So, you need to rotate it and crop off some parts to make it intresting. 
+So, you need to rotate it and crop off some parts to make it intresting.
 
 To show it off, I'll autorotate the image based on its EXIF-information, I will crop it to a thumbnail of 100x100 pixels and add a filter to make it greyscale finishing up with a sharpen effect. Just for the show I'll rotate the image 25 degrees - do not ask me why.
 
-Lets call this *the URL-Photoshopper*. This is how the magic looks like. 
+Lets call this *the URL-Photoshopper*. This is how the magic looks like.
 
 `img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale`<br>`&convolve=sharpen-alt`
 
@@ -38,14 +38,14 @@ For myself, I use `img.php` to put up all images on my website, it gives me the 
 Requirements
 --------------------------------------
 
-`CImage` and `img.php` supports GIF (with transparency), JPEG and PNG (8bit transparent, 24bit semi transparent) images. It requires PHP 5.3 and PHP GD. You optionally need the EXIF extension to support auto-rotation of JPEG-images. 
+`CImage` and `img.php` supports GIF (with transparency), JPEG and PNG (8bit transparent, 24bit semi transparent) images. It requires PHP 5.3 and PHP GD. You optionally need the EXIF extension to support auto-rotation of JPEG-images.
 
 
 
 Installation
 --------------------------------------
 
-The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
+The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip).
 
 I prefer cloning like this. Do switch to the latest stable version.
 
@@ -65,7 +65,7 @@ chmod 777 cache
 
 
 
-Get going quickly 
+Get going quickly
 --------------------------------------
 
 
@@ -76,7 +76,7 @@ Try it out by pointing your browser to the test file `webroot/test/test.php`. It
 
 
 
-###Process your first image 
+###Process your first image
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&amp;w=w2&amp;a=40,0,50,0" alt=''>
 
@@ -84,15 +84,15 @@ Try it yourself by opening up an image in your browser. Start with `webroot/img.
 
 
 
-###What does "processing the image" involves? 
+###What does "processing the image" involves?
 
 Add `&verbose` to the link to get a verbose output of what is happens during image processing. This is useful for developers or those who seek a deeper understanding on how it all works.
 
 
 
-###Check your system 
+###Check your system
 
-Open up `webroot/check_system.php` if you need to troubleshoot or if you are uncertain if your system has the right extensions loaded. 
+Open up `webroot/check_system.php` if you need to troubleshoot or if you are uncertain if your system has the right extensions loaded.
 
 
 
@@ -106,13 +106,13 @@ The programatic flow, just to get you oriented in the environment, is.
 2. `img.php` reads configuration details from `img_config.php`.
 3. `img.php` reads and processes incoming `$_GET` arguments to prepare using `CImage`.
 4. `img.php` uses `CImage`.
-5. `CImage` processes and outputs the image according to how its used. 
+5. `CImage` processes and outputs the image according to how its used.
 
 Read on to learn more on how to use `img.php`.
 
 
 
-Basic usage 
+Basic usage
 --------------------------------------
 
 
@@ -127,11 +127,11 @@ It looks like this.
 
 <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=w1&save-as=jpg alt="">
 
-All images are stored in a directory structure and you access them as `?src=dir1/dir2/image.png`. 
+All images are stored in a directory structure and you access them as `?src=dir1/dir2/image.png`.
 
 
 
-###Resize using constraints on width and height 
+###Resize using constraints on width and height
 
 Create a thumbnail of the image by applying constraints on width and height, or one of them.
 
@@ -145,7 +145,7 @@ Think of the constraints as a imaginary box where the image should fit. With `wi
 
 
 
-###Resize to fit a certain dimension 
+###Resize to fit a certain dimension
 
 Creating a thumbnail with a certain dimension of width and height, usually involves stretching or cropping the image to fit in the selected dimensions. Here is how you create a image that has the exact dimensions of 300x150 pixels, by either *stretching*, *cropping* or *fill to fit*.
 
@@ -165,7 +165,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 
 
 
-###List of parameters 
+###List of parameters
 
 `img.php` supports a lot of parameters. Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it using width, aspect-ratio and crop-to-fit, apply a sharpen effect, save the image as JPEG using quality 30.
 
@@ -173,14 +173,14 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 |-----------------------------------------------------------|
 | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''> |
 
-Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
+Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage.
 
 
 ####Mandatory options and debugging
 
 Option `src` is the only mandatory option. The other in this section is useful for debugging or deciding what version of the target image is used.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `src`          | Source image to use, mandatory. `src=img.png` or with subdirectory `src=dir/img.png`. |
 | `nc, no-cache` | Do not use the cached version, do all image processing and save a new image to cache. |
@@ -190,11 +190,11 @@ Option `src` is the only mandatory option. The other in this section is useful f
 
 
 
-####Options for deciding width and height of target image 
+####Options for deciding width and height of target image
 
 These options are all affecting the final dimensions, width and height, of the resulting image.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `h, height`    | `h=200` sets the width to be to max 200px. `h=25%` sets the height to max 25% of its original height. |
 | `w, width`     | `w=200` sets the height to be max 200px. `w=100%` sets the width to max 100% of its original width. |
@@ -203,11 +203,11 @@ These options are all affecting the final dimensions, width and height, of the r
 
 
 
-####Options for resize strategy 
+####Options for resize strategy
 
 These options affect strategy to use when resizing an image into a target image that has both width and height set.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `nr, no-ratio, stretch` | Do *not* keep aspect ratio when resizing and using both width & height constraints. Results in stretching the image, if needed, to fit in the resulting box. |
 | `cf, crop-to-fit`  | Set together with both `h` and `w` to make the image fit into dimensions, and crop out the rest of the image. |
@@ -216,32 +216,32 @@ These options affect strategy to use when resizing an image into a target image 
 
 
 
-####Options for cropping part of image 
+####Options for cropping part of image
 
 These options enable to decide what part of image to crop out.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `a, area`      | Define the area of the image to work with. Set `area=10,10,10,10` (top,right,bottom,left) to crop out the 10% of the outermost area. It works like an offset to define the part of the image you want to process. Its an alternative of using `crop`. |
 | `c, crop`      | Crops an area from the original image, set width, height, start_x and start_y to define the area to crop, for example `crop=100,100,10,10` (`crop=width,height,start_x,start_y`). Left top corner is 0, 0. You can use `left`, `right` or `center` when setting start_x. You may use `top`, `bottom` or `center` when setting start_y. |
 
 
 
-####General processing options 
+####General processing options
 
 These options are general options affecting processing.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `bgc, bg-color` | Set the backgroundcolor to use (if its needed). Use six hex digits as `bgc=00ff00` and 8 digits when using the alpha channel, as this `bgc=00ff007f`. The alpha value can be between 00 and 7f. |
 
 
 
-####Processing of image before resizing 
+####Processing of image before resizing
 
 This option are executed *before* the image is resized.
 
-| Parameter      | Explained                                    | 
+| Parameter      | Explained                                    |
 |----------------|----------------------------------------------|
 | `s, scale`     | Scale the image to a size proportional to a percentage of its original size, `scale=25` makes an image 25% of its original size and `size=200` doubles up the image size. Scale is applied before resizing and has no impact of the target width and height. |
 | `rb, rotate-before` | Rotate the image before its processed, send the angle as parameter `rb=45`. |
@@ -249,7 +249,7 @@ This option are executed *before* the image is resized.
 
 
 
-####Processing of image after resizing 
+####Processing of image after resizing
 
 These options are executed *after* the image is resized.
 
@@ -267,7 +267,7 @@ These options are executed *after* the image is resized.
 
 
 
-Documentation 
+Documentation
 --------------------------------------
 
 Read full documentation at:
@@ -281,6 +281,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Added support for download of remote images #43.
 * Adding compare-page for comparing images. Issue #20.
 * Added option `no-upscale, nu` as resizing strategy to decline upscaling of smaller images. Fix #61.
 * Minor change in `CImage::resize()`, crop now does imagecopy without resamling.
@@ -303,11 +304,11 @@ v0.6 (2014-12-06)
 * Corrected json on PHP 5.3. Fix #42.
 * Improving template for tests in `webroot/tests` when testing out #40.
 * Adding testcase for #40.
-* Adding option `convolve` taking comma-separated list of 11 float-values, wraps and exposes `imageconvoluttion()`. #4 
+* Adding option `convolve` taking comma-separated list of 11 float-values, wraps and exposes `imageconvoluttion()`. #4
 * Adding option `dpr, device-pixel-ratio` which defaults to 1. Set to 2 to get a twice as large image. Useful for Retina displays. Basically a shortcut to enlarge the image.
 * Adding utility `cache.bash` to ease gathering stats on cache usage. #21
 * Cache-directory can now be readonly and serve all cached files, still failing when need to save files. #5
-* Cache now uses same file extension as original image #37. 
+* Cache now uses same file extension as original image #37.
 * Can output image as json format using `json` #11.
 
 
@@ -372,7 +373,7 @@ v0.4.1 (2014-01-27)
 * Fixed crop whole image by setting crop=0,0,0,0
 * Use negative values for crop width & height to base calulation on original width/height and withdraw selected amount.
 * Correcting jpeg when setting quality.
-* Removed obsolete reference to `$newName` in `CImage::__construct()` (issue 1). 
+* Removed obsolete reference to `$newName` in `CImage::__construct()` (issue 1).
 
 
 v0.4 (2013-10-08)
@@ -404,8 +405,8 @@ image.
 * Predefined sizes can be configured for width in `img.php`.
 * Corrected to make crop work with width or height in combination with crop-to-fit.
 
- 
-v0.2 (2012-05-09) 
+
+v0.2 (2012-05-09)
 
 * Implemented filters as in http://php.net/manual/en/function.imagefilter.php
 * Changed `crop` to `crop_to_fit`, works the same way.
@@ -414,16 +415,16 @@ v0.2 (2012-05-09)
 * Added testcases for above.
 
 
-v0.1.1 (2012-04-27) 
+v0.1.1 (2012-04-27)
 
 * Corrected calculation where both width and height were set.
 
 
-v0.1 (2012-04-25) 
+v0.1 (2012-04-25)
 
 * Initial release after rewriting some older code doing the same, but not that good and flexible.
 
 <pre>
- .   
+ .
 ..:  Copyright 2012-2014 by Mikael Roos (me@mikaelroos.se)
 </pre>

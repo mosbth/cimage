@@ -50,7 +50,7 @@ return array(
      *  remote_password: false // as in do not use password
      *  remote_pattern:  null  // use default values from CImage
      */
-    'remote_allow'    => true,
+    //'remote_allow'    => true,
     //'remote_password' => false, // "secret-password",
     //'remote_pattern'  => '#^https?://#',
 
