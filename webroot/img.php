@@ -126,8 +126,10 @@ call_user_func($config['error_reporting']);
 /**
  * Set default timezone if not set or if its set in the config-file.
  */
-if (isset($config['default_timezone'])) {
-    date_default_timezone_set($config['default_timezone']);
+$defaultTimezone = getConfig('default_timezone', null);
+
+if ($defaultTimezone) {
+    date_default_timezone_set($defaultTimezone);
 } else if (!ini_get('default_timezone')) {
     date_default_timezone_set('UTC');
 }
@@ -193,16 +195,16 @@ if ($allowRemote && $passwordMatch !== false) {
  * shortcut, sc - extend arguments with a constant value, defined
  * in config-file.
  */
-$shortcut = get(array('shortcut', 'sc'), null);
+$shortcut       = get(array('shortcut', 'sc'), null);
+$shortcutConfig = getConfig('shortcut', array());
 
 verbose("shortcut = $shortcut");
 
 if (isset($shortcut)
-    && isset($config['shortcut'])
-    && isset($config['shortcut'][$shortcut])) {
+    && isset($shortcutConfig[$shortcut])) {
 
-    parse_str($config['shortcut'][$shortcut], $get);
-    verbose("shortcut-constant = {$config['shortcut'][$shortcut]}");
+    parse_str($shortcutConfig[$shortcut], $get);
+    verbose("shortcut-constant = {$shortcutConfig[$shortcut]}");
     $_GET = array_merge($_GET, $get);
 }
 
@@ -216,19 +218,22 @@ $srcImage = get('src')
 
 
 // Check for valid/invalid characters
-preg_match($config['valid_filename'], $srcImage)
-    or errorPage('Filename contains invalid characters.');
+$imagePath           = getConfig('image_path', null);
+$imagePathConstraint = getConfig('image_path_constraint', true);
+$validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_\.:]+$#');
 
+preg_match($validFilename, $srcImage)
+    or errorPage('Filename contains invalid characters.');
 
 if ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
 
-} else if ($config['image_path_constraint']) {
+} else if ($imagePathConstraint) {
 
     // Check that the image is a file below the directory 'image_path'.
-    $pathToImage = realpath($config['image_path'] . $srcImage);
-    $imageDir    = realpath($config['image_path']);
+    $pathToImage = realpath($imagePath . $srcImage);
+    $imageDir    = realpath($imagePath);
 
     is_file($pathToImage)
         or errorPage(
@@ -243,7 +248,6 @@ if ($allowRemote && $img->isRemoteSource($srcImage)) {
         );
 }
 
-
 verbose("src = $srcImage");
 
 
@@ -251,10 +255,12 @@ verbose("src = $srcImage");
 /**
  * width, w - set target width, affecting the resulting image width, height and resize options
  */
-$newWidth = get(array('width', 'w'));
+$newWidth     = get(array('width', 'w'));
+$maxWidth     = getConfig('max_width', 2000);
+$sizeConstant = getConfig('size_constant', array());
 
 // Check to replace predefined size
-$sizes = call_user_func($config['size_constant']);
+$sizes = call_user_func($sizeConstant);
 if (isset($sizes[$newWidth])) {
     $newWidth = $sizes[$newWidth];
 }
@@ -265,7 +271,7 @@ if ($newWidth[strlen($newWidth)-1] == '%') {
         or errorPage('Width % not numeric.');
 } else {
     is_null($newWidth)
-        or ($newWidth > 10 && $newWidth <= $config['max_width'])
+        or ($newWidth > 10 && $newWidth <= $maxWidth)
         or errorPage('Width out of range.');
 }
 
@@ -277,6 +283,7 @@ verbose("new width = $newWidth");
  * height, h - set target height, affecting the resulting image width, height and resize options
  */
 $newHeight = get(array('height', 'h'));
+$maxHeight = getConfig('max_height', 2000);
 
 // Check to replace predefined size
 if (isset($sizes[$newHeight])) {
@@ -289,7 +296,7 @@ if ($newHeight[strlen($newHeight)-1] == '%') {
         or errorPage('Height % out of range.');
 } else {
     is_null($newHeight)
-        or ($newHeight > 10 && $newHeight <= $config['max_height'])
+        or ($newHeight > 10 && $newHeight <= $maxHeight)
         or errorPage('Hight out of range.');
 }
 
@@ -300,10 +307,11 @@ verbose("new height = $newHeight");
 /**
  * aspect-ratio, ar - affecting the resulting image width, height and resize options
  */
-$aspectRatio = get(array('aspect-ratio', 'ar'));
+$aspectRatio         = get(array('aspect-ratio', 'ar'));
+$aspectRatioConstant = getConfig('aspect_ratio_constant', array());
 
 // Check to replace predefined aspect ratio
-$aspectRatios = call_user_func($config['aspect_ratio_constant']);
+$aspectRatios = call_user_func($aspectRatioConstant);
 $negateAspectRatio = ($aspectRatio[0] == '!') ? true : false;
 $aspectRatio = $negateAspectRatio ? substr($aspectRatio, 1) : $aspectRatio;
 
@@ -335,9 +343,11 @@ verbose("crop to fit = $cropToFit");
 /**
  * Set default background color from config file.
  */
-if (isset($config['background_color'])) {
-    $img->setDefaultBackgroundColor($config['background_color']);
-    verbose("Using default background_color = {$config['background_color']}");
+$backgroundColor = getConfig('background_color', null);
+
+if ($backgroundColor) {
+    $img->setDefaultBackgroundColor($backgroundColor);
+    verbose("Using default background_color = $backgroundColor");
 }
 
 
@@ -578,11 +588,12 @@ verbose("dpr = $dpr");
  * convolve - image convolution as in http://php.net/manual/en/function.imageconvolution.php
  */
 $convolve = get('convolve', null);
+$convolutionConstant = getConfig('convolution_constant', array());
 
 // Check if the convolve is matching an existing constant
-if ($convolve && isset($config['convolution_constant'])) {
-    $img->addConvolveExpressions($config['convolution_constant']);
-    verbose("convolve constant = " . print_r($config['convolution_constant'], 1));
+if ($convolve && isset($convolutionConstant)) {
+    $img->addConvolveExpressions($convolutionConstant);
+    verbose("convolve constant = " . print_r($convolutionConstant, 1));
 }
 
 verbose("convolve = " . print_r($convolve, 1));
@@ -595,6 +606,22 @@ verbose("convolve = " . print_r($convolve, 1));
 $upscale = getDefined(array('no-upscale', 'nu'), false, true);
 
 verbose("upscale = $upscale");
+
+
+
+/**
+ * Get details for post processing
+ */
+$postProcessing = getConfig('postprocessing', array(
+    'png_filter'        => false,
+    'png_filter_cmd'    => '/usr/local/bin/optipng -q',
+
+    'png_deflate'       => false,
+    'png_deflate_cmd'   => '/usr/local/bin/pngout -q',
+
+    'jpeg_optimize'     => false,
+    'jpeg_optimize_cmd' => '/usr/local/bin/jpegtran -copy none -optimize',
+));
 
 
 
@@ -633,10 +660,12 @@ EOD;
 /**
  * Load, process and output the image
  */
+$cachePath = getConfig('cache_path', null);
+
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
-    ->setSaveFolder($config['cache_path'])
+    ->setSaveFolder($cachePath)
     ->useCache($useCache)
-    ->setSource($srcImage, $config['image_path'])
+    ->setSource($srcImage, $imagePath)
     ->setOptions(
         array(
             // Options for calculate dimensions
@@ -679,12 +708,12 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setJpegQuality($quality)
     ->setPngCompression($compress)
     ->useOriginalIfPossible($useOriginal)
-    ->generateFilename($config['cache_path'])
+    ->generateFilename($cachePath)
     ->useCacheIfPossible($useCache)
     ->load()
     ->preResize()
     ->resize()
     ->postResize()
-    ->setPostProcessingOptions($config['postprocessing'])
+    ->setPostProcessingOptions($postProcessing)
     ->save()
     ->output();

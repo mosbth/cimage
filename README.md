@@ -278,8 +278,15 @@ http://dbwebb.se/opensource/cimage
 Revision history
 -------------------------------------
 
+v0.6.x (latest)
+
+* Cleaned up `img_config.php` and introduced default values for almost all options #72.
+
+
 v0.6.2 (2015-01-14)
+
 * Added support for download of remote images #43.
+
 
 v0.6.1 (2015-01-08)
 
