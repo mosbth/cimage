@@ -280,6 +280,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Create cache directory for remote download if it does not exists.
 * Cleaned up `img_config.php` and introduced default values for almost all options #72.
 
 

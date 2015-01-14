@@ -473,8 +473,13 @@ class CImage
     public function downloadRemoteSource($src)
     {
         $remote = new CRemoteImage();
+        $cache  = $this->saveFolder . "/remote/";
 
-        $cache = $this->saveFolder . "/remote/";
+        if (!is_dir($cache)) {
+            mkdir($cache);
+            $this->log("The remote cache does not exists, creating it.");
+        }
+
         if (!is_writable($cache)) {
             $this->log("The remote cache is not writable.");
         }
