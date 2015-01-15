@@ -166,23 +166,26 @@ $img->setVerbose($verbose);
 
 
 /**
- * Allow or disallow remote download of images from other servers.
- *
+ * Check if passwords are configured, used and match.
+ * Options decide themself if they require passwords to be used.
  */
-$allowRemote = getConfig('remote_allow', false);
-$remotePwd   = getConfig('remote_password', false);
+$pwdConfig   = getConfig('password', false);
 $pwd         = get(array('password', 'pwd'), null);
 
 // Check if passwords match, if configured to use passwords
 $passwordMatch = null;
-if ($remotePwd != false) {
-    if ($remotePwd == $pwd) {
-        $passwordMatch = true;
-    } else {
-        $passwordMatch = false;
-        errorPage('Trying to download remote image but missing password.');
-    }
+if ($pwdConfig) {
+    $passwordMatch = ($pwdConfig == $pwd);
 }
+
+
+
+/**
+ * Allow or disallow remote download of images from other servers.
+ * Passwords apply if used.
+ *
+ */
+$allowRemote = getConfig('remote_allow', false);
 
 if ($allowRemote && $passwordMatch !== false) {
     $pattern = getConfig('remote_pattern', null);
@@ -626,6 +629,33 @@ $postProcessing = getConfig('postprocessing', array(
 
 
 /**
+ * alias - Save resulting image to another alias name.
+ * Password apply if defined.
+ */
+$alias     = get('alias', null);
+$aliasPath = getConfig('alias_path', null);
+$aliasTarget = null;
+
+if ($alias && $aliasPath) {
+
+    $aliasTarget = $aliasPath . $alias;
+    $useCache    = false;
+
+    ($passwordMatch !== false)
+        or errorPage("Alias used and password check failed.");
+    is_writable($aliasPath)
+        or errorPage("Directory for alias is not writable.");
+    preg_match($validFilename, $alias)
+        or errorPage('Filename for alias contains invalid characters.');
+} else if ($alias) {
+    errorPage('Alias is not enabled in the config file.');
+}
+
+verbose("alias = $alias");
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -716,4 +746,5 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->postResize()
     ->setPostProcessingOptions($postProcessing)
     ->save()
+    ->linkToCacheFile($aliasTarget)
     ->output();

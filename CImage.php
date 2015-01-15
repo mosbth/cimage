@@ -2135,6 +2135,37 @@ class CImage
 
 
     /**
+     * Create a hard link, as an alias, to the cached file.
+     *
+     * @param string $alias where to store the link.
+     *
+     * @return $this
+     */
+    public function linkToCacheFile($alias)
+    {
+        if ($alias === null) {
+            $this->log("Ignore creating alias.");
+            return $this;
+        }
+
+        if (is_readable($alias)) {
+            unlink($alias);
+        }
+
+        $res = link($this->cacheFileName, $alias);
+
+        if ($res) {
+            $this->log("Created an alias to the cachefile: $alias");
+        } else {
+            $this->log("Failed to create the alias: $alias");
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Output image to browser using caching.
      *
      * @param string $file   to read and output, default is to use $this->cacheFileName

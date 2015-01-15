@@ -17,9 +17,42 @@ return array(
 
     /**
      * Paths, where are the images stored and where is the cache.
+     * End all paths with a slash.
+     *
+     * Default values:
+     *  image_path: No default value
+     *  cache_path: No default value
+     *  alias_path: null
      */
     'image_path'   =>  __DIR__ . '/img/',
     'cache_path'   =>  __DIR__ . '/../cache/',
+    //'alias_path'   =>  __DIR__ . '/img/alias/',
+
+
+
+    /**
+    * Use password to protect from missusage, send &pwd=... or &password=..
+    * with the request to match the password or set to false to disable.
+    * Passwords are only used together with the options for remote download
+    * and aliasing.
+    *
+    * Default values.
+    *  password: false // as in do not use password
+    */
+    //'password' => false, // "secret-password",
+
+
+
+    /**
+     * Allow or disallow downloading of remote files, images available on
+     * some remote server. Default is to disallow.
+     *
+     * Default values.
+     *  remote_allow:    false
+     *  remote_pattern:  null  // use default values from CImage
+     */
+    //'remote_allow'    => true,
+    //'remote_pattern'  => '#^https?://#',
 
 
 
@@ -42,23 +75,6 @@ return array(
      *  valid_filename: '#^[a-z0-9A-Z-/_\.:]+$#'
      */
     //'valid_filename' => '#^[a-z0-9A-Z-/_\.:]+$#',
-
-
-
-    /**
-     * Allow or disallow downloading of remote files, images available on
-     * some remote server. Default is to disallow.
-     * Use password to protect from missusage, send &pwd=... or &password=..
-     * with the request to match the password or set to false to disable.
-     *
-     * Default values.
-     *  remote_allow:    false
-     *  remote_password: false // as in do not use password
-     *  remote_pattern:  null  // use default values from CImage
-     */
-    'remote_allow'    => true,
-    //'remote_password' => false, // "secret-password",
-    //'remote_pattern'  => '#^https?://#',
 
 
 

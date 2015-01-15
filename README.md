@@ -280,6 +280,8 @@ Revision history
 
 v0.6.x (latest)
 
+* Support for option `password, pwd` to protect usage of `alias` and remote download.
+* Added support for option `alias` that creates a link to a cached version  of the image #47.
 * Create cache directory for remote download if it does not exists.
 * Cleaned up `img_config.php` and introduced default values for almost all options #72.
 
@@ -287,6 +289,7 @@ v0.6.x (latest)
 v0.6.2 (2015-01-14)
 
 * Added support for download of remote images #43.
+* Added autoloader.
 
 
 v0.6.1 (2015-01-08)
