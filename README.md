@@ -280,6 +280,8 @@ Revision history
 
 v0.6.x (latest)
 
+* Alias-name is without extension #47.
+* Option `alias` now requires `password` to work #47.
 * Support for option `password, pwd` to protect usage of `alias` and remote download.
 * Added support for option `alias` that creates a link to a cached version  of the image #47.
 * Create cache directory for remote download if it does not exists.

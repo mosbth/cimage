@@ -57,6 +57,18 @@ return array(
 
 
     /**
+     * A regexp for validating characters in the image or alias filename.
+     *
+     * Default value:
+     *  valid_filename:  '#^[a-z0-9A-Z-/_\.:]+$#'
+     *  valid_aliasname: '#^[a-z0-9A-Z-_]+$#'
+     */
+     //'valid_filename'  => '#^[a-z0-9A-Z-/_\.:]+$#',
+     //'valid_aliasname' => '#^[a-z0-9A-Z-_]+$#',
+
+
+
+     /**
      * Check that the imagefile is a file below 'image_path' using realpath().
      * Security constraint to avoid reaching images outside image_path.
      * This means that symbolic links to images outside the image_path will fail.
@@ -64,21 +76,11 @@ return array(
      * Default value:
      *  image_path_constraint: true
      */
-    //'image_path_constraint' => false,
+     //'image_path_constraint' => false,
 
 
 
-    /**
-     * A regexp for validating characters in the image filename.
-     *
-     * Default value:
-     *  valid_filename: '#^[a-z0-9A-Z-/_\.:]+$#'
-     */
-    //'valid_filename' => '#^[a-z0-9A-Z-/_\.:]+$#',
-
-
-
-    /**
+     /**
      * Set default timezone.
      *
      * Default values.

@@ -2137,7 +2137,8 @@ class CImage
     /**
      * Create a hard link, as an alias, to the cached file.
      *
-     * @param string $alias where to store the link.
+     * @param string $alias where to store the link,
+     *                      filename without extension.
      *
      * @return $this
      */
@@ -2147,6 +2148,8 @@ class CImage
             $this->log("Ignore creating alias.");
             return $this;
         }
+
+        $alias = $alias . "." . $this->extension;
 
         if (is_readable($alias)) {
             unlink($alias);

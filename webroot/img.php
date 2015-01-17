@@ -630,25 +630,26 @@ $postProcessing = getConfig('postprocessing', array(
 
 /**
  * alias - Save resulting image to another alias name.
- * Password apply if defined.
+ * Password always apply, must be defined.
  */
-$alias     = get('alias', null);
-$aliasPath = getConfig('alias_path', null);
-$aliasTarget = null;
+$alias          = get('alias', null);
+$aliasPath      = getConfig('alias_path', null);
+$validAliasname = getConfig('valid_aliasname', '#^[a-z0-9A-Z-_]+$#');
+$aliasTarget    = null;
 
-if ($alias && $aliasPath) {
+if ($alias && $aliasPath && $passwordMatch) {
 
     $aliasTarget = $aliasPath . $alias;
     $useCache    = false;
 
-    ($passwordMatch !== false)
-        or errorPage("Alias used and password check failed.");
     is_writable($aliasPath)
         or errorPage("Directory for alias is not writable.");
-    preg_match($validFilename, $alias)
-        or errorPage('Filename for alias contains invalid characters.');
+
+    preg_match($validAliasname, $alias)
+        or errorPage('Filename for alias contains invalid characters. Do not add extension.');
+
 } else if ($alias) {
-    errorPage('Alias is not enabled in the config file.');
+    errorPage('Alias is not enabled in the config file or password not matching.');
 }
 
 verbose("alias = $alias");
