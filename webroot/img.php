@@ -144,6 +144,68 @@ $verbose = getDefined(array('verbose', 'v'), true, false);
 
 
 /**
+ * Check if passwords are configured, used and match.
+ * Options decide themself if they require passwords to be used.
+ */
+$pwdConfig   = getConfig('password', false);
+$pwd         = get(array('password', 'pwd'), null);
+
+// Check if passwords match, if configured to use passwords
+$passwordMatch = null;
+if ($pwdConfig && $pwd) {
+    $passwordMatch = ($pwdConfig == $pwd);
+}
+
+verbose("password match = $passwordMatch");
+
+
+
+/**
+ * Prevent hotlinking, leeching, of images by controlling who access them
+ * from where.
+ *
+ */
+$allowHotlinking = getConfig('allow_hotlinking', true);
+$hotlinkingWhitelist = getConfig('hotlinking_whitelist', array());
+
+$serverName  = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : null;
+$referer     = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+$refererHost = parse_url($referer, PHP_URL_HOST);
+
+if (!$allowHotlinking) {
+    if ($passwordMatch) {
+        ; // Always allow when password match
+    } else if ($passwordMatch === false) {
+        errorPage("Hotlinking/leeching not allowed when password missmatch.");
+    } else if (!$referer) {
+        errorPage("Hotlinking/leeching not allowed and referer is missing.");
+    } else if (strcmp($serverName, $refererHost) == 0) {
+        ; // Allow when serverName matches refererHost
+    } else if (!empty($hotlinkingWhitelist)) {
+
+        $allowedByWhitelist = false;
+        foreach ($hotlinkingWhitelist as $val) {
+            if (preg_match($val, $refererHost)) {
+                $allowedByWhitelist = true;
+            }
+        }
+
+        if (!$allowedByWhitelist) {
+            errorPage("Hotlinking/leeching not allowed by whitelist.");
+        }
+
+    } else {
+        errorPage("Hotlinking/leeching not allowed.");
+    }
+}
+
+verbose("allow_hotlinking = $allowHotlinking");
+verbose("referer = $referer");
+verbose("referer host = $refererHost");
+
+
+
+/**
  * Get the source files.
  */
 $autoloader  = getConfig('autoloader', false);
@@ -162,21 +224,6 @@ if ($autoloader) {
  */
 $img = new CImage();
 $img->setVerbose($verbose);
-
-
-
-/**
- * Check if passwords are configured, used and match.
- * Options decide themself if they require passwords to be used.
- */
-$pwdConfig   = getConfig('password', false);
-$pwd         = get(array('password', 'pwd'), null);
-
-// Check if passwords match, if configured to use passwords
-$passwordMatch = null;
-if ($pwdConfig) {
-    $passwordMatch = ($pwdConfig == $pwd);
-}
 
 
 

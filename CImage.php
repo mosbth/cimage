@@ -2158,7 +2158,7 @@ class CImage
         $res = link($this->cacheFileName, $alias);
 
         if ($res) {
-            $this->log("Created an alias to the cachefile: $alias");
+            $this->log("Created an alias as: $alias");
         } else {
             $this->log("Failed to create the alias: $alias");
         }

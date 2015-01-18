@@ -280,6 +280,7 @@ Revision history
 
 v0.6.x (latest)
 
+* Disallow hotlinking/leeching by configuration #46.
 * Alias-name is without extension #47.
 * Option `alias` now requires `password` to work #47.
 * Support for option `password, pwd` to protect usage of `alias` and remote download.
