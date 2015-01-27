@@ -1,8 +1,8 @@
 <?php
 /**
-* Get a image from a remote server using HTTP GET and If-Modified-Since.
-*
-*/
+ * Get a image from a remote server using HTTP GET and If-Modified-Since.
+ *
+ */
 class CRemoteImage
 {
     /**

@@ -8,7 +8,21 @@
 return array(
 
     /**
+     * Set mode as 'strict', 'production' or 'development'.
+     *
+     * Default values:
+     *  mode: 'production'
+     */
+     //'mode' => 'production', // 'development',
+
+
+
+    /**
      * Where are the sources for the classfiles.
+     *
+     * Default values:
+     *  autoloader:  null
+     * cimage_class: null
      */
     'autoloader'   =>  __DIR__ . '/../autoload.php',
     //'cimage_class' =>  __DIR__ . '/../CImage.php',
@@ -20,8 +34,8 @@ return array(
      * End all paths with a slash.
      *
      * Default values:
-     *  image_path: No default value
-     *  cache_path: No default value
+     *  image_path: __DIR__ . '/img/'
+     *  cache_path: __DIR__ . '/../cache/'
      *  alias_path: null
      */
     'image_path'   =>  __DIR__ . '/img/',
@@ -149,6 +163,7 @@ return array(
     */
 
 
+
     /**
      * Create custom convolution expressions, matrix 3x3, divisor and
      * offset.
@@ -177,7 +192,7 @@ return array(
      *  hotlinking_whitelist: array()
      */
      /*
-     'allow_hotlinking' => false,
+    'allow_hotlinking' => false,
     'hotlinking_whitelist' => array(
         '#^localhost$#',
         '#^dbwebb\.se$#',
@@ -190,11 +205,14 @@ return array(
      * Create custom shortcuts for more advanced expressions.
      *
      * Default values.
-     *  shortcut: array()
+     *  shortcut: array(
+     *      'sepia' => "&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen",
+     *  )
      */
+     /*
     'shortcut' => array(
         'sepia' => "&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen",
-    ),
+    ),*/
 
 
 
@@ -211,8 +229,9 @@ return array(
      *  &width=c24 // results in spanning whole grid 24*30+((24-1)*10)=950
      *
      * Default values.
-     *  size_constant: array()
+     *  size_constant: As specified by the function below.
      */
+    /*
     'size_constant' => function () {
 
         // Set sizes to map constant to value, easier to use with width or height
@@ -231,7 +250,7 @@ return array(
         }
 
         return $sizes;
-    },
+    },*/
 
 
 
@@ -239,9 +258,9 @@ return array(
      * Predefined aspect ratios.
      *
      * Default values.
-     *  aspect_ratio_constant: array()
+     *  aspect_ratio_constant: As the function below.
      */
-    'aspect_ratio_constant' => function () {
+    /*'aspect_ratio_constant' => function () {
         return array(
             '3:1'   => 3/1,
             '3:2'   => 3/2,
@@ -251,20 +270,5 @@ return array(
             '16:9'  => 16/9,
             'golden' => 1.618,
         );
-    },
-
-
-
-    /**
-     * Set error reporting to match development or production environment
-     */
-    'error_reporting' => function () {
-        error_reporting(-1);              // Report all type of errors
-        ini_set('display_errors', 1);     // Display all errors
-        set_time_limit(20);
-        ini_set('gd.jpeg_ignore_warning', 1); // Ignore warning of corrupt jpegs
-        if (!extension_loaded('gd')) {
-            throw new Exception("Extension gd is nod loaded.");
-        }
-    },
+    },*/
 );

@@ -1,6 +1,10 @@
 <?php
 /**
- * Resize images on the fly using CImage, configuration is made in file named.
+ * Resize and crop images on the fly, store generated images in a cache.
+ *
+ * @author  Mikael Roos mos@dbwebb.se
+ * @example http://dbwebb.se/opensource/cimage
+ * @link    https://github.com/mosbth/cimage
  *
  */
 
@@ -114,12 +118,49 @@ function verbose($msg = null)
 
 
 /**
- * Get configuration options from file.
+ * Get configuration options from file, if the file exists, else use $config
+ * if its defined or create an empty $config.
  */
 $configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
-$config = require $configFile;
 
-call_user_func($config['error_reporting']);
+if (is_file($configFile)) {
+    $config = require $configFile;
+} else if (!isset($config)) {
+    $config = array();
+}
+
+
+
+/**
+ * Set mode as strict, production or development.
+ * Default is production environment.
+ */
+$mode = getConfig('mode', 'production');
+
+// Settings for any mode
+set_time_limit(20);
+ini_set('gd.jpeg_ignore_warning', 1);
+
+if (!extension_loaded('gd')) {
+    errorPage("Extension gd is nod loaded.");
+}
+
+// Specific settings for each mode
+if ($mode == 'strict') {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+
+} else if ($mode == 'production') {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+
+} else if ($mode == 'development') {
+    error_reporting(-1);
+ini_set('display_errors', 1);
+
+} else {
+    errorPage("Unknown mode: $mode");
+}
 
 
 
@@ -246,7 +287,9 @@ if ($allowRemote && $passwordMatch !== false) {
  * in config-file.
  */
 $shortcut       = get(array('shortcut', 'sc'), null);
-$shortcutConfig = getConfig('shortcut', array());
+$shortcutConfig = getConfig('shortcut', array(
+    'sepia' => "&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen",
+));
 
 verbose("shortcut = $shortcut");
 
@@ -266,9 +309,8 @@ if (isset($shortcut)
 $srcImage = get('src')
     or errorPage('Must set src-attribute.');
 
-
 // Check for valid/invalid characters
-$imagePath           = getConfig('image_path', null);
+$imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_\.:]+$#');
 
@@ -303,14 +345,40 @@ verbose("src = $srcImage");
 
 
 /**
+ * Manage size constants from config file, use constants to replace values
+ * for width and height.
+ */
+$sizeConstant = getConfig('size_constant', function () {
+
+    // Set sizes to map constant to value, easier to use with width or height
+    $sizes = array(
+        'w1' => 613,
+        'w2' => 630,
+    );
+
+    // Add grid column width, useful for use as predefined size for width (or height).
+    $gridColumnWidth = 30;
+    $gridGutterWidth = 10;
+    $gridColumns     = 24;
+
+    for ($i = 1; $i <= $gridColumns; $i++) {
+        $sizes['c' . $i] = ($gridColumnWidth + $gridGutterWidth) * $i - $gridGutterWidth;
+    }
+
+    return $sizes;
+});
+
+$sizes = call_user_func($sizeConstant);
+
+
+
+/**
  * width, w - set target width, affecting the resulting image width, height and resize options
  */
 $newWidth     = get(array('width', 'w'));
 $maxWidth     = getConfig('max_width', 2000);
-$sizeConstant = getConfig('size_constant', array());
 
 // Check to replace predefined size
-$sizes = call_user_func($sizeConstant);
 if (isset($sizes[$newWidth])) {
     $newWidth = $sizes[$newWidth];
 }
@@ -358,7 +426,17 @@ verbose("new height = $newHeight");
  * aspect-ratio, ar - affecting the resulting image width, height and resize options
  */
 $aspectRatio         = get(array('aspect-ratio', 'ar'));
-$aspectRatioConstant = getConfig('aspect_ratio_constant', array());
+$aspectRatioConstant = getConfig('aspect_ratio_constant', function () {
+    return array(
+        '3:1'    => 3/1,
+        '3:2'    => 3/2,
+        '4:3'    => 4/3,
+        '8:5'    => 8/5,
+        '16:10'  => 16/10,
+        '16:9'   => 16/9,
+        'golden' => 1.618,
+    );
+});
 
 // Check to replace predefined aspect ratio
 $aspectRatios = call_user_func($aspectRatioConstant);
@@ -736,10 +814,15 @@ EOD;
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+
+
+
+/**
  * Load, process and output the image
  */
-$cachePath = getConfig('cache_path', null);
-
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)

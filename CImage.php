@@ -2,9 +2,9 @@
 /**
  * Resize and crop images on the fly, store generated images in a cache.
  *
- * @author Mikael Roos mos@dbwebb.se
+ * @author  Mikael Roos mos@dbwebb.se
  * @example http://dbwebb.se/opensource/cimage
- * @link https://github.com/mosbth/cimage
+ * @link    https://github.com/mosbth/cimage
  */
 class CImage
 {
