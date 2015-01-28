@@ -3,7 +3,7 @@
 #
 # Paths and settings
 #
-TARGET="webroot/img_single.php"
+TARGET="webroot/imgs.php"
 NEWLINES="\n\n\n"
 
 
@@ -29,7 +29,7 @@ fi
 #
 # Print out details on cache-directory
 #
-$ECHO "Creating webroot/img_single.php by combining the following files:"
+$ECHO "Creating '$TARGET' by combining the following files:"
 $ECHO "\n"
 $ECHO "\n webroot/img_single_header.php"
 $ECHO "\n CHttpGet.php"
