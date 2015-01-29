@@ -19,6 +19,7 @@
  */
 $config = array(
 
+    //'mode' => 'production', // 'production', 'development', 'strict'
     //'image_path'   =>  __DIR__ . '/img/',
     //'cache_path'   =>  __DIR__ . '/../cache/',
     //'alias_path'   =>  __DIR__ . '/img/alias/',

@@ -3,7 +3,9 @@
 #
 # Paths and settings
 #
-TARGET="webroot/imgs.php"
+TARGET_D="webroot/imgd.php"
+TARGET_P="webroot/imgp.php"
+TARGET_S="webroot/imgs.php"
 NEWLINES="\n\n\n"
 
 
@@ -29,13 +31,17 @@ fi
 #
 # Print out details on cache-directory
 #
-$ECHO "Creating '$TARGET' by combining the following files:"
+$ECHO "Creating '$TARGET_D', '$TARGET_P' and '$TARGET_S' by combining the following files:"
 $ECHO "\n"
-$ECHO "\n webroot/img_single_header.php"
+$ECHO "\n webroot/img_header.php"
 $ECHO "\n CHttpGet.php"
 $ECHO "\n CRemoteImage.php"
 $ECHO "\n CImage.php"
 $ECHO "\n webroot/img.php"
+$ECHO "\n"
+$ECHO "\n'$TARGET_D' is for development mode."
+$ECHO "\n'$TARGET_P' is for production mode (default mode)."
+$ECHO "\n'$TARGET_S' is for strict mode."
 $ECHO "\n"
 
 $ECHO "\nPress enter to continue. "
@@ -43,22 +49,25 @@ read answer
 
 
 #
-# Create the $TARGET file
+# Create the $TARGET_? files
 #
-cat webroot/img_single_header.php > $TARGET
-$ECHO "$NEWLINES" >> $TARGET
+cat webroot/img_header.php > $TARGET_P
+cat webroot/img_header.php | sed "s|//'mode' => 'production'|'mode' => 'development'|" > $TARGET_D
+cat webroot/img_header.php | sed "s|//'mode' => 'production'|'mode' => 'strict'|" > $TARGET_S
 
-tail -n +2 CHttpGet.php >> $TARGET
-$ECHO "$NEWLINES" >> $TARGET
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
-tail -n +2 CRemoteImage.php >> $TARGET
-$ECHO "$NEWLINES" >> $TARGET
+tail -n +2 CHttpGet.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
-tail -n +2 CImage.php >> $TARGET
-$ECHO "$NEWLINES" >> $TARGET
+tail -n +2 CRemoteImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
-tail -n +2 webroot/img.php >> $TARGET
-$ECHO "$NEWLINES" >> $TARGET
+tail -n +2 CImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+tail -n +2 webroot/img.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 $ECHO "\nDone."
 $ECHO "\n"

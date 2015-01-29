@@ -125,6 +125,23 @@ class CRemoteImage
 
 
     /**
+     * Check if cache is writable or throw exception.
+     *
+     * @return $this
+     *
+     * @throws Exception if cahce folder is not writable.
+     */
+    public function isCacheWritable()
+    {
+        if (!is_writable($this->saveFolder)) {
+            throw new Exception("Cache folder is not writable for downloaded files.");
+        }
+        return $this;
+    }
+
+
+
+    /**
      * Decide if the cache should be used or not before trying to download
      * a remote file.
      *
@@ -277,8 +294,10 @@ class CRemoteImage
 
         $this->status = $this->http->getStatus();
         if ($this->status === 200) {
+            $this->isCacheWritable();
             return $this->save();
         } else if ($this->status === 304) {
+            $this->isCacheWritable();
             return $this->updateCacheDetails();
         }
 

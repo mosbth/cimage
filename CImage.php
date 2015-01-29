@@ -476,6 +476,9 @@ class CImage
         $cache  = $this->saveFolder . "/remote/";
 
         if (!is_dir($cache)) {
+            if (!is_writable($this->saveFolder)) {
+                throw new Exception("Can not create remote cache, cachefolder not writable.");
+            }
             mkdir($cache);
             $this->log("The remote cache does not exists, creating it.");
         }

@@ -280,7 +280,10 @@ Revision history
 
 v0.6.x (latest)
 
-* Change name of script all-in-one to `webrrot/imgs.php` #73.
+* Now returns statuscode 500 when something fails #55.
+* Three different modes: strict, production, development #44.
+* Three files for all-in-one `imgs.php`, `imgp.php`, `imgd.php` #73.
+* Change name of script all-in-one to `webroot/imgs.php` #73.
 * Combine all code into one singel script, `webroot/img_single.php` #73.
 * Disallow hotlinking/leeching by configuration #46.
 * Alias-name is without extension #47.

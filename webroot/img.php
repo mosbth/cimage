@@ -19,8 +19,16 @@
  */
 function errorPage($msg)
 {
-    header("HTTP/1.0 404 Not Found");
-    die('img.php say 404: ' . $msg);
+    global $mode;
+
+    header("HTTP/1.0 500 Internal Server Error");
+
+    if ($mode == 'development') {
+        die("[img.php] $msg");
+    } else {
+        error_log("[img.php] $msg");
+        die("HTTP/1.0 500 Internal Server Error");
+    }
 }
 
 
@@ -132,6 +140,13 @@ if (is_file($configFile)) {
 
 
 /**
+* verbose, v - do a verbose dump of what happens
+*/
+$verbose = getDefined(array('verbose', 'v'), true, false);
+
+
+
+/**
  * Set mode as strict, production or development.
  * Default is production environment.
  */
@@ -147,20 +162,31 @@ if (!extension_loaded('gd')) {
 
 // Specific settings for each mode
 if ($mode == 'strict') {
+
     error_reporting(0);
     ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    $verbose = false;
 
 } else if ($mode == 'production') {
-    error_reporting(0);
+
+    error_reporting(-1);
     ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    $verbose = false;
 
 } else if ($mode == 'development') {
+
     error_reporting(-1);
-ini_set('display_errors', 1);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 0);
 
 } else {
     errorPage("Unknown mode: $mode");
 }
+
+verbose("mode = $mode");
+verbose("error log = " . ini_get('error_log'));
 
 
 
@@ -174,13 +200,6 @@ if ($defaultTimezone) {
 } else if (!ini_get('default_timezone')) {
     date_default_timezone_set('UTC');
 }
-
-
-
-/**
- * verbose, v - do a verbose dump of what happens
- */
-$verbose = getDefined(array('verbose', 'v'), true, false);
 
 
 
