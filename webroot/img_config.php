@@ -13,7 +13,8 @@ return array(
      * Default values:
      *  mode: 'production'
      */
-     //'mode' => 'production', // 'development', 'strict'
+    'mode' => 'development',
+    //'mode' => 'production', // 'development', 'strict'
 
 
 
@@ -21,8 +22,8 @@ return array(
      * Where are the sources for the classfiles.
      *
      * Default values:
-     *  autoloader:  null
-     * cimage_class: null
+     *  autoloader:  null     // used from v0.6.2
+     *  cimage_class: null    // used until v0.6.1
      */
     'autoloader'   =>  __DIR__ . '/../autoload.php',
     //'cimage_class' =>  __DIR__ . '/../CImage.php',
