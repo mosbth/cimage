@@ -52,8 +52,8 @@ read answer
 # Create the $TARGET_? files
 #
 cat webroot/img_header.php > $TARGET_P
-cat webroot/img_header.php | sed "s|//'mode' => 'production'|'mode' => 'development'|" > $TARGET_D
-cat webroot/img_header.php | sed "s|//'mode' => 'production'|'mode' => 'strict'|" > $TARGET_S
+cat webroot/img_header.php | sed "s|//'mode'         => 'production',|//'mode'         => 'development',|" > $TARGET_D
+cat webroot/img_header.php | sed "s|//'mode'         => 'production',|//'mode'         => 'development',|" > $TARGET_S
 
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
