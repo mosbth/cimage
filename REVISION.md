@@ -5,6 +5,7 @@ Revision history
 v0.6.x (latest)
 -------------------------------------
 
+* Resize gif keeping transparency #81.
 * Now returns statuscode 500 when something fails #55.
 * Three different modes: strict, production, development #44.
 * Three files for all-in-one `imgs.php`, `imgp.php`, `imgd.php` #73.
@@ -181,4 +182,3 @@ v0.1 (2012-04-25)
 -------------------------------------
 
 * Initial release after rewriting some older code doing the same, but not that good and flexible.
-
