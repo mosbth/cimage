@@ -1313,6 +1313,8 @@ class CImage
             $this->log("imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
             $this->log("imagecolorstotal() : " . imagecolorstotal($this->image));
             $this->log("Number of colors in image = " . $this->colorsTotal($this->image));
+            $index = imagecolortransparent($this->image);
+            $this->log("Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
@@ -1997,7 +1999,17 @@ class CImage
         imagealphablending($img, false);
         imagesavealpha($img, true);
 
-        if ($this->bgColorDefault) {
+        $index = imagecolortransparent($this->image);
+        if ($index != -1) {
+
+            imagealphablending($img, true);
+            $transparent = imagecolorsforindex($this->image, $index);
+            $color = imagecolorallocatealpha($img, $transparent['red'], $transparent['green'], $transparent['blue'], $transparent['alpha']);
+            imagefill($img, 0, 0, $color);
+            $index = imagecolortransparent($img, $color);
+            $this->Log("Detected transparent color = " . implode(", ", $transparent) . " at index = $index");
+
+        } elseif ($this->bgColorDefault) {
 
             $color = $this->getBackgroundColor($img);
             imagefill($img, 0, 0, $color);
@@ -2130,6 +2142,8 @@ class CImage
             $this->log("imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
             $this->log("imagecolorstotal() : " . imagecolorstotal($this->image));
             $this->log("Number of colors in image = " . $this->ColorsTotal($this->image));
+            $index = imagecolortransparent($this->image);
+            $this->log("Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
