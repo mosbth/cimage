@@ -17,11 +17,13 @@ $description = "The issue was to implement fill-to-fit, but it needs some flexib
 // Use these images in the test
 $images = array(
     'kodim04.png',
+    'apple_trans.gif',
+    'circle_trans.png',
 );
 
 
 
-// For each image, apply these testcases 
+// For each image, apply these testcases
 $cache =  "&nc"; // ""; // "&nc"
 $testcase = array(
     "$cache&w=300&h=300&fill-to-fit",
