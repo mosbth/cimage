@@ -22,7 +22,7 @@ http://dbwebb.se/opensource/cimage
 
 
 
-Requirements {#reqs}
+Requirements
 --------------------------------------
 
 `CImage` and `img.php` supports GIF (with transparency), JPEG and PNG (8bit transparent, 24bit semi transparent) images. It requires PHP 5.3 and PHP GD. You optionally need the EXIF extension to support auto-rotation of JPEG-images. 
@@ -31,14 +31,14 @@ Requirements {#reqs}
 
 
 
-Installation {#install}
+Installation
 --------------------------------------
 
 There are two ways of installing. You either install the whole project which uses the autoloader to include the various files, or you install the all-included bundle that -- for convenience -- contains all code in one script.
 
 
 
-###Install source from GitHub {#install-github}
+###Install source from GitHub 
 
 The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
 
@@ -59,7 +59,7 @@ chmod 777 cache
 ```
 
 
-###Install all-included bundle {#install-one}
+###Install all-included bundle 
 
 There are some all-included bundles of `img.php` that can be downloaded and used without dependency to the rest of the sourcecode.
 
@@ -79,14 +79,14 @@ Open up the file in your editor and edit the array `$config`. Ensure that the pa
 
 
 
-Use cases {#usecase}
+Use cases 
 --------------------------------------
 
 Lets take some use cases to let you know when and how `img.php` might be useful.
 
 
 
-### Make a thumbnail {#usecase-complex}
+### Make a thumbnail 
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&w=80&h=80&cf">
 
@@ -98,7 +98,7 @@ To produce such a thumbnail, create a link like this:
 
 
 
-### Slightly complexer use case {#usecase-complex}
+### Slightly complexer use case 
 
 Perhaps you got an image from a friend. The image was taken with the iPhone and thus rotated. 
 
@@ -121,18 +121,18 @@ For myself, I use `img.php` to put up all images on my website, it gives me the 
 
 
 
-Get going quickly {#getgoing}
+Get going quickly 
 --------------------------------------
 
 
 
-###Check out the test page {#testpage}
+###Check out the test page 
 
 Try it out by pointing your browser to the test file `webroot/test/test.php`. It will show some example images and you can review how they are created.
 
 
 
-###Process your first image {#first}
+###Process your first image 
 
 <img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&amp;w=w2&amp;a=40,0,50,0" alt=''>
 
@@ -146,20 +146,20 @@ and try to resize it to a thumbnail by adding the options
 
 
 
-###What does "processing the image" involves? {#processverbose}
+###What does "processing the image" involves? 
 
 Add `&verbose` to the link to get a verbose output of what is happens during image processing. This is useful for developers and those who seek a deeper understanding on how it works behind the scene. 
 
 
 
-###Check your system {#checksystem}
+###Check your system 
 
 Open up `webroot/check_system.php` if you are uncertain that your system has the right extensions loaded. 
 
 
 
 
-###How does it work? {#workflow}
+###How does it work? 
 
 Review the settings in `webroot/img_config.php` and check out `webroot/img.php` on how it uses `CImage`.
 
@@ -175,12 +175,12 @@ Read on to learn more on how to use `img.php`.
 
 
 
-Basic usage {#usage}
+Basic usage 
 --------------------------------------
 
 
 
-###Select the source {#select}
+###Select the source 
 
 Open an image through `img.php` by using its `src` attribute.
 
@@ -196,7 +196,7 @@ All images are stored in a directory structure and you access them as:
 
 
 
-###Resize using constraints on width and height {#resize}
+###Resize using constraints on width and height 
 
 Create a thumbnail of the image by applying constraints on width and height, or one of them.
 
@@ -210,7 +210,7 @@ Think of the constraints as a imaginary box where the image should fit. With `wi
 
 
 
-###Resize to fit a certain dimension {#resize-fit}
+###Resize to fit a certain dimension 
 
 Creating a thumbnail with a certain dimension of width and height, usually involves stretching or cropping the image to fit in the selected dimensions. Here is how you create a image that has the exact dimensions of 300x150 pixels, by either *stretching*, *cropping* or *fill to fit*.
 
@@ -230,7 +230,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 
 
 
-###List of parameters {#parameters}
+###List of parameters
 
 `img.php` supports a lot of parameters. Combine the parameters to get the desired behavior and resulting image. For example, take the original image, resize it using width, aspect-ratio and crop-to-fit, apply a sharpen effect, save the image as JPEG using quality 30.
 
@@ -242,7 +242,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
 
 
-####Mandatory options and debugging {#option-man}
+####Mandatory options and debugging 
 
 Option `src` is the only mandatory option. The options in this section is useful for debugging or deciding what version of the target image is used.
 
@@ -257,7 +257,7 @@ Option `src` is the only mandatory option. The options in this section is useful
 
 
 
-####Options for deciding width and height of target image {#option-res}
+####Options for deciding width and height of target image
 
 These options are all affecting the final dimensions, width and height, of the resulting image.
 
@@ -270,7 +270,7 @@ These options are all affecting the final dimensions, width and height, of the r
 
 
 
-####Options for resize strategy {#option-strat}
+####Options for resize strategy
 
 These options affect strategy to use when resizing an image into a target image that has both width and height set.
 
@@ -283,7 +283,7 @@ These options affect strategy to use when resizing an image into a target image 
 
 
 
-####Options for cropping part of image {#option-crop}
+####Options for cropping part of image
 
 These options enable to decide what part of image to crop out.
 
@@ -294,7 +294,7 @@ These options enable to decide what part of image to crop out.
 
 
 
-####General processing options {#option-general}
+####General processing options
 
 These options are general options affecting processing.
 
@@ -304,7 +304,7 @@ These options are general options affecting processing.
 
 
 
-####Processing of image before resizing {#option-before}
+####Processing of image before resizing 
 
 This option are executed *before* the image is resized.
 
@@ -316,7 +316,7 @@ This option are executed *before* the image is resized.
 
 
 
-####Processing of image after resizing  {#option-after}
+####Processing of image after resizing 
 
 These options are executed *after* the image is resized.
 
@@ -334,7 +334,7 @@ These options are executed *after* the image is resized.
 
 
 
-####Saving image, affecting quality and file size {#option-save}
+####Saving image, affecting quality and file size 
 
 Options for saving the target image.
 
@@ -350,7 +350,7 @@ Carry on reading to view examples on how to use and combine the parameters to ac
 
 
 
-The configuration settings in `_config.php` {#config-file}
+The configuration settings in `_config.php`
 --------------------------------------
 
 There are several configurations settings that can be used to change the behaviour of `img.php`. Here is an overview, listed as they appear in the default config-file.
@@ -390,13 +390,13 @@ Consult the file `webroot/img-config.php` for a complete list together with the 
 
 
 
-###Create and name the config file {#config-name}
+###Create and name the config file 
 
 The file `img.php` looks for the config-file `img_config.php`, and uses it if its found. The three files where everything is included -- `imgd.php`, `imgp.php` and `imgs.php` -- includes an empty `$config`-array which can be overridden by saving a config-file in the same directory. If the script is `imgp.php` then name the config-file `imgp_config.php` and it will find it and use those settings. 
 
 
 
-Debugging image processing {#debug}
+Debugging image processing 
 --------------------------------------
 
 You can visualize what happens during image processing by adding the `v, verbose` parameter. It will then display the resulting image together with a verbose output on what is actually happening behind the scene.
@@ -411,7 +411,7 @@ The parameter `so, skip-original` skips the original image, even it that is a be
 
 
 
-A JSON representation of the image {#json}
+A JSON representation of the image
 --------------------------------------
 
 You can ge a JSON representation of the image by adding the option `json`. This can be useful if you need to know the actual dimension of the image. 
@@ -448,26 +448,26 @@ I'll use this feature for ease testing of `img.php` and `CImage`. But the featur
 
 
 
-Implications and considerations {#security}
+Implications and considerations 
 --------------------------------------
 
 Here are some thoughts when applying `img.php` on a live system.
 
 
 
-###Select the proper mode {#mode}
+###Select the proper mode 
 
 Select the proper mode for `img.php`. Set it to "strict" or "production" to prevent outsiders to get information about your system. Use only "development" for internal use since its quite verbose in its nature of error reporting. 
 
 
 
-###Put the installation directory outside web root {#outside}
+###Put the installation directory outside web root 
 
 Edit the config file to put the installation directory -- and the cache directory -- outside of the web root. Best practice would be to store the installation directory and cache, outside of the web root. The only thing needed in the web root is `img.php` and `img_config.php` (if used) which can be placed, for example, in `/img/img.php` or just as `/img.php`.
 
 
 
-###FriendlyL urls through .htaccess {#htaccess}
+###FriendlyL urls through .htaccess 
 
 Use `.htaccess`and rewrite rules (Apache) to get friendly image urls. Put `img.php` in the `/img` directory. Put the file `.htaccess` in the web root.
 
@@ -505,7 +505,7 @@ The result is good readable urls to your images. Its easy for the search engine 
 
 
 
-###Monitor cache size {#moncache}
+###Monitor cache size
 
 There is a utility `cache.bash` included for monitoring the size of the cache-directory. It generates an output like this.
 
@@ -543,13 +543,13 @@ Use it as a base if you feel the need to monitor the size och the cache-director
 
 
 
-###Read-only cache {#mreadonlycache}
+###Read-only cache
 
 The cache directory need to be writable for `img.php` to create new files. But its possible to first create all cache-files and then set the directory to be read-only. This will give you a way of shutting of `img.php` from creating new cache files. `img.php` will then continue to work for all images having a cached version but will fail if someone tries to create a new, not previously cached, version of the image.
 
 
 
-###Post-processing with external tools {#post-ext}
+###Post-processing with external tools
 
 You can use external tools to post-process the images to optimize the file size. This option is available for JPEG and for PNG images. Post-processing is disabled by default, edit `img_config.php` to enable it.
 
@@ -559,7 +559,7 @@ These tools for post processing is not a part of `CImage` and `img.php`, you nee
 
 
 
-###Allowing remote download of images {#remote}
+###Allowing remote download of images
 
 You can allow `img.php` to download remote images. That can be enabled in the config-file. However, before doing so, consider the implications on allowing anyone to download a file, hopefully an image, to your server and then the possibility to access it through the webserver.
 
@@ -578,7 +578,7 @@ So, its a scary feature and I might regret I did put it in. Still, its disabled 
 
 
 
-Community {#community}
+Community 
 --------------------------------------
 
 There is a Swedish forum where you can ask questions, even in English. The forum is a general forum for education in web development, it is not specific for this software. 
@@ -594,7 +594,7 @@ Or if you fancy irc.
 
 
 
-Trouble- and feature requests {#tr}
+Trouble- and feature requests 
 --------------------------------------
 
 Use [GitHub to report issues](https://github.com/mosbth/cimage/issues). Always include the following.
