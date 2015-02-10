@@ -2,7 +2,7 @@ Revision history
 =====================================
 
 
-v0.7.0-rc.1 (2015-02-10)
+v0.7.0-rc.2 (2015-02-10)
 -------------------------------------
 
 * Always use password, setting in img_config.php, fix #78.
