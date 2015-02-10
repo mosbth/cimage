@@ -3011,6 +3011,8 @@ EOD;
  *
  */
 
+$version = "v0.7.0-rc.1 (2015-02-10)";
+
 
 
 /**
@@ -3146,6 +3148,7 @@ if (is_file($configFile)) {
 * verbose, v - do a verbose dump of what happens
 */
 $verbose = getDefined(array('verbose', 'v'), true, false);
+verbose("img.php version = $version");
 
 
 
@@ -3211,12 +3214,21 @@ if ($defaultTimezone) {
  * Options decide themself if they require passwords to be used.
  */
 $pwdConfig   = getConfig('password', false);
+$pwdAlways   = getConfig('password_always', false);
 $pwd         = get(array('password', 'pwd'), null);
 
 // Check if passwords match, if configured to use passwords
 $passwordMatch = null;
-if ($pwdConfig && $pwd) {
-    $passwordMatch = ($pwdConfig == $pwd);
+if ($pwdAlways) {
+
+    $passwordMatch = ($pwdConfig === $pwd);
+    if (!$passwordMatch) {
+        errorPage("Password required and does not match or exists.");
+    }
+
+} elseif ($pwdConfig && $pwd) {
+
+    $passwordMatch = ($pwdConfig === $pwd);
 }
 
 verbose("password match = $passwordMatch");
