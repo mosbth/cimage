@@ -467,7 +467,7 @@ Edit the config file to put the installation directory -- and the cache director
 
 
 
-###FriendlyL urls through .htaccess 
+###Friendly urls through `.htaccess` 
 
 Use `.htaccess`and rewrite rules (Apache) to get friendly image urls. Put `img.php` in the `/img` directory. Put the file `.htaccess` in the web root.
 
