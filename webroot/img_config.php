@@ -52,9 +52,11 @@ return array(
     * and aliasing.
     *
     * Default values.
-    *  password: false // as in do not use password
+    *  password:        false // as in do not use password
+    *  password_always: false // do not always require password,
     */
-    //'password' => false, // "secret-password",
+    //'password'        => false, // "secret-password",
+    //'password_always' => false, // always require password,
 
 
 

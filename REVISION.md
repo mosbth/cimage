@@ -5,6 +5,7 @@ Revision history
 v0.6.x (latest)
 -------------------------------------
 
+* Always use password, setting in img_config.php, fix #78.
 * Resize gif keeping transparency #81.
 * Now returns statuscode 500 when something fails #55.
 * Three different modes: strict, production, development #44.
