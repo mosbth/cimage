@@ -401,7 +401,7 @@ Debugging image processing
 
 You can visualize what happens during image processing by adding the `v, verbose` parameter. It will then display the resulting image together with a verbose output on what is actually happening behind the scene.
 
-<img src="/image/snapshot/CImage_verbose_output.jpg?w=w2&q=60&sharpen">
+<img src="http://dbwebb.se/image/snapshot/CImage_verbose_output.jpg?w=w2&q=60&sharpen">
 
 This can be most useful for debugging and to understand what actually happen.
 
@@ -420,7 +420,7 @@ For example, the following image is created like this:
 
 > `&w=300&save-as=jpg`
 
-<img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim24.png&w=300&save-as=jpg alt=''>
+<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim24.png&w=300&save-as=jpg" alt=''>
 
 Its JSON-representation is retrieved like this:
 
