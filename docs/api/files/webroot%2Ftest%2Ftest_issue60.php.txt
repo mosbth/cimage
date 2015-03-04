@@ -1,0 +1,34 @@
+<?php
+// Include config for all testcases
+include __DIR__ . "/config.php";
+
+
+
+// The title of the test case
+$title = "Testing issue 60  - skip original";
+
+
+
+// Provide a short description of the testcase.
+$description = "Always use the original if suitable, use skip-original to force using the cached version.";
+
+
+
+// Use these images in the test
+$images = array(
+    'car.png',
+);
+
+
+
+// For each image, apply these testcases 
+$testcase = array(
+    '',
+    '&so',
+);
+
+
+
+// Apply testcases and present results
+include __DIR__ . "/template.php";
+

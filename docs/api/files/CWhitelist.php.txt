@@ -1,0 +1,63 @@
+<?php
+/**
+ * Act as whitelist (or blacklist).
+ *
+ */
+class CWhitelist
+{
+    /**
+     * Array to contain the whitelist options.
+     */
+    private $whitelist = array();
+
+
+
+    /**
+     * Set the whitelist from an array of strings, each item in the 
+     * whitelist should be a regexp without the surrounding / or #.
+     *
+     * @param array $whitelist with all valid options, 
+     *                         default is to clear the whitelist.
+     *
+     * @return $this
+     */
+    public function set($whitelist = array())
+    {
+        if (is_array($whitelist)) {
+            $this->whitelist = $whitelist;
+        } else {
+            throw new Exception("Whitelist is not of a supported format.");
+        }
+        return $this;
+    }
+
+
+
+    /**
+     * Check if item exists in the whitelist.
+     *
+     * @param string $item      string to check.
+     * @param array  $whitelist optional with all valid options, default is null.
+     *
+     * @return boolean true if item is in whitelist, else false.
+     */
+    public function check($item, $whitelist = null)
+    {
+        if ($whitelist !== null) {
+            $this->set($whitelist);    
+        } 
+        
+        if (empty($item) or empty($this->whitelist)) {
+            return false;
+        }
+        
+        foreach ($this->whitelist as $regexp) {
+            if (preg_match("#$regexp#", $item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+

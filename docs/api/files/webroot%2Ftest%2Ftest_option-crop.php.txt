@@ -1,0 +1,42 @@
+<?php
+// Include config for all testcases
+include __DIR__ . "/config.php";
+
+
+
+// The title of the test case
+$title = "Testing option crop";
+
+
+
+// Provide a short description of the testcase.
+$description = "Cropping parts of image";
+
+
+
+// Use these images in the test
+$images = array(
+    'kodim04.png',
+);
+
+
+
+// For each image, apply these testcases
+$nc = "&nc"; //null; //&nc'; 
+$testcase = array(
+    $nc . '&w=300',
+    $nc . '&w=300&crop=0,0,0,0',
+    $nc . '&crop=300,200,0,0',
+    $nc . '&crop=300,200,left,top',
+    $nc . '&crop=300,200,right,top',
+    $nc . '&crop=300,200,right,bottom',
+    $nc . '&crop=300,200,left,bottom',
+    $nc . '&crop=300,200,center,center',
+    $nc . '&crop=200,220,190,300',
+);
+
+
+
+// Apply testcases and present results
+include __DIR__ . "/template.php";
+

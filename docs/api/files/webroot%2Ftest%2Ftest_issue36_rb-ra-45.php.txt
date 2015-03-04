@@ -1,0 +1,43 @@
+<?php
+// Include config for all testcases
+include __DIR__ . "/config.php";
+
+
+
+// The title of the test case
+$angle = 45;
+
+$title = "Testing img for issue 36 - rotateBefore, rotateAfter <?=$angle?>";
+
+
+
+// Provide a short description of the testcase.
+$description = "";
+
+
+
+// Use these images in the test
+$images = array(
+    'kodim08.png',
+    'kodim04.png',
+);
+
+
+
+// For each image, apply these testcases 
+$testcase = array(
+    "&rb=$angle&nc",
+    "&rb=$angle&nc&w=200",
+    "&rb=$angle&nc&h=200",
+    "&rb=$angle&nc&w=200&h=200&cf",
+    "&ra=$angle&nc",
+    "&ra=$angle&nc&w=200",
+    "&ra=$angle&nc&h=200",
+    "&ra=$angle&nc&w=200&h=200&cf",
+);
+
+
+
+// Apply testcases and present results
+include __DIR__ . "/template.php";
+

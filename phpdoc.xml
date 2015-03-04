@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>CImage API Documentaion</title>
+    <parser>
+        <target>docs/api</target>
+    </parser>
+    <transformer>
+        <target>docs/api</target>
+    </transformer>
+    <files>
+        <file>./*.php</file>
+        <file>webroot/img.php</file>
+        <file>webroot/img_config.php</file>
+    </files>
+</phpdoc>
