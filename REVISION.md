@@ -5,7 +5,10 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* 
 * Adding phpdoc, fix #48.
+* Adding travis, fix #15.
+* Adding scrutinizer, fix #57.
 
 
 v0.7.0 (2015-02-10)

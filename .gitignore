@@ -1,4 +1,6 @@
-# Cache files        #
-######################
+# Cache files
 cache/*
 
+# Test
+coverage/
+coverage.clover
