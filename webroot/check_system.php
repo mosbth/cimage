@@ -7,9 +7,12 @@ echo 'Running on: ' . $_SERVER['SERVER_SOFTWARE'] . '<br><br>';
 $no = extension_loaded('gd') ? null : 'NOT';
 echo "Extension gd is $no loaded.<br>";
 
-$no = extension_loaded('exif') ? null : 'NOT';
-echo "Extension exif is $no loaded.<br>";
-
 if (!$no) {
     echo "<pre>", var_dump(gd_info()), "</pre>";
 }
+
+$no = extension_loaded('exif') ? null : 'NOT';
+echo "Extension exif is $no loaded.<br>";
+
+$no = extension_loaded('curl') ? null : 'NOT';
+echo "Extension curl is $no loaded.<br>";
