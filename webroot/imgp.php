@@ -1048,7 +1048,7 @@ class CImage
     public function setRemoteDownload($allow, $pattern = null)
     {
         $this->allowRemote = $allow;
-        $this->remotePattern = $pattern ? $pattern : $this->remotePattern;
+        $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
         $this->log("Set remote download to: "
             . ($this->allowRemote ? "true" : "false")
@@ -1071,7 +1071,48 @@ class CImage
     {
         $remote = preg_match($this->remotePattern, $src);
         $this->log("Detected remote image: " . ($remote ? "true" : "false"));
-        return $remote;
+        return !!$remote;
+    }
+
+
+
+    /**
+     * Set whitelist for valid hostnames from where remote source can be 
+     * downloaded.
+     *
+     * @param array $whitelist with regexp hostnames to allow download from.
+     *
+     * @return $this
+     */
+    public function setRemoteHostWhitelist($whitelist = null)
+    {
+        $this->remoteHostWhitelist = $whitelist;
+        $this->log("Setting remote host whitelist to: " . print_r($this->remoteHostWhitelist, 1));
+        return $this;
+    }
+
+
+
+    /**
+     * Check if the hostname for the remote image, is on a whitelist, 
+     * if the whitelist is defined.
+     *
+     * @param string $src the remote source.
+     *
+     * @return boolean true if hostname on $src is in the whitelist, else false.
+     */
+    public function isRemoteSourceOnWhitelist($src)
+    {
+        if (is_null($this->remoteHostWhitelist)) {
+            $allow = true;
+        } else {
+            $whitelist = new CWhitelist();
+            $hostname = parse_url($src, PHP_URL_HOST);
+            $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+        }
+
+        $this->log("Remote host is on whitelist: " . ($allow ? "true" : "false"));
+        return $allow;
     }
 
 
@@ -1104,6 +1145,10 @@ class CImage
      */
     public function downloadRemoteSource($src)
     {
+        if (!$this->isRemoteSourceOnWhitelist($src)) {
+            throw new Exception("Hostname is not on whitelist for remote sources.");
+        }
+        
         $remote = new CRemoteImage();
         $cache  = $this->saveFolder . "/remote/";
 
@@ -3003,6 +3048,70 @@ EOD;
 
 
 /**
+ * Act as whitelist (or blacklist).
+ *
+ */
+class CWhitelist
+{
+    /**
+     * Array to contain the whitelist options.
+     */
+    private $whitelist = array();
+
+
+
+    /**
+     * Set the whitelist from an array of strings, each item in the 
+     * whitelist should be a regexp without the surrounding / or #.
+     *
+     * @param array $whitelist with all valid options, 
+     *                         default is to clear the whitelist.
+     *
+     * @return $this
+     */
+    public function set($whitelist = array())
+    {
+        if (is_array($whitelist)) {
+            $this->whitelist = $whitelist;
+        } else {
+            throw new Exception("Whitelist is not of a supported format.");
+        }
+        return $this;
+    }
+
+
+
+    /**
+     * Check if item exists in the whitelist.
+     *
+     * @param string $item      string to check.
+     * @param array  $whitelist optional with all valid options, default is null.
+     *
+     * @return boolean true if item is in whitelist, else false.
+     */
+    public function check($item, $whitelist = null)
+    {
+        if ($whitelist !== null) {
+            $this->set($whitelist);    
+        } 
+        
+        if (empty($item) or empty($this->whitelist)) {
+            return false;
+        }
+        
+        foreach ($this->whitelist as $regexp) {
+            if (preg_match("#$regexp#", $item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+
+/**
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * @author  Mikael Roos mos@dbwebb.se
@@ -3011,7 +3120,7 @@ EOD;
  *
  */
 
-$version = "v0.7.0 (2015-02-10)";
+$version = "v0.7.0.x (latest)";
 
 
 
@@ -3312,6 +3421,9 @@ $allowRemote = getConfig('remote_allow', false);
 if ($allowRemote && $passwordMatch !== false) {
     $pattern = getConfig('remote_pattern', null);
     $img->setRemoteDownload($allowRemote, $pattern);
+
+    $whitelist = getConfig('remote_whitelist', null);
+    $img->setRemoteHostWhitelist($whitelist);
 }
 
 

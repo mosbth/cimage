@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.0 (2015-02-10)";
+$version = "v0.7.0.x (latest)";
 
 
 
@@ -309,6 +309,9 @@ $allowRemote = getConfig('remote_allow', false);
 if ($allowRemote && $passwordMatch !== false) {
     $pattern = getConfig('remote_pattern', null);
     $img->setRemoteDownload($allowRemote, $pattern);
+
+    $whitelist = getConfig('remote_whitelist', null);
+    $img->setRemoteHostWhitelist($whitelist);
 }
 
 

@@ -416,7 +416,7 @@ class CImage
     public function setRemoteDownload($allow, $pattern = null)
     {
         $this->allowRemote = $allow;
-        $this->remotePattern = $pattern ? $pattern : $this->remotePattern;
+        $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
         $this->log("Set remote download to: "
             . ($this->allowRemote ? "true" : "false")
@@ -439,7 +439,48 @@ class CImage
     {
         $remote = preg_match($this->remotePattern, $src);
         $this->log("Detected remote image: " . ($remote ? "true" : "false"));
-        return $remote;
+        return !!$remote;
+    }
+
+
+
+    /**
+     * Set whitelist for valid hostnames from where remote source can be 
+     * downloaded.
+     *
+     * @param array $whitelist with regexp hostnames to allow download from.
+     *
+     * @return $this
+     */
+    public function setRemoteHostWhitelist($whitelist = null)
+    {
+        $this->remoteHostWhitelist = $whitelist;
+        $this->log("Setting remote host whitelist to: " . print_r($this->remoteHostWhitelist, 1));
+        return $this;
+    }
+
+
+
+    /**
+     * Check if the hostname for the remote image, is on a whitelist, 
+     * if the whitelist is defined.
+     *
+     * @param string $src the remote source.
+     *
+     * @return boolean true if hostname on $src is in the whitelist, else false.
+     */
+    public function isRemoteSourceOnWhitelist($src)
+    {
+        if (is_null($this->remoteHostWhitelist)) {
+            $allow = true;
+        } else {
+            $whitelist = new CWhitelist();
+            $hostname = parse_url($src, PHP_URL_HOST);
+            $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+        }
+
+        $this->log("Remote host is on whitelist: " . ($allow ? "true" : "false"));
+        return $allow;
     }
 
 
@@ -472,6 +513,10 @@ class CImage
      */
     public function downloadRemoteSource($src)
     {
+        if (!$this->isRemoteSourceOnWhitelist($src)) {
+            throw new Exception("Hostname is not on whitelist for remote sources.");
+        }
+        
         $remote = new CRemoteImage();
         $cache  = $this->saveFolder . "/remote/";
 
