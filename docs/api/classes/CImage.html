@@ -111,7 +111,7 @@
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">165</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">164</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1385228821"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-828328770"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1385228821" class="accordion-body collapse in">
+            <div id="namespace-828328770" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -254,7 +254,7 @@
                         </section>
                         <section class="row-fluid protected">
                             <section class="span4">
-                                                                    <em>No protected methods found</em>
+                                                                    <a href="../classes/CImage.html#method_getTargetImageExtension" class="">getTargetImageExtension()</a><br />
                                                             </section>
                             <section class="span4">
                                                                     <em>No protected properties found</em>
@@ -286,7 +286,7 @@
                                                                     <a href="../classes/CImage.html#property_imageFolder" class="">$imageFolder</a><br />
                                                                     <a href="../classes/CImage.html#property_imageSrc" class="">$imageSrc</a><br />
                                                                     <a href="../classes/CImage.html#property_pathToImage" class="">$pathToImage</a><br />
-                                                                    <a href="../classes/CImage.html#property_fileExtension" class="">$fileExtension</a><br />
+                                                                    <a href="../classes/CImage.html#property_fileType" class="">$fileType</a><br />
                                                                     <a href="../classes/CImage.html#property_extension" class="">$extension</a><br />
                                                                     <a href="../classes/CImage.html#property_outputFormat" class="">$outputFormat</a><br />
                                                                     <a href="../classes/CImage.html#property_verbose" class="">$verbose</a><br />
@@ -987,11 +987,11 @@ decides (partly) what properties are created.</em></p>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_fileExtension" name="property_fileExtension" class="anchor"></a>
+            <a id="property_fileType" name="property_fileType" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$fileExtension</h3>
-                <pre class="signature">$fileExtension : </pre>
-                <p><em>Original file extension</em></p>
+                <h3 class="private ">$fileType</h3>
+                <pre class="signature">$fileType : </pre>
+                <p><em>File type for source image, as provided by getimagesize()</em></p>
                 
 
                                 <h4>Type</h4>
@@ -2621,7 +2621,7 @@ processing can be done.</em></p>
                 <h3 class="public ">failedToLoad()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">failedToLoad() : void</pre>
-                <p><em>Error message when failing to load somehow corrupt image.</em></p>
+                <p><em>To display error message when failing to load somehow corrupt image.</em></p>
                 
 
                 
@@ -2647,7 +2647,8 @@ processing can be done.</em></p>
                 <h3 class="public ">load()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">load(string  <span class="argument">$src = null</span>, string  <span class="argument">$dir = null</span>) : $this</pre>
-                <p><em>Load image from disk.</em></p>
+                <p><em>Load image from disk. Try to load image without verbose error message,
+if fail, load again and display error messages.</em></p>
                 
 
                                     <h4>Parameters</h4>
@@ -3319,7 +3320,36 @@ alpha 00000000-FFFFFF7F.</em></p>
         </aside>
     </div>
 
-                                                                    <div class="row-fluid">
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTargetImageExtension" name="method_getTargetImageExtension" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">getTargetImageExtension()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTargetImageExtension() : string</pre>
+                <p><em>Find out the type (file extension) for the image to be saved.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>as image extension.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    <div class="row-fluid">
         <div class="span8 content class">
             <a id="method_checkFileExtension" name="method_checkFileExtension" class="anchor"></a>
             <article class="method">
@@ -3655,7 +3685,7 @@ alpha 00000000-FFFFFF7F.</em></p>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on March 4th, 2015 at 10:52.
+                    on March 6th, 2015 at 12:38.
                 </section>
             </section>
         </section>
