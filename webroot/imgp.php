@@ -767,9 +767,9 @@ class CImage
 
 
     /**
-     * Original file extension
+     * File type for source image, as provided by getimagesize()
      */
-    private $fileExtension;
+    private $fileType;
 
 
 
@@ -1204,10 +1204,6 @@ class CImage
         $this->imageSrc       = ltrim($src, '/');
         $this->imageFolder    = rtrim($dir, '/');
         $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
-        $this->fileExtension  = strtolower(pathinfo($this->pathToImage, PATHINFO_EXTENSION));
-        //$this->extension      = $this->fileExtension;
-
-        $this->checkFileExtension($this->fileExtension);
 
         return $this;
     }
@@ -1412,13 +1408,16 @@ class CImage
             or $this->raiseError('Image file does not exist.');
 
         // Get details on image
-        $info = list($this->width, $this->height, $this->type, $this->attr) = getimagesize($file);
-        !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
+        $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
+        if (empty($info)) {
+            throw new Exception("The file doesn't seem to be a valid image.");
+        } 
 
         if ($this->verbose) {
-            $this->log("Image file: {$file}");
-            $this->log("Image width x height (type): {$this->width} x {$this->height} ({$this->type}).");
-            $this->log("Image filesize: " . filesize($file) . " bytes.");
+            $this->log("Loading image details for: {$file}");
+            $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
+            $this->log(" Image filesize: " . filesize($file) . " bytes.");
+            $this->log(" Image mimetype: " . image_type_to_mime_type($this->fileType));
         }
 
         return $this;
@@ -1683,7 +1682,7 @@ class CImage
             $this->extension = $saveAs;
         }
 
-        $this->log("Prepare to save image using as: " . $this->extension);
+        $this->log("Prepare to save image as: " . $this->extension);
 
         return $this;
     }
@@ -1837,15 +1836,17 @@ class CImage
 
         $this->extension = isset($this->extension)
             ? $this->extension
-            : $parts['extension'];
+            : (isset($parts['extension']) 
+                ? $parts['extension']
+                : null);
+        
+        $extension = empty($this->extension)
+            ? null
+            : "." . $this->extension;
 
-        $optimize = null;
-        if ($this->extension == 'jpeg' || $this->extension == 'jpg') {
-            $optimize = $this->jpegOptimize ? 'o' : null;
-        } elseif ($this->extension == 'png') {
-            $optimize .= $this->pngFilter  ? 'f' : null;
-            $optimize .= $this->pngDeflate ? 'd' : null;
-        }
+        $optimize  = $this->jpegOptimize ? 'o' : null;
+        $optimize .= $this->pngFilter    ? 'f' : null;
+        $optimize .= $this->pngDeflate   ? 'd' : null;
 
         $convolve = null;
         if ($this->convolve) {
@@ -1864,7 +1865,7 @@ class CImage
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
-            . '.' . $this->extension;
+            . $extension;
 
         return $this->setTarget($file, $base);
     }
@@ -1907,38 +1908,8 @@ class CImage
 
 
     /**
-     * Error message when failing to load somehow corrupt image.
-     *
-     * @return void
-     *
-     */
-    public function failedToLoad()
-    {
-        header("HTTP/1.0 404 Not Found");
-        echo("CImage.php says 404: Fatal error when opening image.<br>");
-
-        switch ($this->fileExtension) {
-            case 'jpg':
-            case 'jpeg':
-                $this->image = imagecreatefromjpeg($this->pathToImage);
-                break;
-
-            case 'gif':
-                $this->image = imagecreatefromgif($this->pathToImage);
-                break;
-
-            case 'png':
-                $this->image = imagecreatefrompng($this->pathToImage);
-                break;
-        }
-
-        exit();
-    }
-
-
-
-    /**
-     * Load image from disk.
+     * Load image from disk. Try to load image without verbose error message, 
+     * if fail, load again and display error messages.
      *
      * @param string $src of image.
      * @param string $dir as base directory where images are.
@@ -1952,46 +1923,32 @@ class CImage
             $this->setSource($src, $dir);
         }
 
-        $this->log("Opening file as {$this->fileExtension}.");
+        $this->loadImageDetails($this->pathToImage);
 
-        switch ($this->fileExtension) {
-            case 'jpg':
-            case 'jpeg':
-                $this->image = @imagecreatefromjpeg($this->pathToImage);
-                $this->image or $this->failedToLoad();
-                break;
+        $this->image = imagecreatefromstring(file_get_contents($this->pathToImage));
+        if ($this->image === false) {
+            throw new Exception("Could not load image.");
+        }
+        
+        if (image_type_to_mime_type($this->fileType) == 'image/png') {
+            $type = $this->getPngType();
+            $hasFewColors = imagecolorstotal($this->image);
 
-            case 'gif':
-                $this->image = @imagecreatefromgif($this->pathToImage);
-                $this->image or $this->failedToLoad();
-                break;
-
-            case 'png':
-                $this->image = @imagecreatefrompng($this->pathToImage);
-                $this->image or $this->failedToLoad();
-
-                $type = $this->getPngType();
-                $hasFewColors = imagecolorstotal($this->image);
-
-                if ($type == self::PNG_RGB_PALETTE || ($hasFewColors > 0 && $hasFewColors <= 256)) {
-                    if ($this->verbose) {
-                        $this->log("Handle this image as a palette image.");
-                    }
-                    $this->palette = true;
+            if ($type == self::PNG_RGB_PALETTE || ($hasFewColors > 0 && $hasFewColors <= 256)) {
+                if ($this->verbose) {
+                    $this->log("Handle this image as a palette image.");
                 }
-                break;
-
-            default:
-                $this->image = false;
-                throw new Exception('No support for this file extension.');
+                $this->palette = true;
+            }
         }
 
         if ($this->verbose) {
-            $this->log("imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
-            $this->log("imagecolorstotal() : " . imagecolorstotal($this->image));
-            $this->log("Number of colors in image = " . $this->colorsTotal($this->image));
+            $this->log("Image successfully loaded from file.");
+            $this->log(" imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
+            $this->log(" imagecolorstotal() : " . imagecolorstotal($this->image));
+            $this->log(" Number of colors in image = " . $this->colorsTotal($this->image));
             $index = imagecolortransparent($this->image);
-            $this->log("Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
+            $this->log(" Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
@@ -2386,7 +2343,7 @@ class CImage
      */
     public function rotateExif()
     {
-        if (!in_array($this->fileExtension, array('jpg', 'jpeg'))) {
+        if (!in_array($this->fileType, array(IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM))) {
             $this->log("Autorotate ignored, EXIF not supported by this filetype.");
             return $this;
         }
@@ -2731,6 +2688,22 @@ class CImage
 
 
     /**
+     * Find out the type (file extension) for the image to be saved.
+     *
+     * @return string as image extension.
+     */
+    protected function getTargetImageExtension()
+    {
+        if (isset($this->extension)) {
+            return strtolower($this->extension);
+        } else {
+            return image_type_to_extension($this->fileType);
+        }
+    }
+    
+    
+
+    /**
      * Save image.
      *
      * @param string $src  as target filename.
@@ -2747,7 +2720,7 @@ class CImage
         is_writable($this->saveFolder)
             or $this->raiseError('Target directory is not writable.');
 
-        switch(strtolower($this->extension)) {
+        switch($this->getTargetImageExtension()) {
 
             case 'jpeg':
             case 'jpg':
@@ -2774,6 +2747,7 @@ class CImage
                 break;
 
             case 'png':
+            default:
                 $this->Log("Saving image as PNG to cache using compression = {$this->compress}.");
 
                 // Turn off alpha blending and set alpha flag
@@ -2807,20 +2781,17 @@ class CImage
                     $this->Log($res);
                 }
                 break;
-
-            default:
-                $this->RaiseError('No support for this file extension.');
-                break;
         }
 
         if ($this->verbose) {
             clearstatcache();
-            $this->log("Cached image filesize: " . filesize($this->cacheFileName) . " bytes.");
-            $this->log("imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
-            $this->log("imagecolorstotal() : " . imagecolorstotal($this->image));
-            $this->log("Number of colors in image = " . $this->ColorsTotal($this->image));
+            $this->log("Saved image to cache.");
+            $this->log(" Cached image filesize: " . filesize($this->cacheFileName) . " bytes.");
+            $this->log(" imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
+            $this->log(" imagecolorstotal() : " . imagecolorstotal($this->image));
+            $this->log(" Number of colors in image = " . $this->ColorsTotal($this->image));
             $index = imagecolortransparent($this->image);
-            $this->log("Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
+            $this->log(" Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
@@ -2843,7 +2814,7 @@ class CImage
             return $this;
         }
 
-        $alias = $alias . "." . $this->extension;
+        $alias = $alias . "." . $this->getTargetImageExtension();
 
         if (is_readable($alias)) {
             unlink($alias);
@@ -2946,23 +2917,22 @@ class CImage
 
         clearstatcache();
 
-        $details['src']        = $this->imageSrc;
-        $lastModified          = filemtime($this->pathToImage);
+        $details['src']       = $this->imageSrc;
+        $lastModified         = filemtime($this->pathToImage);
         $details['srcGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
-        $details['cache']        = basename($this->cacheFileName);
-        $lastModified            = filemtime($this->cacheFileName);
+        $details['cache']       = basename($this->cacheFileName);
+        $lastModified           = filemtime($this->cacheFileName);
         $details['cacheGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
-        $this->loadImageDetails($file);
-
-        $details['filename'] = basename($file);
-        $details['width']  = $this->width;
-        $details['height'] = $this->height;
-        $details['aspectRatio'] = round($this->width / $this->height, 3);
-        $details['size'] = filesize($file);
-
         $this->load($file);
+
+        $details['filename']    = basename($file);
+        $details['mimeType']    = image_type_to_mime_type($this->fileType);
+        $details['width']       = $this->width;
+        $details['height']      = $this->height;
+        $details['aspectRatio'] = round($this->width / $this->height, 3);
+        $details['size']        = filesize($file);
         $details['colors'] = $this->colorsTotal($this->image);
 
         $options = null;
@@ -3019,11 +2989,6 @@ class CImage
         }
 
         echo <<<EOD
-<!doctype html>
-<html lang=en>
-<meta charset=utf-8>
-<title>CImage verbose output</title>
-<style>body{background-color: #ddd}</style>
 <h1>CImage Verbose Output</h1>
 <pre>{$log}</pre>
 EOD;
@@ -3941,6 +3906,11 @@ if ($verbose) {
     $url1 = '?' . htmlentities(urldecode(http_build_query($query)));
     $url2 = '?' . urldecode(http_build_query($query));
     echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage verbose output</title>
+<style>body{background-color: #ddd}</style>
 <a href=$url1><code>$url1</code></a><br>
 <img src='{$url1}' />
 <pre id="json"></pre>
@@ -3949,7 +3919,7 @@ if ($verbose) {
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
   });
 }
 </script>

@@ -829,6 +829,11 @@ if ($verbose) {
     $url1 = '?' . htmlentities(urldecode(http_build_query($query)));
     $url2 = '?' . urldecode(http_build_query($query));
     echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage verbose output</title>
+<style>body{background-color: #ddd}</style>
 <a href=$url1><code>$url1</code></a><br>
 <img src='{$url1}' />
 <pre id="json"></pre>
@@ -837,7 +842,7 @@ if ($verbose) {
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
   });
 }
 </script>
