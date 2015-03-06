@@ -25,13 +25,13 @@ $images = array(
 $nc = '&nc'; 
 $testcase = array(
     $nc . '&w=300&h=300&crop-to-fit',
-    $nc . '&w=300&ar=1&crop-to-fit',
+    $nc . '&w=300&ar=1.1&crop-to-fit',
     $nc . '&w=300&ar=3&crop-to-fit',
-    $nc . '&h=300&ar=1&crop-to-fit',
+    $nc . '&h=300&ar=1.1&crop-to-fit',
     $nc . '&h=300&ar=3&crop-to-fit',
-    $nc . '&w=50%&ar=1&crop-to-fit',
+    $nc . '&w=50%&ar=1.1&crop-to-fit',
     $nc . '&w=50%&ar=3&crop-to-fit',
-    $nc . '&h=50%&ar=1&crop-to-fit',
+    $nc . '&h=50%&ar=1.1&crop-to-fit',
     $nc . '&h=50%&ar=3&crop-to-fit',
 );
 

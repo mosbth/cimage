@@ -25,13 +25,13 @@ $images = array(
 $nc = null; //&nc'; 
 $testcase = array(
     $nc . '&w=300&h=300&fill-to-fit',
-    $nc . '&w=300&ar=1&fill-to-fit',
+    $nc . '&w=300&ar=1.1&fill-to-fit',
     $nc . '&w=300&ar=2&fill-to-fit',
-    $nc . '&h=300&ar=1&fill-to-fit',
-    $nc . '&h=300&ar=2&fill-to-fit',
-    $nc . '&w=50%&ar=1&fill-to-fit',
+    $nc . '&h=300&ar=1.1&fill-to-fit',
+    $nc . '&h=300&ar=2.1&fill-to-fit',
+    $nc . '&w=50%&ar=1.1&fill-to-fit',
     $nc . '&w=50%&ar=2&fill-to-fit',
-    $nc . '&h=50%&ar=1&fill-to-fit',
+    $nc . '&h=50%&ar=1.1&fill-to-fit',
     $nc . '&h=50%&ar=2&fill-to-fit',
 );
 
