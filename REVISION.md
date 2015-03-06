@@ -5,6 +5,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Loading images without depending on filename extension, fix #85.
 * Adding unittest with phpunit #84, fix #13 
 * Adding support for whitelist of remote hostnames, #84
 * Adding phpdoc, fix #48.
