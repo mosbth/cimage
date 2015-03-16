@@ -2,7 +2,7 @@ imports:
     - php
 
 filter:
-    paths: [*.php, webroot/img.php] 
+    paths: [./*.php, webroot/img.php] 
 
 tools:
    # Copy/Paste Detector                              
