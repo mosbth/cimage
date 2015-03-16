@@ -3,11 +3,8 @@ imports:
 
 filter:
     paths: 
-        - *
+        - ./C*.php
         - webroot/img.php
-         
-    excluded_paths:
-        - tests/
 
 checks:
     php:
