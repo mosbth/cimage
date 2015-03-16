@@ -327,7 +327,7 @@ class CRemoteImage
 
 
     /**
-     * Base name of cache file for downloaded item.
+     * Base name of cache file for downloaded item and name of image.
      */
     private $fileName;
 
@@ -341,27 +341,10 @@ class CRemoteImage
 
 
     /**
-     * Filename for image-file.
-     */
-    private $fileImage;
-
-
-
-    /**
      * Cache details loaded from file.
      */
     private $cache;
 
-
-
-    /**
-     * Constructor
-     *
-     */
-    public function __construct()
-    {
-        ;
-    }
 
 
     /**
@@ -437,33 +420,12 @@ class CRemoteImage
 
 
     /**
-     * Translate a content type to a file extension.
-     *
-     * @param string $type a valid content type.
-     *
-     * @return string as file extension or false if no match.
-     */
-    function contentTypeToFileExtension($type) {
-        $extension = array(
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/gif'  => 'gif',
-        );
-
-        return isset($extension[$type])
-        ? $extension[$type]
-        : false;
-    }
-
-
-
-    /**
      * Set header fields.
      *
      * @return $this
      */
     function setHeaderFields() {
-        $this->http->setHeader("User-Agent", "CImage/0.6 (PHP/". phpversion() . " cURL)");
+        $this->http->setHeader("User-Agent", "CImage/0.7.0 (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
         if ($this->useCache) {
@@ -488,30 +450,24 @@ class CRemoteImage
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
         $lastModified = $this->http->getLastModified();
         $type         = $this->http->getContentType();
-        $extension    = $this->contentTypeToFileExtension($type);
 
         $this->cache['Date']           = gmdate("D, d M Y H:i:s T", $date);
         $this->cache['Max-Age']        = $maxAge;
         $this->cache['Content-Type']   = $type;
-        $this->cache['File-Extension'] = $extension;
+        $this->cache['Url']            = $this->url;
 
         if ($lastModified) {
             $this->cache['Last-Modified'] = gmdate("D, d M Y H:i:s T", $lastModified);
         }
 
-        if ($extension) {
+        // Save only if body is a valid image
+        $body = $this->http->getBody();
+        $img = imagecreatefromstring($body);
 
-            $this->fileImage = $this->fileName . "." . $extension;
-
-            // Save only if body is a valid image
-            $body = $this->http->getBody();
-            $img = imagecreatefromstring($body);
-
-            if ($img !== false) {
-                file_put_contents($this->fileImage, $body);
-                file_put_contents($this->fileJson, json_encode($this->cache));
-                return $this->fileImage;
-            }
+        if ($img !== false) {
+            file_put_contents($this->fileName, $body);
+            file_put_contents($this->fileJson, json_encode($this->cache));
+            return $this->fileName;
         }
 
         return false;
@@ -530,15 +486,15 @@ class CRemoteImage
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
         $lastModified = $this->http->getLastModified();
 
-        $this->cache['Date']     = gmdate("D, d M Y H:i:s T", $date);
-        $this->cache['Max-Age']  = $maxAge;
+        $this->cache['Date']    = gmdate("D, d M Y H:i:s T", $date);
+        $this->cache['Max-Age'] = $maxAge;
 
         if ($lastModified) {
             $this->cache['Last-Modified'] = gmdate("D, d M Y H:i:s T", $lastModified);
         }
 
         file_put_contents($this->fileJson, json_encode($this->cache));
-        return $this->fileImage;
+        return $this->fileName;
     }
 
 
@@ -592,7 +548,7 @@ class CRemoteImage
      */
     public function loadCacheDetails()
     {
-        $cacheFile = str_replace(array("/", ":", "#", ".", "?"), "-", $this->url);
+        $cacheFile = md5($this->url);
         $this->fileName = $this->saveFolder . $cacheFile;
         $this->fileJson = $this->fileName . ".json";
         if (is_readable($this->fileJson)) {
@@ -609,15 +565,15 @@ class CRemoteImage
      */
     public function getCachedSource()
     {
-        $this->fileImage = $this->fileName . "." . $this->cache['File-Extension'];
-        $imageExists = is_readable($this->fileImage);
+        $imageExists = is_readable($this->fileName);
 
         // Is cache valid?
         $date   = strtotime($this->cache['Date']);
         $maxAge = $this->cache['Max-Age'];
-        $now = time();
+        $now    = time();
+        
         if ($imageExists && $date + $maxAge > $now) {
-            return $this->fileImage;
+            return $this->fileName;
         }
 
         // Prepare for a 304 if available
@@ -1169,7 +1125,7 @@ class CImage
         $src = $remote->download($src);
 
         $this->log("Remote HTTP status: " . $remote->getStatus());
-        $this->log("Remote item has local cached file: $src");
+        $this->log("Remote item is in local cache: $src");
         $this->log("Remote details on cache:" . print_r($remote->getDetails(), true));
 
         return $src;

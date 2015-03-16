@@ -537,7 +537,7 @@ class CImage
         $src = $remote->download($src);
 
         $this->log("Remote HTTP status: " . $remote->getStatus());
-        $this->log("Remote item has local cached file: $src");
+        $this->log("Remote item is in local cache: $src");
         $this->log("Remote details on cache:" . print_r($remote->getDetails(), true));
 
         return $src;

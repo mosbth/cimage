@@ -5,6 +5,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Naming cache-file using md5 for remote images, fix #86.
 * Loading images without depending on filename extension, fix #85.
 * Adding unittest with phpunit #84, fix #13 
 * Adding support for whitelist of remote hostnames, #84
