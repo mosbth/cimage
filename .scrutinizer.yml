@@ -2,7 +2,17 @@ imports:
     - php
 
 filter:
-    paths: [./*.php, webroot/img.php] 
+    paths: 
+        - *
+        - webroot/img.php
+         
+    excluded_paths:
+        - tests/
+
+checks:
+    php:
+        code_rating: true
+        duplication: true
 
 tools:
    # Copy/Paste Detector                              
