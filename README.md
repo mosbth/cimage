@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=master)](https://travis-ci.org/mosbth/cimage)
+[![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
+
 Image conversion on the fly using PHP
 =====================================
 
