@@ -2,7 +2,34 @@ imports:
     - php
 
 filter:
-    excluded_paths: [test/*]
+    paths: [*.php, webroot/img.php] 
 
 tools:
-    external_code_coverage: true
+   # Copy/Paste Detector                              
+   php_cpd: true                                      
+                                                      
+   # Metrics                                          
+   php_pdepend: true                                  
+                                                      
+   # Some Metrics + Bug Detection/Auto-Fixes          
+   php_analyzer: true                                 
+                                                      
+   php_code_sniffer:                                  
+       config:                                        
+           standard: "PSR2"                           
+                                                      
+   php_sim:                                           
+       min_mass: 16 # Defaults to 16                  
+                                                      
+   php_mess_detector:                                 
+       #config:                                       
+       #    ruleset: ../your-phpmd-ruleset/ruleset.xml
+       
+build:
+    tests:
+        override:
+            -
+                command: 'phpunit'
+                coverage:
+                    file: 'coverage.clover'
+                    format: 'php-clover'

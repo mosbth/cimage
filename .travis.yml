@@ -1,18 +1,15 @@
 language: php
 php:
-    - 5.6
-    - 5.5
     - 5.4
+    - 5.5
+    - 5.6
+    - 5.7
+    - 6.0
     - hhvm
-
-before_script:
-    - wget https://scrutinizer-ci.com/ocular.phar
+    - nightly
 
 script:
     - phpunit
 
-after_script:
-    - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-    
 notifications:
     irc: "irc.freenode.org#dbwebb"
