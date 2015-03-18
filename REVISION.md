@@ -8,6 +8,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Support redirections for remote images, fix #87, fix #90. 
 * Improving usage of Travis and Scrutinizer.
 * Naming cache-file using md5 for remote images, fix #86.
 * Loading images without depending on filename extension, fix #85.

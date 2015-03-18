@@ -99,7 +99,14 @@ class CHttpGet
      */
     public function parseHeader()
     {
-        $header = explode("\r\n", rtrim($this->response['headerRaw'], "\r\n"));
+        //$header = explode("\r\n", rtrim($this->response['headerRaw'], "\r\n"));
+        
+        $rawHeaders = rtrim($this->response['headerRaw'], "\r\n");
+        # Handle multiple responses e.g. with redirections (proxies too)
+        $headerGroups = explode("\r\n\r\n", $rawHeaders);
+        # We're only interested in the last one
+        $header = explode("\r\n", end($headerGroups));
+
         $output = array();
 
         if ('HTTP' === substr($header[0], 0, 4)) {
@@ -136,6 +143,8 @@ class CHttpGet
             CURLINFO_HEADER_OUT     => $debug,
             CURLOPT_CONNECTTIMEOUT  => 5,
             CURLOPT_TIMEOUT         => 5,
+            CURLOPT_FOLLOWLOCATION  => true,
+            CURLOPT_MAXREDIRS       => 2,
         );
 
         $ch = curl_init();
