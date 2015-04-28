@@ -3382,13 +3382,13 @@ if (isset($shortcut)
 /**
  * src - the source image file.
  */
-$srcImage = get('src')
+$srcImage = urldecode(get('src'))
     or errorPage('Must set src-attribute.');
 
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
-$validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_\.:]+$#');
+$validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
 
 preg_match($validFilename, $srcImage)
     or errorPage('Filename contains invalid characters.');
