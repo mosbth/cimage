@@ -60,7 +60,11 @@ window.CImage = (function(){
 
         $.getJSON(this.value + "&json", function(data) {
             json.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio;
-        });
+        })
+            .fail(function() {
+                json.innerHTML = "Details not available."
+                console.log( "JSON error" );
+            });
 
         // Display image in overlay
         button.removeAttribute("disabled");

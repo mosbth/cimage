@@ -32,6 +32,10 @@ input[type=text] {
     background-color: #fff;
 }
 
+.json {
+    min-height: 100px;
+}
+
 .top {
     z-index: 10;
 }
