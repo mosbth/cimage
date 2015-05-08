@@ -1,8 +1,18 @@
 /**
  * JavaScript utilities for CImage and img.php.
  */
-window.CImage = (function(){
+window.CImage = (function() {
     "use strict";
+
+
+    /**
+     * Waiting for ECMA 6...
+     */
+     var forEach = function(array, callback, scope) {
+      for (var i = 0; i < array.length; i++) {
+        callback.call(scope, i, array[i]);
+      }
+    };
 
 
 
@@ -97,9 +107,17 @@ window.CImage = (function(){
         // Toggle json
         details.addEventListener("change", function() {
             var elements = document.querySelectorAll(".json");
+            
+            forEach(elements, function (index, element) {
+                element.classList.toggle("hidden");
+            });
+
+            /* ECMA 6
             for (var element of elements) {
                 element.classList.toggle("hidden");
             }
+            */
+            
             updatePermaLink();
             console.log("View JSON");
         });
@@ -118,6 +136,15 @@ window.CImage = (function(){
 
             buttons.classList.toggle("hidden");
 
+            forEach(elements, function (index, element) {
+                element.classList.toggle("stack");
+
+                if (!element.classList.contains('hidden')) {
+                    onTop = element;
+                }
+            });
+
+            /* ECMA 6
             for (element of elements) {
                 element.classList.toggle("stack");
 
@@ -125,6 +152,8 @@ window.CImage = (function(){
                     onTop = element;
                 }
             }
+            */
+
             onTop.classList.toggle("top");
             updatePermaLink();
 
@@ -140,6 +169,20 @@ window.CImage = (function(){
 
         // Button clicks
         elements = document.querySelectorAll(".button");
+
+        forEach(elements, function (index, element) {
+            element.addEventListener("click", function() {
+                var id = this.dataset.id,
+                    area = document.getElementById("area" + id);
+
+                area.classList.toggle("top");
+                onTop.classList.toggle("top");
+                onTop = area;
+                console.log("button" + id);
+            });
+        });
+
+        /* ECMA 6
         for (var element of elements) {
             element.addEventListener("click", function() {
                 var id = this.dataset.id,
@@ -151,6 +194,7 @@ window.CImage = (function(){
                 console.log("button" + id);
             });
         }
+        */
 
         input1.value = options.input1 || null;
         input2.value = options.input2 || null;
