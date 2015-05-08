@@ -5,11 +5,37 @@ window.CImage = (function(){
     "use strict";
 
 
+
+    /**
+     * Update the permalink.
+     */
+    function updatePermaLink() {
+        var link,
+            input1 = document.getElementById("input1"),
+            input2 = document.getElementById("input2"),
+            input3 = document.getElementById("input3"),
+            input4 = document.getElementById("input4"),
+            details = document.getElementById("viewDetails"),
+            stack = document.getElementById("stack"),
+            permalink = document.getElementById("permalink");
+            
+        link  = "?";
+        link += "input1=" + encodeURIComponent(input1.value) + "&";
+        link += "input2=" + encodeURIComponent(input2.value) + "&";
+        link += "input3=" + encodeURIComponent(input3.value) + "&";
+        link += "input4=" + encodeURIComponent(input4.value) + "&";
+        link += "json=" + encodeURIComponent(details.checked) + "&";
+        link += "stack=" + encodeURIComponent(stack.checked);
+        permalink.href = link;
+    }
+
+
+
     /**
      * Init the compare page with details.
      */
     function compareLoadImage(event) {
-        var img, json, button, area, deck, id;
+        var img, json, button, area, deck, id, permalink;
 
         id = this.dataset.id;
         img = document.getElementById("img" + id);
@@ -17,7 +43,9 @@ window.CImage = (function(){
         button = document.getElementById("button" + id);
         area = document.getElementById("area" + id);
         deck = document.getElementById("deck" + id);
-
+        
+        updatePermaLink();
+        
         if (this.value == "") {
             // Clear image if input is cleared
             button.setAttribute("disabled", "disabled");
@@ -57,31 +85,6 @@ window.CImage = (function(){
             stack = document.getElementById("stack"),
             buttons = document.getElementById("buttonWrap");
 
-/*            img1 = document.getElementById("img1"),
-            img2 = document.getElementById("img2"),
-            img3 = document.getElementById("img3"),
-            img4 = document.getElementById("img4"),
-            img01 = document.getElementById("img01"),
-            img02 = document.getElementById("img02"),
-            img03 = document.getElementById("img03"),
-            img04 = document.getElementById("img04"),
-            json1 = document.getElementById("json1"),
-            json2 = document.getElementById("json2"),
-            json3 = document.getElementById("json3"),
-            json4 = document.getElementById("json4"),
-            json01 = document.getElementById("json01"),
-            json02 = document.getElementById("json02"),
-            json03 = document.getElementById("json03"),
-            json04 = document.getElementById("json04"),
-            button1 = document.getElementById("button1"),
-            button2 = document.getElementById("button2"),
-            button3 = document.getElementById("button3"),
-            button4 = document.getElementById("button4"),
-            area1 = document.getElementById("area1"),
-            area2 = document.getElementById("area2"),
-            area3 = document.getElementById("area3"),
-            area4 = document.getElementById("area4");*/
-
         input1.addEventListener("change", compareLoadImage);
         input2.addEventListener("change", compareLoadImage);
         input3.addEventListener("change", compareLoadImage);
@@ -93,10 +96,12 @@ window.CImage = (function(){
             for (var element of elements) {
                 element.classList.toggle("hidden");
             }
+            updatePermaLink();
+            console.log("View JSON");
         });
 
-        // Do not show json as default
-        if (options.json === false) {
+        // Show json as default
+        if (options.json === true) {
             details.setAttribute("checked", "checked");
             myEvent = new CustomEvent("change");
             details.dispatchEvent(myEvent);
@@ -117,6 +122,7 @@ window.CImage = (function(){
                 }
             }
             onTop.classList.toggle("top");
+            updatePermaLink();
 
             console.log("Stacking");
         });
