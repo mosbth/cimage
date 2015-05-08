@@ -94,10 +94,10 @@ return array(
      * A regexp for validating characters in the image or alias filename.
      *
      * Default value:
-     *  valid_filename:  '#^[a-z0-9A-Z-/_\.:]+$#'
+     *  valid_filename:  '#^[a-z0-9A-Z-/_ \.:]+$#'
      *  valid_aliasname: '#^[a-z0-9A-Z-_]+$#'
      */
-     //'valid_filename'  => '#^[a-z0-9A-Z-/_\.:]+$#',
+     //'valid_filename'  => '#^[a-z0-9A-Z-/_ \.:]+$#',
      //'valid_aliasname' => '#^[a-z0-9A-Z-_]+$#',
 
 

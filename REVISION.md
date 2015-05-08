@@ -9,7 +9,7 @@ v0.7.0.x (latest)
 -------------------------------------
 
 * Add permalink to setup for comparing images with `webroot/compare/compare.php`, fix #92.
-* Support spaces in filenames for image src, fix #91. 
+* Allow space in filename by using `urlencode()` and allow space as valid filenam character. fix #91.
 * Support redirections for remote images, fix #87, fix #90. 
 * Improving usage of Travis and Scrutinizer.
 * Naming cache-file using md5 for remote images, fix #86.
