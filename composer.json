@@ -1,0 +1,19 @@
+{
+    "name": "mos/cimage",    
+    "type": "library",
+    "description": "Process, resize, filter images serverside",
+    "keywords": ["image", "imageprocessing", "gd"],
+    "homepage": "http://dbwebb.se/opensource/cimage",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mikael Roos",
+            "email": "me@mikaelroos.se",
+            "homepage": "http://mikaelroos.se",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    }
+}
