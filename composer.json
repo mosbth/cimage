@@ -18,5 +18,10 @@
     },
     "autoload": {
         "psr-0": { "UniqueGlobalClass": "" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.7.x-dev"
+        }
     }
 }
