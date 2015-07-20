@@ -13,15 +13,16 @@
             "role": "Developer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/mosbth/cimage/issues",
+        "docs": "http://dbwebb.se/opensource/cimage"
+    },
     "require": {
         "php": ">=5.3"
     },
     "autoload": {
-        "psr-0": { "UniqueGlobalClass": "" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.7.x-dev"
+        "psr-0": {
+            "UniqueGlobalClass": ""
         }
     }
 }
