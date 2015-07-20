@@ -1,7 +1,7 @@
 {
     "name": "mos/cimage",    
     "type": "library",
-    "description": "Process, resize, filter images serverside",
+    "description": "Process, scale, resize, crop and filter images.",
     "keywords": ["image", "imageprocessing", "gd"],
     "homepage": "http://dbwebb.se/opensource/cimage",
     "license": "MIT",
@@ -15,5 +15,8 @@
     ],
     "require": {
         "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-0": { "UniqueGlobalClass": "" }
     }
 }
