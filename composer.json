@@ -21,8 +21,11 @@
         "php": ">=5.3"
     },
     "autoload": {
-        "psr-0": {
-            "UniqueGlobalClass": ""
-        }
+        "classmap": [
+            "CImage.php",
+            "CHttpGet.php",
+            "CRemoteImage.php",
+            "CWhitelist.php"
+        ]
     }
 }
