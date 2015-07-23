@@ -13,10 +13,10 @@ class CWhitelist
 
 
     /**
-     * Set the whitelist from an array of strings, each item in the 
+     * Set the whitelist from an array of strings, each item in the
      * whitelist should be a regexp without the surrounding / or #.
      *
-     * @param array $whitelist with all valid options, 
+     * @param array $whitelist with all valid options,
      *                         default is to clear the whitelist.
      *
      * @return $this
@@ -44,8 +44,8 @@ class CWhitelist
     public function check($item, $whitelist = null)
     {
         if ($whitelist !== null) {
-            $this->set($whitelist);    
-        } 
+            $this->set($whitelist);
+        }
         
         if (empty($item) or empty($this->whitelist)) {
             return false;

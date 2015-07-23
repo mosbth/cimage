@@ -101,7 +101,7 @@ input[type=text] {
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="../js/cimage.js"></script>
 <script>
-<?php 
+<?php
 if (isset($_GET['input1'])) {
     // Use incoming from querystring as defaults
 ?>
@@ -114,9 +114,9 @@ if (isset($_GET['input1'])) {
         "stack": <?=$_GET['stack']?>
     });
 <?php
-} else if (isset($script)) {
+} elseif (isset($script)) {
     // Use default setup from js configuration
-    echo $script; 
+    echo $script;
 } else {
     // Use defaults
     echo "CImage.compare({});";

@@ -1,9 +1,9 @@
 <?php
 /**
  * A testclass
- * 
+ *
  */
-class CImage_RemoteDownloadTest extends \PHPUnit_Framework_TestCase
+class CImageRemoteDownloadTest extends \PHPUnit_Framework_TestCase
 {
     /*
      * remote_whitelist

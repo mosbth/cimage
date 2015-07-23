@@ -445,7 +445,7 @@ class CImage
 
 
     /**
-     * Set whitelist for valid hostnames from where remote source can be 
+     * Set whitelist for valid hostnames from where remote source can be
      * downloaded.
      *
      * @param array $whitelist with regexp hostnames to allow download from.
@@ -462,7 +462,7 @@ class CImage
 
 
     /**
-     * Check if the hostname for the remote image, is on a whitelist, 
+     * Check if the hostname for the remote image, is on a whitelist,
      * if the whitelist is defined.
      *
      * @param string $src the remote source.
@@ -779,7 +779,7 @@ class CImage
         $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
         if (empty($info)) {
             throw new Exception("The file doesn't seem to be a valid image.");
-        } 
+        }
 
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
@@ -976,7 +976,7 @@ class CImage
                     $this->cropHeight = round($height / $ratio);
                     $this->log("Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
 
-                } else if ($this->fillToFit) {
+                } elseif ($this->fillToFit) {
 
                     // Use newWidth and newHeigh as defined width/height,
                     // image should fit the area.
@@ -1204,7 +1204,7 @@ class CImage
 
         $this->extension = isset($this->extension)
             ? $this->extension
-            : (isset($parts['extension']) 
+            : (isset($parts['extension'])
                 ? $parts['extension']
                 : null);
         
@@ -1276,7 +1276,7 @@ class CImage
 
 
     /**
-     * Load image from disk. Try to load image without verbose error message, 
+     * Load image from disk. Try to load image without verbose error message,
      * if fail, load again and display error messages.
      *
      * @param string $src of image.
@@ -1509,7 +1509,7 @@ class CImage
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
 
-        } else if ($this->fillToFit) {
+        } elseif ($this->fillToFit) {
 
             // Resize by fill to fit
             $this->log("Resizing using strategy - Fill to fit");
@@ -1548,7 +1548,7 @@ class CImage
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
 
-        } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
+        } elseif (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
 
             // Resize it
             $this->log("Resizing, new height and/or width");
@@ -1569,10 +1569,10 @@ class CImage
                     if ($this->newWidth > $this->width && $this->newHeight > $this->height) {
                         $posX = round(($this->newWidth - $this->width) / 2);
                         $posY = round(($this->newHeight - $this->height) / 2);
-                    } else if ($this->newWidth > $this->width) {
+                    } elseif ($this->newWidth > $this->width) {
                         $posX = round(($this->newWidth - $this->width) / 2);
                         $cropY = round(($this->height - $this->newHeight) / 2);
-                    } else if ($this->newHeight > $this->height) {
+                    } elseif ($this->newHeight > $this->height) {
                         $posY = round(($this->newHeight - $this->height) / 2);
                         $cropX = round(($this->width - $this->newWidth) / 2);
                     }

@@ -8,6 +8,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Improved codestyle and added `phpcs.xml` to start using phpcs to check code style, fix #95.
 * Adding `composer.json` for publishing on packagist. 
 * Add permalink to setup for comparing images with `webroot/compare/compare.php`, fix #92.
 * Allow space in filename by using `urlencode()` and allow space as valid filenam character. fix #91.

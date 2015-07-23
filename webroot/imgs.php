@@ -3,7 +3,7 @@
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * This version is a all-in-one version of img.php, it is not dependant an any other file
- * so you can simply copy it to any place you want it. 
+ * so you can simply copy it to any place you want it.
  *
  * @author  Mikael Roos mos@dbwebb.se
  * @example http://dbwebb.se/opensource/cimage
@@ -14,9 +14,9 @@
 
 /**
  * Change configuration details in the array below or create a separate file
- * where you store the configuration details. 
+ * where you store the configuration details.
  *
- * The configuration file should be named the same name as this file and then 
+ * The configuration file should be named the same name as this file and then
  * add '_config.php'. If this file is named 'img.php' then name the
  * config file should be named 'img_config.php'.
  *
@@ -433,7 +433,8 @@ class CRemoteImage
      *
      * @return $this
      */
-    function setHeaderFields() {
+    public function setHeaderFields()
+    {
         $this->http->setHeader("User-Agent", "CImage/0.7.0 (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
@@ -452,8 +453,8 @@ class CRemoteImage
      *
      * @return string as path to saved file or false if not saved.
      */
-    function save() {
-
+    public function save()
+    {
         $this->cache = array();
         $date         = $this->http->getDate(time());
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
@@ -489,8 +490,8 @@ class CRemoteImage
      *
      * @return string as path to cached file.
      */
-    function updateCacheDetails() {
-
+    public function updateCacheDetails()
+    {
         $date         = $this->http->getDate(time());
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
         $lastModified = $this->http->getLastModified();
@@ -515,8 +516,8 @@ class CRemoteImage
      *
      * @return string as path to downloaded file or false if failed.
      */
-    function download($url) {
-
+    public function download($url)
+    {
         $this->http = new CHttpGet();
         $this->url = $url;
 
@@ -540,7 +541,7 @@ class CRemoteImage
         if ($this->status === 200) {
             $this->isCacheWritable();
             return $this->save();
-        } else if ($this->status === 304) {
+        } elseif ($this->status === 304) {
             $this->isCacheWritable();
             return $this->updateCacheDetails();
         }
@@ -1042,7 +1043,7 @@ class CImage
 
 
     /**
-     * Set whitelist for valid hostnames from where remote source can be 
+     * Set whitelist for valid hostnames from where remote source can be
      * downloaded.
      *
      * @param array $whitelist with regexp hostnames to allow download from.
@@ -1059,7 +1060,7 @@ class CImage
 
 
     /**
-     * Check if the hostname for the remote image, is on a whitelist, 
+     * Check if the hostname for the remote image, is on a whitelist,
      * if the whitelist is defined.
      *
      * @param string $src the remote source.
@@ -1376,7 +1377,7 @@ class CImage
         $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
         if (empty($info)) {
             throw new Exception("The file doesn't seem to be a valid image.");
-        } 
+        }
 
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
@@ -1573,7 +1574,7 @@ class CImage
                     $this->cropHeight = round($height / $ratio);
                     $this->log("Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
 
-                } else if ($this->fillToFit) {
+                } elseif ($this->fillToFit) {
 
                     // Use newWidth and newHeigh as defined width/height,
                     // image should fit the area.
@@ -1801,7 +1802,7 @@ class CImage
 
         $this->extension = isset($this->extension)
             ? $this->extension
-            : (isset($parts['extension']) 
+            : (isset($parts['extension'])
                 ? $parts['extension']
                 : null);
         
@@ -1873,7 +1874,7 @@ class CImage
 
 
     /**
-     * Load image from disk. Try to load image without verbose error message, 
+     * Load image from disk. Try to load image without verbose error message,
      * if fail, load again and display error messages.
      *
      * @param string $src of image.
@@ -2106,7 +2107,7 @@ class CImage
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
 
-        } else if ($this->fillToFit) {
+        } elseif ($this->fillToFit) {
 
             // Resize by fill to fit
             $this->log("Resizing using strategy - Fill to fit");
@@ -2145,7 +2146,7 @@ class CImage
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
 
-        } else if (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
+        } elseif (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
 
             // Resize it
             $this->log("Resizing, new height and/or width");
@@ -2166,10 +2167,10 @@ class CImage
                     if ($this->newWidth > $this->width && $this->newHeight > $this->height) {
                         $posX = round(($this->newWidth - $this->width) / 2);
                         $posY = round(($this->newHeight - $this->height) / 2);
-                    } else if ($this->newWidth > $this->width) {
+                    } elseif ($this->newWidth > $this->width) {
                         $posX = round(($this->newWidth - $this->width) / 2);
                         $cropY = round(($this->height - $this->newHeight) / 2);
-                    } else if ($this->newHeight > $this->height) {
+                    } elseif ($this->newHeight > $this->height) {
                         $posY = round(($this->newHeight - $this->height) / 2);
                         $cropX = round(($this->width - $this->newWidth) / 2);
                     }
@@ -2991,10 +2992,10 @@ class CWhitelist
 
 
     /**
-     * Set the whitelist from an array of strings, each item in the 
+     * Set the whitelist from an array of strings, each item in the
      * whitelist should be a regexp without the surrounding / or #.
      *
-     * @param array $whitelist with all valid options, 
+     * @param array $whitelist with all valid options,
      *                         default is to clear the whitelist.
      *
      * @return $this
@@ -3022,8 +3023,8 @@ class CWhitelist
     public function check($item, $whitelist = null)
     {
         if ($whitelist !== null) {
-            $this->set($whitelist);    
-        } 
+            $this->set($whitelist);
+        }
         
         if (empty($item) or empty($this->whitelist)) {
             return false;
@@ -3177,7 +3178,7 @@ $configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
 
 if (is_file($configFile)) {
     $config = require $configFile;
-} else if (!isset($config)) {
+} elseif (!isset($config)) {
     $config = array();
 }
 
@@ -3213,14 +3214,14 @@ if ($mode == 'strict') {
     ini_set('log_errors', 1);
     $verbose = false;
 
-} else if ($mode == 'production') {
+} elseif ($mode == 'production') {
 
     error_reporting(-1);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
 
-} else if ($mode == 'development') {
+} elseif ($mode == 'development') {
 
     error_reporting(-1);
     ini_set('display_errors', 1);
@@ -3242,7 +3243,7 @@ $defaultTimezone = getConfig('default_timezone', null);
 
 if ($defaultTimezone) {
     date_default_timezone_set($defaultTimezone);
-} else if (!ini_get('default_timezone')) {
+} elseif (!ini_get('default_timezone')) {
     date_default_timezone_set('UTC');
 }
 
@@ -3289,13 +3290,13 @@ $refererHost = parse_url($referer, PHP_URL_HOST);
 if (!$allowHotlinking) {
     if ($passwordMatch) {
         ; // Always allow when password match
-    } else if ($passwordMatch === false) {
+    } elseif ($passwordMatch === false) {
         errorPage("Hotlinking/leeching not allowed when password missmatch.");
-    } else if (!$referer) {
+    } elseif (!$referer) {
         errorPage("Hotlinking/leeching not allowed and referer is missing.");
-    } else if (strcmp($serverName, $refererHost) == 0) {
+    } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
-    } else if (!empty($hotlinkingWhitelist)) {
+    } elseif (!empty($hotlinkingWhitelist)) {
 
         $allowedByWhitelist = false;
         foreach ($hotlinkingWhitelist as $val) {
@@ -3327,7 +3328,7 @@ $cimageClass = getConfig('cimage_class', false);
 
 if ($autoloader) {
     require $autoloader;
-} else if ($cimageClass) {
+} elseif ($cimageClass) {
     require $cimageClass;
 }
 
@@ -3397,7 +3398,7 @@ if ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
 
-} else if ($imagePathConstraint) {
+} elseif ($imagePathConstraint) {
 
     // Check that the image is a file below the directory 'image_path'.
     $pathToImage = realpath($imagePath . $srcImage);
@@ -3849,7 +3850,7 @@ if ($alias && $aliasPath && $passwordMatch) {
     preg_match($validAliasname, $alias)
         or errorPage('Filename for alias contains invalid characters. Do not add extension.');
 
-} else if ($alias) {
+} elseif ($alias) {
     errorPage('Alias is not enabled in the config file or password not matching.');
 }
 

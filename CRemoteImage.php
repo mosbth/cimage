@@ -145,7 +145,8 @@ class CRemoteImage
      *
      * @return $this
      */
-    function setHeaderFields() {
+    public function setHeaderFields()
+    {
         $this->http->setHeader("User-Agent", "CImage/0.7.0 (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
@@ -164,8 +165,8 @@ class CRemoteImage
      *
      * @return string as path to saved file or false if not saved.
      */
-    function save() {
-
+    public function save()
+    {
         $this->cache = array();
         $date         = $this->http->getDate(time());
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
@@ -201,8 +202,8 @@ class CRemoteImage
      *
      * @return string as path to cached file.
      */
-    function updateCacheDetails() {
-
+    public function updateCacheDetails()
+    {
         $date         = $this->http->getDate(time());
         $maxAge       = $this->http->getMaxAge($this->defaultMaxAge);
         $lastModified = $this->http->getLastModified();
@@ -227,8 +228,8 @@ class CRemoteImage
      *
      * @return string as path to downloaded file or false if failed.
      */
-    function download($url) {
-
+    public function download($url)
+    {
         $this->http = new CHttpGet();
         $this->url = $url;
 
@@ -252,7 +253,7 @@ class CRemoteImage
         if ($this->status === 200) {
             $this->isCacheWritable();
             return $this->save();
-        } else if ($this->status === 304) {
+        } elseif ($this->status === 304) {
             $this->isCacheWritable();
             return $this->updateCacheDetails();
         }

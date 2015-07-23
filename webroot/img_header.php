@@ -3,7 +3,7 @@
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * This version is a all-in-one version of img.php, it is not dependant an any other file
- * so you can simply copy it to any place you want it. 
+ * so you can simply copy it to any place you want it.
  *
  * @author  Mikael Roos mos@dbwebb.se
  * @example http://dbwebb.se/opensource/cimage
@@ -14,9 +14,9 @@
 
 /**
  * Change configuration details in the array below or create a separate file
- * where you store the configuration details. 
+ * where you store the configuration details.
  *
- * The configuration file should be named the same name as this file and then 
+ * The configuration file should be named the same name as this file and then
  * add '_config.php'. If this file is named 'img.php' then name the
  * config file should be named 'img_config.php'.
  *

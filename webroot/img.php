@@ -135,7 +135,7 @@ $configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
 
 if (is_file($configFile)) {
     $config = require $configFile;
-} else if (!isset($config)) {
+} elseif (!isset($config)) {
     $config = array();
 }
 
@@ -171,14 +171,14 @@ if ($mode == 'strict') {
     ini_set('log_errors', 1);
     $verbose = false;
 
-} else if ($mode == 'production') {
+} elseif ($mode == 'production') {
 
     error_reporting(-1);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
 
-} else if ($mode == 'development') {
+} elseif ($mode == 'development') {
 
     error_reporting(-1);
     ini_set('display_errors', 1);
@@ -200,7 +200,7 @@ $defaultTimezone = getConfig('default_timezone', null);
 
 if ($defaultTimezone) {
     date_default_timezone_set($defaultTimezone);
-} else if (!ini_get('default_timezone')) {
+} elseif (!ini_get('default_timezone')) {
     date_default_timezone_set('UTC');
 }
 
@@ -247,13 +247,13 @@ $refererHost = parse_url($referer, PHP_URL_HOST);
 if (!$allowHotlinking) {
     if ($passwordMatch) {
         ; // Always allow when password match
-    } else if ($passwordMatch === false) {
+    } elseif ($passwordMatch === false) {
         errorPage("Hotlinking/leeching not allowed when password missmatch.");
-    } else if (!$referer) {
+    } elseif (!$referer) {
         errorPage("Hotlinking/leeching not allowed and referer is missing.");
-    } else if (strcmp($serverName, $refererHost) == 0) {
+    } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
-    } else if (!empty($hotlinkingWhitelist)) {
+    } elseif (!empty($hotlinkingWhitelist)) {
 
         $allowedByWhitelist = false;
         foreach ($hotlinkingWhitelist as $val) {
@@ -285,7 +285,7 @@ $cimageClass = getConfig('cimage_class', false);
 
 if ($autoloader) {
     require $autoloader;
-} else if ($cimageClass) {
+} elseif ($cimageClass) {
     require $cimageClass;
 }
 
@@ -355,7 +355,7 @@ if ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
 
-} else if ($imagePathConstraint) {
+} elseif ($imagePathConstraint) {
 
     // Check that the image is a file below the directory 'image_path'.
     $pathToImage = realpath($imagePath . $srcImage);
@@ -807,7 +807,7 @@ if ($alias && $aliasPath && $passwordMatch) {
     preg_match($validAliasname, $alias)
         or errorPage('Filename for alias contains invalid characters. Do not add extension.');
 
-} else if ($alias) {
+} elseif ($alias) {
     errorPage('Alias is not enabled in the config file or password not matching.');
 }
 

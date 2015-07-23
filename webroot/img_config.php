@@ -62,22 +62,22 @@ return array(
 
     /**
      * Allow or disallow downloading of remote images available on
-     * remote servers. Default is to disallow remote download. 
-     * 
-     * When enabling remote download, the default is to allow download any
-     * link starting with http or https. This can be changed using 
-     * remote_pattern. 
+     * remote servers. Default is to disallow remote download.
      *
-     * When enabling remote_whitelist a check is made that the hostname of the 
-     * source to download matches the whitelist. By default the check is 
+     * When enabling remote download, the default is to allow download any
+     * link starting with http or https. This can be changed using
+     * remote_pattern.
+     *
+     * When enabling remote_whitelist a check is made that the hostname of the
+     * source to download matches the whitelist. By default the check is
      * disabled and thereby allowing download from any hosts.
      *
      * Default values.
      *  remote_allow:     false
      *  remote_pattern:   null  // use default values from CImage which is to
-     *                          // allow download from any http- and 
+     *                          // allow download from any http- and
      *                          // https-source.
-     *  remote_whitelist: null  // use default values from CImage which is to 
+     *  remote_whitelist: null  // use default values from CImage which is to
      *                          // allow download from any hosts.
      */
     //'remote_allow'     => true,
