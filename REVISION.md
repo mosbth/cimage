@@ -8,6 +8,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Support for password hashes using `text`, `md5` and `hash`, fix #77.
 * Using `CWhitelist` for checking hotlinking to images, fix #88.
 * Added mode for `test` which enables logging verbose mode to file, fix #97.
 * Improved codestyle and added `phpcs.xml` to start using phpcs to check code style, fix #95.

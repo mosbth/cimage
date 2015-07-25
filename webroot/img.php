@@ -229,20 +229,27 @@ if ($defaultTimezone) {
  */
 $pwdConfig   = getConfig('password', false);
 $pwdAlways   = getConfig('password_always', false);
+$pwdType     = getConfig('password_type', 'text');
 $pwd         = get(array('password', 'pwd'), null);
 
 // Check if passwords match, if configured to use passwords
-$passwordMatch = null;
-if ($pwdAlways) {
-
-    $passwordMatch = ($pwdConfig === $pwd);
-    if (!$passwordMatch) {
-        errorPage("Password required and does not match or exists.");
+$passwordMatch = false;
+if ($pwd) {
+    switch($pwdType) {
+        case 'md5':
+            $passwordMatch = ($pwdConfig === md5($pwd));
+            break;
+        case 'hash':
+            $passwordMatch = password_verify($pwd, $pwdConfig);
+            break;
+        case 'text':
+            $passwordMatch = ($pwdConfig === $pwd);
+            break;
     }
+}
 
-} elseif ($pwdConfig && $pwd) {
-
-    $passwordMatch = ($pwdConfig === $pwd);
+if ($pwdAlways && $passwordMatch !== true) {
+    errorPage("Password required and does not match or exists.");
 }
 
 verbose("password match = $passwordMatch");

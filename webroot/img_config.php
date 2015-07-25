@@ -51,12 +51,19 @@ return array(
     * Passwords are only used together with the options for remote download
     * and aliasing.
     *
+    * Create a passwords like this, depending on the type used:
+    *  text: 'my_password'
+    *  md5:  md5('my_password')
+    *  hash: password_hash('my_password', PASSWORD_DEFAULT)
+    *
     * Default values.
-    *  password:        false // as in do not use password
-    *  password_always: false // do not always require password,
+    *  password_always: false  // do not always require password,
+    *  password:        false  // as in do not use password
+    *  password_type:   'text' // use plain password, not encoded,
     */
-    //'password'        => false, // "secret-password",
     //'password_always' => false, // always require password,
+    //'password'        => false, // "secret-password",
+    //'password_type'   => 'text', // supports 'text', 'md5', 'hash',
 
 
 
