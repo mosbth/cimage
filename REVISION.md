@@ -8,6 +8,7 @@ Revision history
 v0.7.0.x (latest)
 -------------------------------------
 
+* Added mode for test which enables logging verbose mode to file.
 * Improved codestyle and added `phpcs.xml` to start using phpcs to check code style, fix #95.
 * Adding `composer.json` for publishing on packagist. 
 * Add permalink to setup for comparing images with `webroot/compare/compare.php`, fix #92.

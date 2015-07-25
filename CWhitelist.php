@@ -23,11 +23,11 @@ class CWhitelist
      */
     public function set($whitelist = array())
     {
-        if (is_array($whitelist)) {
-            $this->whitelist = $whitelist;
-        } else {
+        if (!is_array($whitelist)) {
             throw new Exception("Whitelist is not of a supported format.");
         }
+
+        $this->whitelist = $whitelist;
         return $this;
     }
 

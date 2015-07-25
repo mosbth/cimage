@@ -916,6 +916,22 @@ class CImage
     private $useCache = true;
 
 
+
+    /*
+     * Set whitelist for valid hostnames from where remote source can be
+     * downloaded.
+     */
+    private $remoteHostWhitelist = null;
+
+
+
+    /*
+     * Do verbose logging to file by setting this to a filename.
+     */
+    private $verboseFileName = null;
+
+
+
     /**
      * Properties, the class is mutable and the method setOptions()
      * decides (partly) what properties are created.
@@ -1016,10 +1032,12 @@ class CImage
         $this->allowRemote = $allow;
         $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
-        $this->log("Set remote download to: "
+        $this->log(
+            "Set remote download to: "
             . ($this->allowRemote ? "true" : "false")
             . " using pattern "
-            . $this->remotePattern);
+            . $this->remotePattern
+        );
 
         return $this;
     }
@@ -1053,7 +1071,10 @@ class CImage
     public function setRemoteHostWhitelist($whitelist = null)
     {
         $this->remoteHostWhitelist = $whitelist;
-        $this->log("Setting remote host whitelist to: " . print_r($this->remoteHostWhitelist, 1));
+        $this->log(
+            "Setting remote host whitelist to: "
+            . (is_null($whitelist) ? "null" : print_r($whitelist, 1))
+        );
         return $this;
     }
 
@@ -1070,14 +1091,18 @@ class CImage
     public function isRemoteSourceOnWhitelist($src)
     {
         if (is_null($this->remoteHostWhitelist)) {
-            $allow = true;
-        } else {
-            $whitelist = new CWhitelist();
-            $hostname = parse_url($src, PHP_URL_HOST);
-            $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+            $this->log("Remote host on whitelist not configured - allowing.");
+            return true;
         }
 
-        $this->log("Remote host is on whitelist: " . ($allow ? "true" : "false"));
+        $whitelist = new CWhitelist();
+        $hostname = parse_url($src, PHP_URL_HOST);
+        $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+
+        $this->log(
+            "Remote host is on whitelist: "
+            . ($allow ? "true" : "false")
+        );
         return $allow;
     }
 
@@ -2851,7 +2876,10 @@ class CImage
             if ($this->verbose) {
                 $this->log("Last modified: " . $gmdate . " GMT");
                 $this->verboseOutput();
-                exit;
+                
+                if (is_null($this->verboseFileName)) {
+                    exit;
+                }
             }
 
             // Get details on image
@@ -2930,6 +2958,21 @@ class CImage
 
 
     /**
+     * Do verbose output to a file.
+     *
+     * @param string $fileName where to write the verbose output.
+     *
+     * @return void
+     */
+    public function setVerboseToFile($fileName)
+    {
+        $this->log("Setting verbose output to file.");
+        $this->verboseFileName = $fileName;
+    }
+
+
+
+    /**
      * Do verbose output and print out the log and the actual images.
      *
      * @return void
@@ -2954,10 +2997,17 @@ class CImage
             }
         }
 
-        echo <<<EOD
+        if (!is_null($this->verboseFileName)) {
+            file_put_contents(
+                $this->verboseFileName,
+                str_replace("<br/>", "\n", $log)
+            );
+        } else {
+            echo <<<EOD
 <h1>CImage Verbose Output</h1>
 <pre>{$log}</pre>
 EOD;
+        }
     }
 
 
@@ -3002,11 +3052,11 @@ class CWhitelist
      */
     public function set($whitelist = array())
     {
-        if (is_array($whitelist)) {
-            $this->whitelist = $whitelist;
-        } else {
+        if (!is_array($whitelist)) {
             throw new Exception("Whitelist is not of a supported format.");
         }
+
+        $this->whitelist = $whitelist;
         return $this;
     }
 
@@ -3070,10 +3120,10 @@ function errorPage($msg)
 
     if ($mode == 'development') {
         die("[img.php] $msg");
-    } else {
-        error_log("[img.php] $msg");
-        die("HTTP/1.0 500 Internal Server Error");
     }
+
+    error_log("[img.php] $msg");
+    die("HTTP/1.0 500 Internal Server Error");
 }
 
 
@@ -3082,7 +3132,13 @@ function errorPage($msg)
  * Custom exception handler.
  */
 set_exception_handler(function ($exception) {
-    errorPage("<p><b>img.php: Uncaught exception:</b> <p>" . $exception->getMessage() . "</p><pre>" . $exception->getTraceAsString(), "</pre>");
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>"
+    );
 });
 
 
@@ -3154,10 +3210,10 @@ function getConfig($key, $default)
  */
 function verbose($msg = null)
 {
-    global $verbose;
+    global $verbose, $verboseFile;
     static $log = array();
 
-    if (!$verbose) {
+    if (!($verbose || $verboseFile)) {
         return;
     }
 
@@ -3186,8 +3242,10 @@ if (is_file($configFile)) {
 
 /**
 * verbose, v - do a verbose dump of what happens
+* vf - do verbose dump to file
 */
 $verbose = getDefined(array('verbose', 'v'), true, false);
+$verboseFile = getDefined('vf', true, false);
 verbose("img.php version = $version");
 
 
@@ -3213,15 +3271,24 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
-
+    $verboseFile = false;
+    
 } elseif ($mode == 'production') {
 
     error_reporting(-1);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $verboseFile = false;
 
 } elseif ($mode == 'development') {
+
+    error_reporting(-1);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 0);
+    $verboseFile = false;
+
+} elseif ($mode == 'test') {
 
     error_reporting(-1);
     ini_set('display_errors', 1);
@@ -3290,23 +3357,22 @@ $refererHost = parse_url($referer, PHP_URL_HOST);
 if (!$allowHotlinking) {
     if ($passwordMatch) {
         ; // Always allow when password match
+        verbose("Hotlinking since passwordmatch");
     } elseif ($passwordMatch === false) {
         errorPage("Hotlinking/leeching not allowed when password missmatch.");
     } elseif (!$referer) {
         errorPage("Hotlinking/leeching not allowed and referer is missing.");
     } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
+        verbose("Hotlinking disallowed but serverName matches refererHost.");
     } elseif (!empty($hotlinkingWhitelist)) {
+        $whitelist = new CWhitelist();
+        $allowedByWhitelist = $whitelist->check($refererHost, $hotlinkingWhitelist);
 
-        $allowedByWhitelist = false;
-        foreach ($hotlinkingWhitelist as $val) {
-            if (preg_match($val, $refererHost)) {
-                $allowedByWhitelist = true;
-            }
-        }
-
-        if (!$allowedByWhitelist) {
-            errorPage("Hotlinking/leeching not allowed by whitelist.");
+        if ($allowedByWhitelist) {
+            verbose("Hotlinking/leeching allowed by whitelist.");
+        } else {
+            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.");
         }
 
     } else {
@@ -3338,7 +3404,7 @@ if ($autoloader) {
  * Create the class for the image.
  */
 $img = new CImage();
-$img->setVerbose($verbose);
+$img->setVerbose($verbose || $verboseFile);
 
 
 
@@ -3859,6 +3925,13 @@ verbose("alias = $alias");
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -3896,15 +3969,17 @@ EOD;
 
 
 /**
- * Get the cachepath from config.
+ * Log verbose details to file
  */
-$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+if ($verboseFile) {
+    $img->setVerboseToFile("$cachePath/log.txt");
+}
 
 
 
-/**
- * Load, process and output the image
- */
+ /**
+  * Load, process and output the image
+  */
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)

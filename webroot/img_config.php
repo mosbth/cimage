@@ -201,9 +201,12 @@ return array(
 
 
     /**
-     * Prevent leeching of images by controlling who can access them from where.
-     * Default it to allow hotlinking.
-     * Password apply when hotlinking is disallowed, use password to allow.
+     * Prevent leeching of images by controlling the hostname of those who
+     * can access the images. Default is to allow hotlinking.
+     *
+     * Password apply when hotlinking is disallowed, use password to allow
+     * hotlinking.
+     *
      * The whitelist is an array of regexpes for allowed hostnames that can
      * hotlink images.
      *
@@ -214,11 +217,9 @@ return array(
      /*
     'allow_hotlinking' => false,
     'hotlinking_whitelist' => array(
-        '#^localhost$#',
-        '#^dbwebb\.se$#',
+        '^dbwebb\.se$',
     ),
     */
-
 
 
     /**

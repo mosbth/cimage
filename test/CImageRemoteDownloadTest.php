@@ -162,4 +162,19 @@ class CImageRemoteDownloadTest extends \PHPUnit_Framework_TestCase
         $res = $img->isRemoteSourceOnWhitelist("http://$hostname/img.jpg");
         $this->assertFalse($res, "Should not be a valid hostname on the whitelist: '$hostname'.");
     }
+
+
+
+    /**
+     * Test
+     *
+     * @return void
+     *
+     */
+    public function testRemoteHostWhitelistNotConfigured()
+    {
+        $img = new CImage();
+        $res = $img->isRemoteSourceOnWhitelist(null);
+        $this->assertTrue($res, "Should allow when whitelist not configured.");
+    }
 }

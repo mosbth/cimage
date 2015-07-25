@@ -318,6 +318,22 @@ class CImage
     private $useCache = true;
 
 
+
+    /*
+     * Set whitelist for valid hostnames from where remote source can be
+     * downloaded.
+     */
+    private $remoteHostWhitelist = null;
+
+
+
+    /*
+     * Do verbose logging to file by setting this to a filename.
+     */
+    private $verboseFileName = null;
+
+
+
     /**
      * Properties, the class is mutable and the method setOptions()
      * decides (partly) what properties are created.
@@ -418,10 +434,12 @@ class CImage
         $this->allowRemote = $allow;
         $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
-        $this->log("Set remote download to: "
+        $this->log(
+            "Set remote download to: "
             . ($this->allowRemote ? "true" : "false")
             . " using pattern "
-            . $this->remotePattern);
+            . $this->remotePattern
+        );
 
         return $this;
     }
@@ -455,7 +473,10 @@ class CImage
     public function setRemoteHostWhitelist($whitelist = null)
     {
         $this->remoteHostWhitelist = $whitelist;
-        $this->log("Setting remote host whitelist to: " . print_r($this->remoteHostWhitelist, 1));
+        $this->log(
+            "Setting remote host whitelist to: "
+            . (is_null($whitelist) ? "null" : print_r($whitelist, 1))
+        );
         return $this;
     }
 
@@ -472,14 +493,18 @@ class CImage
     public function isRemoteSourceOnWhitelist($src)
     {
         if (is_null($this->remoteHostWhitelist)) {
-            $allow = true;
-        } else {
-            $whitelist = new CWhitelist();
-            $hostname = parse_url($src, PHP_URL_HOST);
-            $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+            $this->log("Remote host on whitelist not configured - allowing.");
+            return true;
         }
 
-        $this->log("Remote host is on whitelist: " . ($allow ? "true" : "false"));
+        $whitelist = new CWhitelist();
+        $hostname = parse_url($src, PHP_URL_HOST);
+        $allow = $whitelist->check($hostname, $this->remoteHostWhitelist);
+
+        $this->log(
+            "Remote host is on whitelist: "
+            . ($allow ? "true" : "false")
+        );
         return $allow;
     }
 
@@ -2253,7 +2278,10 @@ class CImage
             if ($this->verbose) {
                 $this->log("Last modified: " . $gmdate . " GMT");
                 $this->verboseOutput();
-                exit;
+                
+                if (is_null($this->verboseFileName)) {
+                    exit;
+                }
             }
 
             // Get details on image
@@ -2332,6 +2360,21 @@ class CImage
 
 
     /**
+     * Do verbose output to a file.
+     *
+     * @param string $fileName where to write the verbose output.
+     *
+     * @return void
+     */
+    public function setVerboseToFile($fileName)
+    {
+        $this->log("Setting verbose output to file.");
+        $this->verboseFileName = $fileName;
+    }
+
+
+
+    /**
      * Do verbose output and print out the log and the actual images.
      *
      * @return void
@@ -2356,10 +2399,17 @@ class CImage
             }
         }
 
-        echo <<<EOD
+        if (!is_null($this->verboseFileName)) {
+            file_put_contents(
+                $this->verboseFileName,
+                str_replace("<br/>", "\n", $log)
+            );
+        } else {
+            echo <<<EOD
 <h1>CImage Verbose Output</h1>
 <pre>{$log}</pre>
 EOD;
+        }
     }
 
 

@@ -27,10 +27,10 @@ function errorPage($msg)
 
     if ($mode == 'development') {
         die("[img.php] $msg");
-    } else {
-        error_log("[img.php] $msg");
-        die("HTTP/1.0 500 Internal Server Error");
     }
+
+    error_log("[img.php] $msg");
+    die("HTTP/1.0 500 Internal Server Error");
 }
 
 
@@ -39,7 +39,13 @@ function errorPage($msg)
  * Custom exception handler.
  */
 set_exception_handler(function ($exception) {
-    errorPage("<p><b>img.php: Uncaught exception:</b> <p>" . $exception->getMessage() . "</p><pre>" . $exception->getTraceAsString(), "</pre>");
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>"
+    );
 });
 
 
@@ -111,10 +117,10 @@ function getConfig($key, $default)
  */
 function verbose($msg = null)
 {
-    global $verbose;
+    global $verbose, $verboseFile;
     static $log = array();
 
-    if (!$verbose) {
+    if (!($verbose || $verboseFile)) {
         return;
     }
 
@@ -143,8 +149,10 @@ if (is_file($configFile)) {
 
 /**
 * verbose, v - do a verbose dump of what happens
+* vf - do verbose dump to file
 */
 $verbose = getDefined(array('verbose', 'v'), true, false);
+$verboseFile = getDefined('vf', true, false);
 verbose("img.php version = $version");
 
 
@@ -170,15 +178,24 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
-
+    $verboseFile = false;
+    
 } elseif ($mode == 'production') {
 
     error_reporting(-1);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $verboseFile = false;
 
 } elseif ($mode == 'development') {
+
+    error_reporting(-1);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 0);
+    $verboseFile = false;
+
+} elseif ($mode == 'test') {
 
     error_reporting(-1);
     ini_set('display_errors', 1);
@@ -247,23 +264,22 @@ $refererHost = parse_url($referer, PHP_URL_HOST);
 if (!$allowHotlinking) {
     if ($passwordMatch) {
         ; // Always allow when password match
+        verbose("Hotlinking since passwordmatch");
     } elseif ($passwordMatch === false) {
         errorPage("Hotlinking/leeching not allowed when password missmatch.");
     } elseif (!$referer) {
         errorPage("Hotlinking/leeching not allowed and referer is missing.");
     } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
+        verbose("Hotlinking disallowed but serverName matches refererHost.");
     } elseif (!empty($hotlinkingWhitelist)) {
+        $whitelist = new CWhitelist();
+        $allowedByWhitelist = $whitelist->check($refererHost, $hotlinkingWhitelist);
 
-        $allowedByWhitelist = false;
-        foreach ($hotlinkingWhitelist as $val) {
-            if (preg_match($val, $refererHost)) {
-                $allowedByWhitelist = true;
-            }
-        }
-
-        if (!$allowedByWhitelist) {
-            errorPage("Hotlinking/leeching not allowed by whitelist.");
+        if ($allowedByWhitelist) {
+            verbose("Hotlinking/leeching allowed by whitelist.");
+        } else {
+            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.");
         }
 
     } else {
@@ -295,7 +311,7 @@ if ($autoloader) {
  * Create the class for the image.
  */
 $img = new CImage();
-$img->setVerbose($verbose);
+$img->setVerbose($verbose || $verboseFile);
 
 
 
@@ -816,6 +832,13 @@ verbose("alias = $alias");
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -853,15 +876,17 @@ EOD;
 
 
 /**
- * Get the cachepath from config.
+ * Log verbose details to file
  */
-$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+if ($verboseFile) {
+    $img->setVerboseToFile("$cachePath/log.txt");
+}
 
 
 
-/**
- * Load, process and output the image
- */
+ /**
+  * Load, process and output the image
+  */
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)
