@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.0.x (latest)";
+$version = "v0.7.1 (2015-07-25)";
 
 
 

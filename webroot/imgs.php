@@ -3101,7 +3101,7 @@ class CWhitelist
  *
  */
 
-$version = "v0.7.0.x (latest)";
+$version = "v0.7.1 (2015-07-25)";
 
 
 
@@ -3326,7 +3326,7 @@ $pwdType     = getConfig('password_type', 'text');
 $pwd         = get(array('password', 'pwd'), null);
 
 // Check if passwords match, if configured to use passwords
-$passwordMatch = false;
+$passwordMatch = null;
 if ($pwd) {
     switch($pwdType) {
         case 'md5':
@@ -3338,6 +3338,8 @@ if ($pwd) {
         case 'text':
             $passwordMatch = ($pwdConfig === $pwd);
             break;
+        default:
+            $passwordMatch = false;
     }
 }
 

@@ -5,7 +5,7 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.0.x (latest)
+v0.7.1 (2015-07-25)
 -------------------------------------
 
 * Support for password hashes using `text`, `md5` and `hash`, fix #77.
