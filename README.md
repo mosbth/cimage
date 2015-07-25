@@ -37,7 +37,7 @@ Requirements
 Installation
 --------------------------------------
 
-There are two ways of installing. You either install the whole project which uses the autoloader to include the various files, or you install the all-included bundle that -- for convenience -- contains all code in one script.
+There are several ways of installing. You either install the whole project which uses the autoloader to include the various files, or you install the all-included bundle that -- for convenience -- contains all code in one script.
 
 
 
@@ -45,14 +45,14 @@ There are two ways of installing. You either install the whole project which use
 
 The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
 
-**Latest stable version is v0.7.0 released 2015-02-10.**
+**Latest stable version is v0.7.1 released 2015-07-25.**
 
 I prefer cloning like this. Do switch to the latest stable version.
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.7.0
+git checkout v0.7.1
 ```
 
 Make the cache-directory writable by the webserver.
@@ -75,10 +75,16 @@ There are some all-included bundles of `img.php` that can be downloaded and used
 Dowload the version of your choice like this.
 
 ```bash
-wget https://github.com/mosbth/cimage/tree/v0.7.0/webroot/imgp.php
+wget https://github.com/mosbth/cimage/tree/v0.7.1/webroot/imgp.php
 ```
 
 Open up the file in your editor and edit the array `$config`. Ensure that the paths to the image directory and the cache directory matches your environment, or create an own config-file for the script.
+
+
+
+###Install from Packagist
+
+You can install the package [`mos/cimage` from Packagist](https://packagist.org/packages/mos/cimage) using composer.
 
 
 
