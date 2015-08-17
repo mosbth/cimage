@@ -59,6 +59,33 @@ class CHttpGet
 
 
     /**
+     * Build an encoded url.
+     *
+     * @param string $baseUrl This is the original url which will be merged.
+     * @param string $merge   Thse parts should be merged into the baseUrl,
+     *                        the format is as parse_url.
+     *
+     * @return string $url as the modified url.
+     */
+    public function buildUrl($baseUrl, $merge)
+    {
+        $parts = parse_url($baseUrl);
+        $parts = array_merge($parts, $merge);
+
+        $url  = $parts['scheme'];
+        $url .= "://";
+        $url .= $parts['host'];
+        $url .= isset($parts['port'])
+            ? ":" . $parts['port']
+            : "" ;
+        $url .= $parts['path'];
+
+        return $url;
+    }
+
+
+
+    /**
      * Set the url for the request.
      *
      * @param string $url
@@ -67,6 +94,18 @@ class CHttpGet
      */
     public function setUrl($url)
     {
+        $parts = parse_url($url);
+        
+        $path = "";
+        if (isset($parts['path'])) {
+            $pathParts = explode('/', $parts['path']);
+            unset($pathParts[0]);
+            foreach ($pathParts as $value) {
+                $path .= "/" . rawurlencode($value);
+            }
+        }
+        $url = $this->buildUrl($url, array("path" => $path));
+
         $this->request['url'] = $url;
         return $this;
     }
@@ -130,6 +169,8 @@ class CHttpGet
      *
      * @param boolean $debug set to true to dump headers.
      *
+     * @throws Exception when curl fails to retrieve url.
+     *
      * @return boolean
      */
     public function doGet($debug = false)
@@ -152,7 +193,7 @@ class CHttpGet
         $response = curl_exec($ch);
 
         if (!$response) {
-            return false;
+            throw new Exception("Failed retrieving url, details follows: " . curl_error($ch));
         }
 
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -435,7 +476,7 @@ class CRemoteImage
      */
     public function setHeaderFields()
     {
-        $this->http->setHeader("User-Agent", "CImage/0.7.0 (PHP/". phpversion() . " cURL)");
+        $this->http->setHeader("User-Agent", "CImage/0.7.2 (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
         if ($this->useCache) {
@@ -514,6 +555,8 @@ class CRemoteImage
      *
      * @param string $url a remote url.
      *
+     * @throws Exception when status code does not match 200 or 304.
+     *
      * @return string as path to downloaded file or false if failed.
      */
     public function download($url)
@@ -546,7 +589,7 @@ class CRemoteImage
             return $this->updateCacheDetails();
         }
 
-        return false;
+        throw new Exception("Unknown statuscode when downloading remote image: " . $this->status);
     }
 
 
@@ -3101,7 +3144,7 @@ class CWhitelist
  *
  */
 
-$version = "v0.7.1 (2015-07-25)";
+$version = "v0.7.2 (2015-08-17)";
 
 
 
