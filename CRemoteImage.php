@@ -147,7 +147,7 @@ class CRemoteImage
      */
     public function setHeaderFields()
     {
-        $this->http->setHeader("User-Agent", "CImage/0.7.0 (PHP/". phpversion() . " cURL)");
+        $this->http->setHeader("User-Agent", "CImage/0.7.2 (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
         if ($this->useCache) {
@@ -226,6 +226,8 @@ class CRemoteImage
      *
      * @param string $url a remote url.
      *
+     * @throws Exception when status code does not match 200 or 304.
+     *
      * @return string as path to downloaded file or false if failed.
      */
     public function download($url)
@@ -258,7 +260,7 @@ class CRemoteImage
             return $this->updateCacheDetails();
         }
 
-        return false;
+        throw new Exception("Unknown statuscode when downloading remote image: " . $this->status);
     }
 
 
