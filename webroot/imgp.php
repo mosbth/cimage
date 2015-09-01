@@ -641,6 +641,285 @@ class CRemoteImage
 
 
 /**
+ * Act as whitelist (or blacklist).
+ *
+ */
+class CWhitelist
+{
+    /**
+     * Array to contain the whitelist options.
+     */
+    private $whitelist = array();
+
+
+
+    /**
+     * Set the whitelist from an array of strings, each item in the
+     * whitelist should be a regexp without the surrounding / or #.
+     *
+     * @param array $whitelist with all valid options,
+     *                         default is to clear the whitelist.
+     *
+     * @return $this
+     */
+    public function set($whitelist = array())
+    {
+        if (!is_array($whitelist)) {
+            throw new Exception("Whitelist is not of a supported format.");
+        }
+
+        $this->whitelist = $whitelist;
+        return $this;
+    }
+
+
+
+    /**
+     * Check if item exists in the whitelist.
+     *
+     * @param string $item      string to check.
+     * @param array  $whitelist optional with all valid options, default is null.
+     *
+     * @return boolean true if item is in whitelist, else false.
+     */
+    public function check($item, $whitelist = null)
+    {
+        if ($whitelist !== null) {
+            $this->set($whitelist);
+        }
+        
+        if (empty($item) or empty($this->whitelist)) {
+            return false;
+        }
+        
+        foreach ($this->whitelist as $regexp) {
+            if (preg_match("#$regexp#", $item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+
+/**
+ * Create an ASCII version of an image.
+ * Inspired by https://gist.github.com/donatj/1353237 and various sources.
+ *
+ */
+class CAsciiArt
+{
+    /**
+     * Character set to use.
+     */
+    private $characterSet = array(
+        'one' => "#0XT|:,.' ",
+        'two' => "@%#*+=-:. ",
+        'three' => "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+    );
+
+
+
+    /**
+     * Current character set.
+     */
+    private $characters = null;
+
+
+
+    /**
+     * Length of current character set.
+     */
+    private $charCount = null;
+
+
+
+    /**
+     * Scale of the area to swap to a character.
+     */
+    private $scale = null;
+
+
+
+    /**
+     * Strategy to calculate luminance.
+     */
+    private $luminanceStrategy = null;
+
+
+
+    /**
+     * Constructor which sets default options.
+     */
+    public function __construct()
+    {
+        $this->setOptions();
+    }
+
+
+
+    /**
+     * Add a custom character set.
+     *
+     * @param string $key   for the character set.
+     * @param string $value for the character set.
+     *
+     * @return $this
+     */
+    public function addCharacterSet($key, $value)
+    {
+        $this->characterSet[$key] = $value;
+        return $this;
+    }
+
+
+
+    /**
+     * Length of current character set.
+     *
+     * @param array $options to use as default settings.
+     *
+     * @return $this
+     */
+    public function setOptions($options = array())
+    {
+        $default = array(
+            "characterSet" => 'two',
+            "scale" => 14,
+            "luminanceStrategy" => 3,
+            "customCharacterSet" => null,
+        );
+        $default = array_merge($default, $options);
+        
+        if (!is_null($default['customCharacterSet'])) {
+            $this->addCharacterSet('custom', $default['customCharacterSet']);
+            $default['characterSet'] = 'custom';
+        }
+        
+        $this->scale = $default['scale'];
+        $this->characters = $this->characterSet[$default['characterSet']];
+        $this->charCount = strlen($this->characters);
+        $this->luminanceStrategy = $default['luminanceStrategy'];
+        
+        return $this;
+    }
+
+
+
+    /**
+     * Create an Ascii image from an image file.
+     *
+     * @param string $filename of the image to use.
+     *
+     * @return string $ascii with the ASCII image.
+     */
+    public function createFromFile($filename)
+    {
+        $img = imagecreatefromstring(file_get_contents($filename));
+        list($width, $height) = getimagesize($filename);
+
+        $ascii = null;
+        $incY = $this->scale;
+        $incX = $this->scale / 2;
+        
+        for ($y = 0; $y < $height - 1; $y += $incY) {
+            for ($x = 0; $x < $width - 1; $x += $incX) {
+                $toX = min($x + $this->scale / 2, $width - 1);
+                $toY = min($y + $this->scale, $height - 1);
+                $luminance = $this->luminanceAreaAverage($img, $x, $y, $toX, $toY);
+                $ascii .= $this->luminance2character($luminance);
+            }
+            $ascii .= PHP_EOL;
+        }
+
+        return $ascii;
+    }
+
+
+
+    /**
+     * Get the luminance from a region of an image using average color value.
+     *
+     * @param string  $img the image.
+     * @param integer $x1  the area to get pixels from.
+     * @param integer $y1  the area to get pixels from.
+     * @param integer $x2  the area to get pixels from.
+     * @param integer $y2  the area to get pixels from.
+     *
+     * @return integer $luminance with a value between 0 and 100.
+     */
+    public function luminanceAreaAverage($img, $x1, $y1, $x2, $y2)
+    {
+        $numPixels = ($x2 - $x1 + 1) * ($y2 - $y1 + 1);
+        $luminance = 0;
+        
+        for ($x = $x1; $x <= $x2; $x++) {
+            for ($y = $y1; $y <= $y2; $y++) {
+                $rgb   = imagecolorat($img, $x, $y);
+                $red   = (($rgb >> 16) & 0xFF);
+                $green = (($rgb >> 8) & 0xFF);
+                $blue  = ($rgb & 0xFF);
+                $luminance += $this->getLuminance($red, $green, $blue);
+            }
+        }
+        
+        return $luminance / $numPixels;
+    }
+
+
+
+    /**
+     * Calculate luminance value with different strategies.
+     *
+     * @param integer $red   The color red.
+     * @param integer $green The color green.
+     * @param integer $blue  The color blue.
+     *
+     * @return float $luminance with a value between 0 and 1.
+     */
+    public function getLuminance($red, $green, $blue)
+    {
+        switch($this->luminanceStrategy) {
+            case 1:
+                $luminance = ($red * 0.2126 + $green * 0.7152 + $blue * 0.0722) / 255;
+                break;
+            case 2:
+                $luminance = ($red * 0.299 + $green * 0.587 + $blue * 0.114) / 255;
+                break;
+            case 3:
+                $luminance = sqrt(0.299 * pow($red, 2) + 0.587 * pow($green, 2) + 0.114 * pow($blue, 2)) / 255;
+                break;
+            case 0:
+            default:
+                $luminance = ($red + $green + $blue) / (255 * 3);
+        }
+
+        return $luminance;
+    }
+
+
+
+    /**
+     * Translate the luminance value to a character.
+     *
+     * @param string $position a value between 0-100 representing the
+     *                         luminance.
+     *
+     * @return string with the ascii character.
+     */
+    public function luminance2character($luminance)
+    {
+        $position = (int) round($luminance * ($this->charCount - 1));
+        $char = $this->characters[$position];
+        return $char;
+    }
+}
+
+
+
+/**
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * @author  Mikael Roos mos@dbwebb.se
@@ -972,6 +1251,13 @@ class CImage
      * Do verbose logging to file by setting this to a filename.
      */
     private $verboseFileName = null;
+
+
+
+    /*
+     * output to ascii can take som options as an array.
+     */
+    private $asciiOptions = array();
 
 
 
@@ -2891,6 +3177,10 @@ class CImage
             header('Content-type: application/json');
             echo $this->json($file);
             exit;
+        } elseif ($format == 'ascii') {
+            header('Content-type: text/plain');
+            echo $this->ascii($file);
+            exit;
         }
 
         $this->log("Outputting image: $file");
@@ -2978,6 +3268,38 @@ class CImage
         }
 
         return json_encode($details, $options);
+    }
+
+
+
+    /**
+     * Set options for creating ascii version of image.
+     *
+     * @param array $options empty to use default or set options to change.
+     *
+     * @return void.
+     */
+    public function setAsciiOptions($options = array())
+    {
+        $this->asciiOptions = $options;
+    }
+
+
+
+    /**
+     * Create an ASCII version from the image details.
+     *
+     * @param string $file the file to output.
+     *
+     * @return string ASCII representation of the image.
+     */
+    public function ascii($file = null)
+    {
+        $file = $file ? $file : $this->cacheFileName;
+
+        $asciiArt = new CAsciiArt();
+        $asciiArt->setOptions($this->asciiOptions);
+        return $asciiArt->createFromFile($file);
     }
 
 
@@ -3072,70 +3394,6 @@ EOD;
 
 
 /**
- * Act as whitelist (or blacklist).
- *
- */
-class CWhitelist
-{
-    /**
-     * Array to contain the whitelist options.
-     */
-    private $whitelist = array();
-
-
-
-    /**
-     * Set the whitelist from an array of strings, each item in the
-     * whitelist should be a regexp without the surrounding / or #.
-     *
-     * @param array $whitelist with all valid options,
-     *                         default is to clear the whitelist.
-     *
-     * @return $this
-     */
-    public function set($whitelist = array())
-    {
-        if (!is_array($whitelist)) {
-            throw new Exception("Whitelist is not of a supported format.");
-        }
-
-        $this->whitelist = $whitelist;
-        return $this;
-    }
-
-
-
-    /**
-     * Check if item exists in the whitelist.
-     *
-     * @param string $item      string to check.
-     * @param array  $whitelist optional with all valid options, default is null.
-     *
-     * @return boolean true if item is in whitelist, else false.
-     */
-    public function check($item, $whitelist = null)
-    {
-        if ($whitelist !== null) {
-            $this->set($whitelist);
-        }
-        
-        if (empty($item) or empty($this->whitelist)) {
-            return false;
-        }
-        
-        foreach ($this->whitelist as $regexp) {
-            if (preg_match("#$regexp#", $item)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
-
-
-/**
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * @author  Mikael Roos mos@dbwebb.se
@@ -3144,7 +3402,7 @@ class CWhitelist
  *
  */
 
-$version = "v0.7.2 (2015-08-17)";
+$version = "v0.7.3 (2015-09-01)";
 
 
 
@@ -3890,11 +4148,51 @@ verbose("filters = " . print_r($filters, 1));
 
 
 /**
- * json - output the image as a JSON object with details on the image.
+* json -  output the image as a JSON object with details on the image.
+* ascii - output the image as ASCII art.
  */
 $outputFormat = getDefined('json', 'json', null);
+$outputFormat = getDefined('ascii', 'ascii', $outputFormat);
 
-verbose("json = $outputFormat");
+verbose("outputformat = $outputFormat");
+
+if ($outputFormat == 'ascii') {
+    $defaultOptions = getConfig(
+        'ascii-options',
+        array(
+            "characterSet" => 'two',
+            "scale" => 14,
+            "luminanceStrategy" => 3,
+            "customCharacterSet" => null,
+        )
+    );
+    $options = get('ascii');
+    $options = explode(',', $options);
+
+    if (isset($options[0]) && !empty($options[0])) {
+        $defaultOptions['characterSet'] = $options[0];
+    }
+
+    if (isset($options[1]) && !empty($options[1])) {
+        $defaultOptions['scale'] = $options[1];
+    }
+
+    if (isset($options[2]) && !empty($options[2])) {
+        $defaultOptions['luminanceStrategy'] = $options[2];
+    }
+
+    if (count($options) > 3) {
+        // Last option is custom character string
+        unset($options[0]);
+        unset($options[1]);
+        unset($options[2]);
+        $characterString = implode($options);
+        $defaultOptions['customCharacterSet'] = $characterString;
+    }
+
+    $img->setAsciiOptions($defaultOptions);
+}
+
 
 
 
