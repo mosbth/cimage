@@ -13,7 +13,7 @@ $version = "v0.7.3 (2015-09-01)";
 
 
 /**
- * Default configuration options, can be overridden in own config-file.
+ * Display error message.
  *
  * @param string $msg to display.
  *
