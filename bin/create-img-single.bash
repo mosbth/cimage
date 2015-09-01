@@ -37,6 +37,7 @@ $ECHO "\n webroot/img_header.php"
 $ECHO "\n CHttpGet.php"
 $ECHO "\n CRemoteImage.php"
 $ECHO "\n CWhitelist.php"
+$ECHO "\n CAsciiArt.php"
 $ECHO "\n CImage.php"
 $ECHO "\n webroot/img.php"
 $ECHO "\n"
@@ -64,10 +65,13 @@ $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 tail -n +2 CRemoteImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
-tail -n +2 CImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+tail -n +2 CWhitelist.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
-tail -n +2 CWhitelist.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+tail -n +2 CAsciiArt.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+tail -n +2 CImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 webroot/img.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
