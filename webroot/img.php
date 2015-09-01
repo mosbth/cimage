@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.2 (2015-08-17)";
+$version = "v0.7.3 (2015-09-01)";
 
 
 
@@ -795,10 +795,6 @@ if ($outputFormat == 'ascii') {
         $characterString = implode($options);
         $defaultOptions['customCharacterSet'] = $characterString;
     }
-
-    //var_dump($options);
-    //var_dump($defaultOptions);
-    //exit;
 
     $img->setAsciiOptions($defaultOptions);
 }
