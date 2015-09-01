@@ -334,6 +334,13 @@ class CImage
 
 
 
+    /*
+     * output to ascii can take som options as an array.
+     */
+    private $asciiOptions = array();
+
+
+
     /**
      * Properties, the class is mutable and the method setOptions()
      * decides (partly) what properties are created.
@@ -2250,6 +2257,10 @@ class CImage
             header('Content-type: application/json');
             echo $this->json($file);
             exit;
+        } elseif ($format == 'ascii') {
+            header('Content-type: text/plain');
+            echo $this->ascii($file);
+            exit;
         }
 
         $this->log("Outputting image: $file");
@@ -2337,6 +2348,38 @@ class CImage
         }
 
         return json_encode($details, $options);
+    }
+
+
+
+    /**
+     * Set options for creating ascii version of image.
+     *
+     * @param array $options empty to use default or set options to change.
+     *
+     * @return void.
+     */
+    public function setAsciiOptions($options = array())
+    {
+        $this->asciiOptions = $options;
+    }
+
+
+
+    /**
+     * Create an ASCII version from the image details.
+     *
+     * @param string $file the file to output.
+     *
+     * @return string ASCII representation of the image.
+     */
+    public function ascii($file = null)
+    {
+        $file = $file ? $file : $this->cacheFileName;
+
+        $asciiArt = new CAsciiArt();
+        $asciiArt->setOptions($this->asciiOptions);
+        return $asciiArt->createFromFile($file);
     }
 
 

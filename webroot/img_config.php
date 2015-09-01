@@ -299,4 +299,25 @@ return array(
             'golden' => 1.618,
         );
     },*/
+
+
+
+    /**
+     * default options for ascii image.
+     *
+     * Default values as specified below in the array.
+     *  ascii-options:
+     *   characterSet:       Choose any character set available in CAsciiArt.
+     *   scale:              How many pixels should each character
+     *                       translate to.
+     *   luminanceStrategy:  Choose any strategy available in CAsciiArt.
+     *   customCharacterSet: Define your own character set.
+     */
+    /*'ascii-options' => array(
+            "characterSet" => 'two',
+            "scale" => 14,
+            "luminanceStrategy" => 3,
+            "customCharacterSet" => null,
+        );
+    },*/
 );

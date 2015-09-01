@@ -754,11 +754,55 @@ verbose("filters = " . print_r($filters, 1));
 
 
 /**
- * json - output the image as a JSON object with details on the image.
+* json -  output the image as a JSON object with details on the image.
+* ascii - output the image as ASCII art.
  */
 $outputFormat = getDefined('json', 'json', null);
+$outputFormat = getDefined('ascii', 'ascii', $outputFormat);
 
-verbose("json = $outputFormat");
+verbose("outputformat = $outputFormat");
+
+if ($outputFormat == 'ascii') {
+    $defaultOptions = getConfig(
+        'ascii-options',
+        array(
+            "characterSet" => 'two',
+            "scale" => 14,
+            "luminanceStrategy" => 3,
+            "customCharacterSet" => null,
+        )
+    );
+    $options = get('ascii');
+    $options = explode(',', $options);
+
+    if (isset($options[0]) && !empty($options[0])) {
+        $defaultOptions['characterSet'] = $options[0];
+    }
+
+    if (isset($options[1]) && !empty($options[1])) {
+        $defaultOptions['scale'] = $options[1];
+    }
+
+    if (isset($options[2]) && !empty($options[2])) {
+        $defaultOptions['luminanceStrategy'] = $options[2];
+    }
+
+    if (count($options) > 3) {
+        // Last option is custom character string
+        unset($options[0]);
+        unset($options[1]);
+        unset($options[2]);
+        $characterString = implode($options);
+        $defaultOptions['customCharacterSet'] = $characterString;
+    }
+
+    //var_dump($options);
+    //var_dump($defaultOptions);
+    //exit;
+
+    $img->setAsciiOptions($defaultOptions);
+}
+
 
 
 
