@@ -25,12 +25,8 @@
             "CImage.php",
             "CHttpGet.php",
             "CRemoteImage.php",
-            "CWhitelist.php"
+            "CWhitelist.php",
+            "CAsciiArt.php"
         ]
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.7.x-dev"
-        }
     }
 }
