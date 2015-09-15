@@ -1221,7 +1221,7 @@ class CImage
                 if (is_array($filter)) {
                     $filters .= "_f{$filter['id']}";
                     for ($i=1; $i<=$filter['argc']; $i++) {
-                        $filters .= ":".$filter["arg{$i}"];
+                        $filters .= "-".$filter["arg{$i}"];
                     }
                 }
             }
