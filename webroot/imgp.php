@@ -706,7 +706,6 @@ class CWhitelist
 
 /**
  * Create an ASCII version of an image.
- * Inspired by https://gist.github.com/donatj/1353237 and various sources.
  *
  */
 class CAsciiArt
@@ -777,7 +776,7 @@ class CAsciiArt
 
 
     /**
-     * Length of current character set.
+     * Set options for processing, defaults are available.
      *
      * @param array $options to use as default settings.
      *
@@ -2141,7 +2140,7 @@ class CImage
                 if (is_array($filter)) {
                     $filters .= "_f{$filter['id']}";
                     for ($i=1; $i<=$filter['argc']; $i++) {
-                        $filters .= ":".$filter["arg{$i}"];
+                        $filters .= "-".$filter["arg{$i}"];
                     }
                 }
             }
@@ -3402,7 +3401,7 @@ EOD;
  *
  */
 
-$version = "v0.7.3 (2015-09-01)";
+$version = "v0.7.4 (2015-09-15)";
 
 
 
