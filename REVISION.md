@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.4 (2015-09-15)
+-------------------------------------
+
+* Add CAsciiArt.php to composer for autoloading, fix #102.
+* Generate filename with filters, does not work on Windows, fix #100.
+
+
 v0.7.3 (2015-09-01)
 -------------------------------------
 

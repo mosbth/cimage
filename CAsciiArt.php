@@ -1,7 +1,6 @@
 <?php
 /**
  * Create an ASCII version of an image.
- * Inspired by https://gist.github.com/donatj/1353237 and various sources.
  *
  */
 class CAsciiArt
@@ -72,7 +71,7 @@ class CAsciiArt
 
 
     /**
-     * Length of current character set.
+     * Set options for processing, defaults are available.
      *
      * @param array $options to use as default settings.
      *
