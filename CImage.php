@@ -418,6 +418,27 @@ class CImage
 
 
     /**
+     * Create and save a dummy image.
+     *
+     * @param boolean $allow   true or false to enable and disable.
+     * @param string  $pattern to use to detect if its a remote file.
+     *
+     * @return $this
+     */
+    public function createDummyImage($width = 100, $height = 100)
+    {
+        $img = $this->CreateImageKeepTransparency($width, $height);
+
+        $this->generateFilename($cachePath);
+
+        $this->save();
+
+        return $this;
+    }
+
+
+
+    /**
      * Allow or disallow remote image download.
      *
      * @param boolean $allow   true or false to enable and disable.
@@ -1244,8 +1265,10 @@ class CImage
         $file = $subdir . '_' . $parts['filename'] . '_' . $width . '_'
             . $height . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
-            . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
-            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
+            . $quality . $filters . $sharpen . $emboss . $blur . $palette
+            . $optimize . $compress
+            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
+            . $convolve
             . $extension;
 
         return $this->setTarget($file, $base);

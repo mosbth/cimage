@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.5x (latest)
+-------------------------------------
+
+* Add option for png compression to generade filename, fix #103.
+
+
 v0.7.4 (2015-09-15)
 -------------------------------------
 
