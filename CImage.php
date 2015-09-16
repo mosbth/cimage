@@ -674,11 +674,6 @@ class CImage
             // Output format
             'outputFormat' => null,
             'dpr'          => 1,
-
-            // Options for saving
-            //'quality'     => null,
-            //'compress'    => null,
-            //'saveAs'      => null,
         );
 
         // Convert crop settings from string to array
