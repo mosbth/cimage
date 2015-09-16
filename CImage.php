@@ -348,9 +348,7 @@ class CImage
     public $crop_x;
     public $crop_y;
     public $filters;
-    private $type; // Calculated from source image
     private $attr; // Calculated from source image
-    private $useOriginal; // Use original image if possible
 
 
 
@@ -406,8 +404,6 @@ class CImage
 
     /**
      * Use cache or not.
-     *
-     * @todo clean up how $this->noCache is used in other methods.
      *
      * @param string $use true or false to use cache.
      *
