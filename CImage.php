@@ -581,6 +581,8 @@ class CImage
     public function setSource($src, $dir = null)
     {
         if (!isset($src)) {
+            $this->imageSrc = null;
+            $this->pathToImage = null;
             return $this;
         }
 
