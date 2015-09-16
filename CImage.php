@@ -114,13 +114,6 @@ class CImage
 
 
     /**
-     * The root folder of images (only used in constructor to create $pathToImage?).
-     */
-    private $imageFolder;
-
-
-
-    /**
      * Image filename, may include subdirectory, relative from $imageFolder
      */
     private $imageSrc;
@@ -578,10 +571,10 @@ class CImage
 
 
     /**
-     * Set src file.
+     * Set source file to use as image source.
      *
      * @param string $src of image.
-     * @param string $dir as base directory where images are.
+     * @param string $dir as optional base directory where images are.
      *
      * @return $this
      */
@@ -601,9 +594,9 @@ class CImage
             $src = basename($src);
         }
 
-        $this->imageSrc       = ltrim($src, '/');
-        $this->imageFolder    = rtrim($dir, '/');
-        $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
+        $this->imageSrc     = ltrim($src, '/');
+        $imageFolder        = rtrim($dir, '/');
+        $this->pathToImage  = $imageFolder . '/' . $this->imageSrc;
 
         return $this;
     }
