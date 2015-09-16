@@ -618,11 +618,6 @@ class CImage
         $this->saveFolder     = $dir;
         $this->cacheFileName  = $dir . '/' . $src;
 
-        /* Allow readonly cache
-        is_writable($this->saveFolder)
-            or $this->raiseError('Target directory is not writable.');
-        */
-
         // Sanitize filename
         $this->cacheFileName = preg_replace('/^a-zA-Z0-9\.-_/', '', $this->cacheFileName);
         $this->log("The cache file name is: " . $this->cacheFileName);
