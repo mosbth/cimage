@@ -110,6 +110,28 @@ return array(
 
 
      /**
+      * The name representing a dummy image which is automatically created
+      * and stored at the defined path. The dummy image can then be used
+      * inplace of an original image as a placeholder.
+      * The dummy_dir must be writable and it defaults to a subdir of the
+      * cache directory.
+      * Write protect the dummy_dir to prevent creation of new dummy images,
+      * but continue to use the existing ones.
+      *
+      * Default value:
+      *  dummy_enabled:  true as default, disable dummy feature by setting
+      *                  to false.
+      *  dummy_filename: 'dummy' use this as ?src=dummy to create a dummy image.
+      *  dummy_dir:      Defaults to subdirectory of 'cache_path',
+      *                  named the same as 'dummy_filename'
+      */
+      //'dummy_enabled' => true,
+      //'dummy_filename' => 'dummy',
+      //'dummy_dir' => 'some writable directory',
+
+
+
+     /**
      * Check that the imagefile is a file below 'image_path' using realpath().
      * Security constraint to avoid reaching images outside image_path.
      * This means that symbolic links to images outside the image_path will fail.

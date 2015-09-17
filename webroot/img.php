@@ -373,10 +373,20 @@ $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
 
+// Dumm image feature
+$dummyEnabled  = getConfig('dummy_enabled', true);
+$dummyFilename = getConfig('dummy_filename', 'dummy');
+$dummyImage = false;
+
 preg_match($validFilename, $srcImage)
     or errorPage('Filename contains invalid characters.');
 
-if ($allowRemote && $img->isRemoteSource($srcImage)) {
+if ($dummyEnabled && $srcImage === $dummyFilename) {
+
+    // Prepare to create a dummy image and use it as the source image.
+    $dummyImage = true;
+
+} elseif ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
 
@@ -933,9 +943,43 @@ if ($verboseFile) {
 
 
 
- /**
-  * Load, process and output the image
-  */
+/**
+ * Set basic options for image processing.
+ */
+
+
+/**
+ * Prepare a dummy image and use it as source image.
+ */
+if ($dummyImage === true) {
+    
+    $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
+
+    is_writable($dummyDir)
+        or verbose("dummy dir not writable = $dummyDir");
+
+    $img->setSaveFolder($dummyDir)
+        ->setSource($dummyFilename, $dummyDir)
+        ->setOptions(
+            array(
+                'bgColor'    => $bgColor,
+            )
+        )
+        ->createDummyImage()
+        ->generateFilename(null, false)
+        ->save(null, null, false);
+
+    $srcImage = $img->getTarget();
+    $imagePath = null;
+    
+    verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Load, process and output the image
+ */
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)

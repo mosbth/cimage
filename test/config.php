@@ -4,3 +4,6 @@
  *
  */
 require __DIR__ . "/../autoload.php";
+
+define('IMAGE_PATH', __DIR__ . '/../webroot/img/');
+define('CACHE_PATH', __DIR__ . '/../cache/');
