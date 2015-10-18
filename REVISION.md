@@ -11,7 +11,7 @@ v0.7.5x (latest)
 * Adding feature for creating dummy images `src=dummy`, #101.
 * Add png compression to generated cache filename, fix #103.
 * Removed file prefix from storing images in cache, breaking filenamestructure for cache images.
-* Minor code cleaning in `CImage.php`.
+* Code cleaning in `CImage.php`.
 
 
 v0.7.4 (2015-09-15)
