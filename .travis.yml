@@ -7,6 +7,7 @@ php:
     - nightly
 
 before_script:
+    ls -l
     chmod 777 mosbth/cimage/cache
     chmod 777 mosbth/cimage/cache/dummy
 
