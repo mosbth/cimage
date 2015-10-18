@@ -6,6 +6,10 @@ php:
     - hhvm
     - nightly
 
+before_script:
+    chmod 777 mosbth/cimage/cache
+    chmod 777 mosbth/cimage/cache/dummy
+
 script:
     - phpunit
 
