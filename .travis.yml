@@ -7,7 +7,7 @@ php:
     - nightly
 
 before_script:
-    - chmod 777 cache/dummy
+    #- chmod 777 cache/dummy
 
 script:
     - phpunit
