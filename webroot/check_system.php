@@ -4,6 +4,12 @@ echo 'Current PHP version: ' . phpversion() . '<br><br>';
 
 echo 'Running on: ' . $_SERVER['SERVER_SOFTWARE'] . '<br><br>';
 
+$no = extension_loaded('exif') ? null : 'NOT';
+echo "Extension exif is $no loaded.<br>";
+
+$no = extension_loaded('curl') ? null : 'NOT';
+echo "Extension curl is $no loaded.<br>";
+
 $no = extension_loaded('gd') ? null : 'NOT';
 echo "Extension gd is $no loaded.<br>";
 
@@ -11,8 +17,13 @@ if (!$no) {
     echo "<pre>", var_dump(gd_info()), "</pre>";
 }
 
-$no = extension_loaded('exif') ? null : 'NOT';
-echo "Extension exif is $no loaded.<br>";
+echo "<strong>Checking path for postprocessing tools</strong>";
 
-$no = extension_loaded('curl') ? null : 'NOT';
-echo "Extension curl is $no loaded.<br>";
+echo "<br>optipng: ";
+system("which optipng");
+
+echo "<br>pngout: ";
+system("which pngout");
+
+echo "<br>jpegtran: ";
+system("which jpegtran");

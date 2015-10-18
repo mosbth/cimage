@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.6* (2015-10-18)
+-------------------------------------
+
+* Add check for postprocessing tools in path in `webroot/check_system.php`, #104.
+
+
 v0.7.6 (2015-10-18)
 -------------------------------------
 
