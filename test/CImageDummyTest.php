@@ -14,6 +14,8 @@ class CImageDummyTest extends \PHPUnit_Framework_TestCase
     {
         $img = new CImage();
 
+        echo CACHE_PATH . "/dummy";
+        
         $img->setSaveFolder(CACHE_PATH . "/dummy");
         $img->setSource('dummy', CACHE_PATH . "/dummy");
         $img->createDummyImage();
