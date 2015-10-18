@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.5 (2015-10-18)";
+$version = "v0.7.6 (2015-10-18)";
 
 
 
@@ -962,9 +962,13 @@ if ($dummyImage === true) {
         ->setSource($dummyFilename, $dummyDir)
         ->setOptions(
             array(
-                'bgColor'    => $bgColor,
+                'newWidth'  => $newWidth,
+                'newHeight' => $newHeight,
+                'bgColor'   => $bgColor,
             )
         )
+        ->setJpegQuality($quality)
+        ->setPngCompression($compress)
         ->createDummyImage()
         ->generateFilename(null, false)
         ->save(null, null, false);

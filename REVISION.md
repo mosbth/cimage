@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.6 (2015-10-18)
+-------------------------------------
+
+* Adding testpage for dummy images `webroot/test/test_issue101-dummy.php`.
+* Adding width and height when creating dummy image.
+
+
 v0.7.5 (2015-10-18)
 -------------------------------------
 
