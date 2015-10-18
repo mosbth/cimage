@@ -13,7 +13,6 @@ return array(
      * Default values:
      *  mode: 'production'
      */
-    'mode' => 'development',
     //'mode' => 'production', // 'development', 'strict'
 
 

@@ -1033,13 +1033,6 @@ class CImage
 
 
     /**
-     * The root folder of images (only used in constructor to create $pathToImage?).
-     */
-    private $imageFolder;
-
-
-
-    /**
      * Image filename, may include subdirectory, relative from $imageFolder
      */
     private $imageSrc;
@@ -1112,6 +1105,7 @@ class CImage
      * Path to command for filter optimize, for example optipng or null.
      */
     private $pngFilter;
+    private $pngFilterCmd;
 
 
 
@@ -1119,13 +1113,16 @@ class CImage
      * Path to command for deflate optimize, for example pngout or null.
      */
     private $pngDeflate;
+    private $pngDeflateCmd;
 
 
 
     /**
      * Path to command to optimize jpeg images, for example jpegtran or null.
      */
-    private $jpegOptimize;
+     private $jpegOptimize;
+     private $jpegOptimizeCmd;
+
 
 
     /**
@@ -1201,6 +1198,56 @@ class CImage
     private $fillToFit;
 
 
+
+    /**
+     * To store value for option scale.
+     */
+    private $scale;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $rotateBefore;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $rotateAfter;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $autoRotate;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $sharpen;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $emboss;
+
+
+
+    /**
+     * To store value for option.
+     */
+    private $blur;
+
+
+
     /**
      * Used with option area to set which parts of the image to use.
      */
@@ -1274,9 +1321,7 @@ class CImage
     public $crop_x;
     public $crop_y;
     public $filters;
-    private $type; // Calculated from source image
     private $attr; // Calculated from source image
-    private $useOriginal; // Use original image if possible
 
 
 
@@ -1333,15 +1378,34 @@ class CImage
     /**
      * Use cache or not.
      *
-     * @todo clean up how $this->noCache is used in other methods.
-     *
-     * @param string $use true or false to use cache.
+     * @param boolean $use true or false to use cache.
      *
      * @return $this
      */
     public function useCache($use = true)
     {
         $this->useCache = $use;
+        return $this;
+    }
+
+
+
+    /**
+     * Create and save a dummy image. Use dimensions as stated in
+     * $this->newWidth, or $width or default to 100 (same for height.
+     *
+     * @param integer $width  use specified width for image dimension.
+     * @param integer $height use specified width for image dimension.
+     *
+     * @return $this
+     */
+    public function createDummyImage($width = null, $height = null)
+    {
+        $this->newWidth  = $this->newWidth  ?: $width  ?: 100;
+        $this->newHeight = $this->newHeight ?: $height ?: 100;
+
+        $this->image = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
+
         return $this;
     }
 
@@ -1497,16 +1561,18 @@ class CImage
 
 
     /**
-     * Set src file.
+     * Set source file to use as image source.
      *
      * @param string $src of image.
-     * @param string $dir as base directory where images are.
+     * @param string $dir as optional base directory where images are.
      *
      * @return $this
      */
     public function setSource($src, $dir = null)
     {
         if (!isset($src)) {
+            $this->imageSrc = null;
+            $this->pathToImage = null;
             return $this;
         }
 
@@ -1520,9 +1586,9 @@ class CImage
             $src = basename($src);
         }
 
-        $this->imageSrc       = ltrim($src, '/');
-        $this->imageFolder    = rtrim($dir, '/');
-        $this->pathToImage    = $this->imageFolder . '/' . $this->imageSrc;
+        $this->imageSrc     = ltrim($src, '/');
+        $imageFolder        = rtrim($dir, '/');
+        $this->pathToImage  = $imageFolder . '/' . $this->imageSrc;
 
         return $this;
     }
@@ -1533,29 +1599,41 @@ class CImage
      * Set target file.
      *
      * @param string $src of target image.
-     * @param string $dir as base directory where images are stored.
+     * @param string $dir as optional base directory where images are stored.
+     *                    Uses $this->saveFolder if null.
      *
      * @return $this
      */
     public function setTarget($src = null, $dir = null)
     {
-        if (!(isset($src) && isset($dir))) {
+        if (!isset($src)) {
+            $this->cacheFileName = null;
             return $this;
         }
 
-        $this->saveFolder     = $dir;
-        $this->cacheFileName  = $dir . '/' . $src;
+        if (isset($dir)) {
+            $this->saveFolder = rtrim($dir, '/');
+        }
 
-        /* Allow readonly cache
-        is_writable($this->saveFolder)
-            or $this->raiseError('Target directory is not writable.');
-        */
+        $this->cacheFileName  = $this->saveFolder . '/' . $src;
 
         // Sanitize filename
         $this->cacheFileName = preg_replace('/^a-zA-Z0-9\.-_/', '', $this->cacheFileName);
         $this->log("The cache file name is: " . $this->cacheFileName);
 
         return $this;
+    }
+
+
+
+    /**
+     * Get filename of target file.
+     *
+     * @return Boolean|String as filename of target or false if not set.
+     */
+    public function getTarget()
+    {
+        return $this->cacheFileName;
     }
 
 
@@ -1607,11 +1685,6 @@ class CImage
             // Output format
             'outputFormat' => null,
             'dpr'          => 1,
-
-            // Options for saving
-            //'quality'     => null,
-            //'compress'    => null,
-            //'saveAs'      => null,
         );
 
         // Convert crop settings from string to array
@@ -2105,13 +2178,15 @@ class CImage
     /**
      * Generate filename to save file in cache.
      *
-     * @param string $base as basepath for storing file.
+     * @param string  $base      as optional basepath for storing file.
+     * @param boolean $useSubdir use or skip the subdir part when creating the
+     *                           filename.
      *
      * @return $this
      */
-    public function generateFilename($base)
+    public function generateFilename($base = null, $useSubdir = true)
     {
-        $parts        = pathinfo($this->pathToImage);
+        $filename     = basename($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
         $fillToFit    = $this->fillToFit    ? '_ff'                      : null;
         $crop_x       = $this->crop_x       ? "_x{$this->crop_x}"        : null;
@@ -2153,16 +2228,6 @@ class CImage
 
         $autoRotate = $this->autoRotate ? 'ar' : null;
 
-        $this->extension = isset($this->extension)
-            ? $this->extension
-            : (isset($parts['extension'])
-                ? $parts['extension']
-                : null);
-        
-        $extension = empty($this->extension)
-            ? null
-            : "." . $this->extension;
-
         $optimize  = $this->jpegOptimize ? 'o' : null;
         $optimize .= $this->pngFilter    ? 'f' : null;
         $optimize .= $this->pngDeflate   ? 'd' : null;
@@ -2177,14 +2242,20 @@ class CImage
             $upscale = '_nu';
         }
 
-        $subdir = str_replace('/', '-', dirname($this->imageSrc));
-        $subdir = ($subdir == '.') ? '_.' : $subdir;
-        $file = $subdir . '_' . $parts['filename'] . '_' . $width . '_'
+        $subdir = null;
+        if ($useSubdir === true) {
+            $subdir = str_replace('/', '-', dirname($this->imageSrc));
+            $subdir = ($subdir == '.') ? '_.' : $subdir;
+            $subdir .= '_';
+        }
+        
+        $file = $subdir . $filename . '_' . $width . '_'
             . $height . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
-            . $quality . $filters . $sharpen . $emboss . $blur . $palette . $optimize
-            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor . $convolve
-            . $extension;
+            . $quality . $filters . $sharpen . $emboss . $blur . $palette
+            . $optimize . $compress
+            . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
+            . $convolve;
 
         return $this->setTarget($file, $base);
     }
@@ -2952,7 +3023,10 @@ class CImage
         imagealphablending($img, false);
         imagesavealpha($img, true);
 
-        $index = imagecolortransparent($this->image);
+        $index = $this->image
+            ? imagecolortransparent($this->image)
+            : -1;
+            
         if ($index != -1) {
 
             imagealphablending($img, true);
@@ -3025,15 +3099,21 @@ class CImage
     /**
      * Save image.
      *
-     * @param string $src  as target filename.
-     * @param string $base as base directory where to store images.
+     * @param string  $src       as target filename.
+     * @param string  $base      as base directory where to store images.
+     * @param boolean $overwrite or not, default to always overwrite file.
      *
      * @return $this or false if no folder is set.
      */
-    public function save($src = null, $base = null)
+    public function save($src = null, $base = null, $overwrite = true)
     {
         if (isset($src)) {
             $this->setTarget($src, $base);
+        }
+
+        if ($overwrite === false && is_file($this->cacheFileName)) {
+            $this->Log("Not overwriting file since its already exists and \$overwrite if false.");
+            return;
         }
 
         is_writable($this->saveFolder)
@@ -3401,7 +3481,7 @@ EOD;
  *
  */
 
-$version = "v0.7.4 (2015-09-15)";
+$version = "v0.7.5 (2015-10-18)";
 
 
 
@@ -3766,10 +3846,20 @@ $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
 
+// Dumm image feature
+$dummyEnabled  = getConfig('dummy_enabled', true);
+$dummyFilename = getConfig('dummy_filename', 'dummy');
+$dummyImage = false;
+
 preg_match($validFilename, $srcImage)
     or errorPage('Filename contains invalid characters.');
 
-if ($allowRemote && $img->isRemoteSource($srcImage)) {
+if ($dummyEnabled && $srcImage === $dummyFilename) {
+
+    // Prepare to create a dummy image and use it as the source image.
+    $dummyImage = true;
+
+} elseif ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
 
@@ -4326,9 +4416,43 @@ if ($verboseFile) {
 
 
 
- /**
-  * Load, process and output the image
-  */
+/**
+ * Set basic options for image processing.
+ */
+
+
+/**
+ * Prepare a dummy image and use it as source image.
+ */
+if ($dummyImage === true) {
+    
+    $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
+
+    is_writable($dummyDir)
+        or verbose("dummy dir not writable = $dummyDir");
+
+    $img->setSaveFolder($dummyDir)
+        ->setSource($dummyFilename, $dummyDir)
+        ->setOptions(
+            array(
+                'bgColor'    => $bgColor,
+            )
+        )
+        ->createDummyImage()
+        ->generateFilename(null, false)
+        ->save(null, null, false);
+
+    $srcImage = $img->getTarget();
+    $imagePath = null;
+    
+    verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Load, process and output the image
+ */
 $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)

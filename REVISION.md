@@ -5,7 +5,7 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.5x (latest)
+v0.7.5 (2015-10-18)
 -------------------------------------
 
 * Adding feature for creating dummy images `src=dummy`, #101.
