@@ -3846,7 +3846,7 @@ $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
 
-// Dumm image feature
+// Dummy image feature
 $dummyEnabled  = getConfig('dummy_enabled', true);
 $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
