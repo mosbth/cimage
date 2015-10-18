@@ -2366,8 +2366,16 @@ class CImage
 
         } else {
 
+            // Get details on image
+            $info = getimagesize($file);
+            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
+            $mime = $info['mime'];
+            $size = filesize($file);
+
             if ($this->verbose) {
-                $this->log("Last modified: " . $gmdate . " GMT");
+                $this->log("Last-Modified: " . $gmdate . " GMT");
+                $this->log("Content-type: " . $mime);
+                $this->log("Content-length: " . $size);
                 $this->verboseOutput();
                 
                 if (is_null($this->verboseFileName)) {
@@ -2375,12 +2383,8 @@ class CImage
                 }
             }
 
-            // Get details on image
-            $info = getimagesize($file);
-            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-            $mime = $info['mime'];
-
-            header('Content-type: ' . $mime);
+            header("Content-type: $mime");
+            header("Content-length: $size");
             readfile($file);
         }
 

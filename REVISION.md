@@ -8,6 +8,7 @@ Revision history
 v0.7.6* (2015-10-18)
 -------------------------------------
 
+* Add header for Content-Length, #111.
 * Add check for postprocessing tools in path in `webroot/check_system.php`, #104.
 
 
