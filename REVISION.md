@@ -8,6 +8,7 @@ Revision history
 v0.7.6* (2015-10-20)
 -------------------------------------
 
+* Added hook in img,php before CImage is called, #123.
 * Added configuration for default jpeg quality and png compression in the config file, #107. 
 * Strip comments and whitespace in imgs.php, #115.
 * Bundle imgs.php did not have the correct mode.
