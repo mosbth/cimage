@@ -8,7 +8,8 @@ Revision history
 v0.7.6* (2015-10-20)
 -------------------------------------
 
-* Add extra fileds to json-response, #114.
+* Adding save-as as part of the generated cache filename, #121.
+* Add extra fields to json-response, #114.
 * Add header for Content-Length, #111.
 * Add check for postprocessing tools in path in `webroot/check_system.php`, #104.
 

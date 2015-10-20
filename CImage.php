@@ -601,6 +601,26 @@ class CImage
 
 
     /**
+     * Normalize the file extension.
+     *
+     * @param string $extension of image file or skip to use internal.
+     *
+     * @return string $extension as a normalized file extension.
+     */
+    private function normalizeFileExtension($extension = null)
+    {
+        $extension = strtolower($extension ? $extension : $this->extension);
+        
+        if ($extension == 'jpeg') {
+                $extension = 'jpg';
+            }
+
+        return $extension;
+    }
+
+
+
+    /**
      * Download a remote image and return path to its local copy.
      *
      * @param string $src remote path to image.
@@ -1279,6 +1299,9 @@ class CImage
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
 
+        $saveAs = $this->normalizeFileExtension();
+        $saveAs = $saveAs ? "_$saveAs" : null;
+
         $width  = $this->newWidth;
         $height = $this->newHeight;
 
@@ -1336,7 +1359,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve;
+            . $convolve . $saveAs;
 
         return $this->setTarget($file, $base);
     }
