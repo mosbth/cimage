@@ -929,6 +929,18 @@ $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cacheControl = getConfig('cache_control', null);
+
+if ($cacheControl) {
+    verbose("cacheControl = $cacheControl");
+    $img->addHTTPHeader("Cache-Control", $cacheControl);
+}
+
+
+
+/**
  * Prepare a dummy image and use it as source image.
  */
 $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);

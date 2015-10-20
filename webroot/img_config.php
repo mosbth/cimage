@@ -140,6 +140,16 @@ return array(
 
 
 
+       /**
+        * Add header for cache control when outputting images.
+        *
+        * Default value:
+        *  cache_control: null, or set to string
+        */
+        //'cache_control' => "max-age=86400",
+
+
+
      /**
       * The name representing a dummy image which is automatically created
       * and stored at the defined path. The dummy image can then be used

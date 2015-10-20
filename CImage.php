@@ -64,6 +64,13 @@ class CImage
 
 
     /**
+     * Add HTTP headers for outputing image.
+     */
+    private $HTTPHeader = array();
+
+
+
+    /**
      * Default background color, red, green, blue, alpha.
      *
      * @todo remake when upgrading to PHP 5.5
@@ -2423,10 +2430,27 @@ class CImage
 
 
     /**
+     * Add HTTP header for putputting together with image.
+     *
+     * @param string $type  the header type such as "Cache-Control"
+     * @param string $value the value to use
+     *
+     * @return void
+     */
+    public function addHTTPHeader($type, $value)
+    {
+        $this->HTTPHeader[$type] = $value;
+    }
+
+
+
+    /**
      * Output image to browser using caching.
      *
-     * @param string $file   to read and output, default is to use $this->cacheFileName
-     * @param string $format set to json to output file as json object with details
+     * @param string $file   to read and output, default is to
+     *                       use $this->cacheFileName
+     * @param string $format set to json to output file as json
+     *                       object with details
      *
      * @return void
      */
@@ -2461,6 +2485,10 @@ class CImage
 
         if (!$this->verbose) {
             header('Last-Modified: ' . $gmdate . " GMT");
+        }
+
+        foreach($this->HTTPHeader as $key => $val) {
+            header("$key: $val");
         }
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
