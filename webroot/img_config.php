@@ -13,6 +13,7 @@ return array(
      * Default values:
      *  mode: 'production'
      */
+     'mode' => 'development', // 'development', 'strict'
     //'mode' => 'production', // 'development', 'strict'
 
 
@@ -110,7 +111,8 @@ return array(
 
      /**
       * The name representing a dummy image which is automatically created
-      * and stored at the defined path.
+      * and stored at the defined path. The dummy image can then be used
+      * inplace of an original image as a placeholder.
       * The dummy_dir must be writable and it defaults to a subdir of the
       * cache directory.
       * Write protect the dummy_dir to prevent creation of new dummy images,

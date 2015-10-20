@@ -1438,19 +1438,19 @@ class CImage
             throw new Exception("Could not load image.");
         }
         
+        /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
             $hasFewColors = imagecolorstotal($this->image);
 
-/* Removed v0.7.7
             if ($type == self::PNG_RGB_PALETTE || ($hasFewColors > 0 && $hasFewColors <= 256)) {
                 if ($this->verbose) {
                     $this->log("Handle this image as a palette image.");
                 }
                 $this->palette = true;
             }
-*/
         }
+        */
 
         if ($this->verbose) {
             $this->log("### Image successfully loaded from file.");
@@ -2276,10 +2276,11 @@ class CImage
      */
     protected function getTargetImageExtension()
     {
+        // switch on mimetype
         if (isset($this->extension)) {
             return strtolower($this->extension);
         } else {
-            return image_type_to_extension($this->fileType);
+            return substr(image_type_to_extension($this->fileType), 1);
         }
     }
     
@@ -2308,7 +2309,9 @@ class CImage
         is_writable($this->saveFolder)
             or $this->raiseError('Target directory is not writable.');
 
-        switch($this->getTargetImageExtension()) {
+        $type = $this->getTargetImageExtension();
+        $this->Log("Saving image as " . $type);
+        switch($type) {
 
             case 'jpeg':
             case 'jpg':
@@ -2401,8 +2404,6 @@ class CImage
             $this->log("Ignore creating alias.");
             return $this;
         }
-
-        $alias = $alias . "." . $this->getTargetImageExtension();
 
         if (is_readable($alias)) {
             unlink($alias);
@@ -2534,9 +2535,13 @@ class CImage
         $details['size']        = filesize($file);
         $details['colors'] = $this->colorsTotal($this->image);
         $details['includedFiles'] = count(get_included_files());
-        $details['memoryPeek']    = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
+        $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
         $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
-        $details['memoryLimit']   = ini_get('memory_limit');
+        $details['memoryLimit'] = ini_get('memory_limit');
+        
+        if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+            $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
+        }
 
         if ($details['mimeType'] == 'image/png') {
             $details['pngType'] = $this->getPngTypeAsString(null, $file);
