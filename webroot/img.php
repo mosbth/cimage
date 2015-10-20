@@ -998,6 +998,65 @@ EOD;
 
 
 /**
+ * Log verbose details to file
+ */
+if ($verboseFile) {
+    $img->setVerboseToFile("$cachePath/log.txt");
+}
+
+
+
+/**
+ * Hook after img.php configuration and before processing with CImage
+ */
+$hookBeforeCImage = getConfig('hook_before_CImage', null);
+
+if (is_callable($hookBeforeCImage)) {
+    verbose("hookBeforeCImage activated");
+    
+    $allConfig = $hookBeforeCImage($img, array(
+            // Options for calculate dimensions
+            'newWidth'  => $newWidth,
+            'newHeight' => $newHeight,
+            'aspectRatio' => $aspectRatio,
+            'keepRatio' => $keepRatio,
+            'cropToFit' => $cropToFit,
+            'fillToFit' => $fillToFit,
+            'crop'      => $crop,
+            'area'      => $area,
+            'upscale'   => $upscale,
+
+            // Pre-processing, before resizing is done
+            'scale'        => $scale,
+            'rotateBefore' => $rotateBefore,
+            'autoRotate'   => $autoRotate,
+
+            // General processing options
+            'bgColor'    => $bgColor,
+
+            // Post-processing, after resizing is done
+            'palette'   => $palette,
+            'filters'   => $filters,
+            'sharpen'   => $sharpen,
+            'emboss'    => $emboss,
+            'blur'      => $blur,
+            'convolve'  => $convolve,
+            'rotateAfter' => $rotateAfter,
+
+            // Output format
+            'outputFormat' => $outputFormat,
+            'dpr'          => $dpr,
+            
+            // Other
+            'postProcessing' => $postProcessing,
+    ));
+    verbose(print_r($allConfig, 1));
+    extract($allConfig);
+}
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -1030,15 +1089,6 @@ window.getDetails = function (url, id) {
 </script>
 <script type="text/javascript">window.getDetails("{$url2}&json", "json")</script>
 EOD;
-}
-
-
-
-/**
- * Log verbose details to file
- */
-if ($verboseFile) {
-    $img->setVerboseToFile("$cachePath/log.txt");
 }
 
 

@@ -122,6 +122,24 @@ return array(
 
 
 
+      /**
+       * A function (hook) can be called after img.php has processed all
+       * configuration options and before processing the image using CImage.
+       * The function receives the $img variabel and an array with the
+       * majority of current settings.
+       *
+       * Default value:
+       *  hook_before_CImage:     null
+       */
+       /*'hook_before_CImage' => function (CImage $img, Array $allConfig) {
+           if ($allConfig['newWidth'] > 10) {
+               $allConfig['newWidth'] *= 2;
+           }
+           return $allConfig;
+       },*/
+
+
+
      /**
       * The name representing a dummy image which is automatically created
       * and stored at the defined path. The dummy image can then be used
