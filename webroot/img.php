@@ -158,6 +158,13 @@ verbose("img.php version = $version");
 
 
 /**
+* status - do a verbose dump of the configuration
+*/
+$status = getDefined('status', true, false);
+
+
+
+/**
  * Set mode as strict, production or development.
  * Default is production environment.
  */
@@ -178,6 +185,7 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $status = false;
     $verboseFile = false;
     
 } elseif ($mode == 'production') {
@@ -186,6 +194,7 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $status = false;
     $verboseFile = false;
 
 } elseif ($mode == 'development') {
@@ -911,6 +920,75 @@ $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
 
 
 /**
+ * Prepare a dummy image and use it as source image.
+ */
+$dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
+
+if ($dummyImage === true) {
+    is_writable($dummyDir)
+        or verbose("dummy dir not writable = $dummyDir");
+
+    $img->setSaveFolder($dummyDir)
+        ->setSource($dummyFilename, $dummyDir)
+        ->setOptions(
+            array(
+                'newWidth'  => $newWidth,
+                'newHeight' => $newHeight,
+                'bgColor'   => $bgColor,
+            )
+        )
+        ->setJpegQuality($quality)
+        ->setPngCompression($compress)
+        ->createDummyImage()
+        ->generateFilename(null, false)
+        ->save(null, null, false);
+
+    $srcImage = $img->getTarget();
+    $imagePath = null;
+    
+    verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Display status
+ */
+if ($status) {
+    $text  = "img.php version = $version\n";
+    $text .= "PHP version = " . PHP_VERSION . "\n";
+    $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
+    $text .= "Allow remote images = $allowRemote\n";
+    $text .= "Cache writable = " . is_writable($cachePath) . "\n";
+    $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
+    $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
+
+    $no = extension_loaded('exif') ? null : 'NOT';
+    $text .= "Extension exif is $no loaded.<br>";
+
+    $no = extension_loaded('curl') ? null : 'NOT';
+    $text .= "Extension curl is $no loaded.<br>";
+
+    $no = extension_loaded('gd') ? null : 'NOT';
+    $text .= "Extension gd is $no loaded.<br>";
+
+    if (!$no) {
+        $text .= print_r(gd_info(), 1);
+    }
+
+    echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage status</title>
+<pre>$text</pre>
+EOD;
+    exit;
+}
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -937,7 +1015,7 @@ if ($verbose) {
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio + "\\npng-type: " + data.pngType;
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio + ( data.pngType ? "\\npng-type: " + data.pngType : '');
   });
 }
 </script>
@@ -952,44 +1030,6 @@ EOD;
  */
 if ($verboseFile) {
     $img->setVerboseToFile("$cachePath/log.txt");
-}
-
-
-
-/**
- * Set basic options for image processing.
- */
-
-
-/**
- * Prepare a dummy image and use it as source image.
- */
-if ($dummyImage === true) {
-    
-    $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
-
-    is_writable($dummyDir)
-        or verbose("dummy dir not writable = $dummyDir");
-
-    $img->setSaveFolder($dummyDir)
-        ->setSource($dummyFilename, $dummyDir)
-        ->setOptions(
-            array(
-                'newWidth'  => $newWidth,
-                'newHeight' => $newHeight,
-                'bgColor'   => $bgColor,
-            )
-        )
-        ->setJpegQuality($quality)
-        ->setPngCompression($compress)
-        ->createDummyImage()
-        ->generateFilename(null, false)
-        ->save(null, null, false);
-
-    $srcImage = $img->getTarget();
-    $imagePath = null;
-    
-    verbose("src (updated) = $srcImage");
 }
 
 

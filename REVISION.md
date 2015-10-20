@@ -8,6 +8,9 @@ Revision history
 v0.7.6* (2015-10-20)
 -------------------------------------
 
+* Adding option &status to get an overview of the installed ond configured utilities.
+* Bug, all files saved as png-files, when not saving as specific file. 
+* Removed saving filename extension for alias images.
 * Added option to decide if resample or resize when copying images internally. `&no-resample` makes resize, instead of resample as is default.
 * Verbose now correctly states if transparent color is detected.
 * Compare-tool now supports 6 images.
