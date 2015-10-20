@@ -382,9 +382,18 @@ class CImage
 
 
     /*
-     * output to ascii can take som options as an array.
+     * Output to ascii can take som options as an array.
      */
     private $asciiOptions = array();
+
+
+
+    /*
+     * Image copy strategy, defaults to RESAMPLE.
+     */
+     const RESIZE = 1;
+     const RESAMPLE = 2;
+     private $copyStrategy = NULL;
 
 
 
@@ -1302,6 +1311,11 @@ class CImage
         $saveAs = $this->normalizeFileExtension();
         $saveAs = $saveAs ? "_$saveAs" : null;
 
+        $copyStrat = null;
+        if ($this->copyStrategy === self::RESIZE) {
+            $copyStrat = "_rs";
+        }
+        
         $width  = $this->newWidth;
         $height = $this->newHeight;
 
@@ -1359,7 +1373,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve . $saveAs;
+            . $convolve . $copyStrat . $saveAs;
 
         return $this->setTarget($file, $base);
     }
@@ -1428,21 +1442,23 @@ class CImage
             $type = $this->getPngType();
             $hasFewColors = imagecolorstotal($this->image);
 
+/* Removed v0.7.7
             if ($type == self::PNG_RGB_PALETTE || ($hasFewColors > 0 && $hasFewColors <= 256)) {
                 if ($this->verbose) {
                     $this->log("Handle this image as a palette image.");
                 }
                 $this->palette = true;
             }
+*/
         }
 
         if ($this->verbose) {
-            $this->log("Image successfully loaded from file.");
+            $this->log("### Image successfully loaded from file.");
             $this->log(" imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
             $this->log(" imagecolorstotal() : " . imagecolorstotal($this->image));
             $this->log(" Number of colors in image = " . $this->colorsTotal($this->image));
             $index = imagecolortransparent($this->image);
-            $this->log(" Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
+            $this->log(" Detected transparent color = " . ($index >= 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
@@ -1489,18 +1505,24 @@ class CImage
             $pngType = $this->getPngType($filename);
         }
 
+        $index = imagecolortransparent($this->image);
+        $transparent = null;
+        if ($index != -1) {
+            $transparent = " (transparent)";            
+        }
+
         switch ($pngType) {
 
             case self::PNG_GREYSCALE:
-                $text = "PNG is type 0, Greyscale.";
+                $text = "PNG is type 0, Greyscale$transparent";
                 break;
 
             case self::PNG_RGB:
-                $text = "PNG is type 2, RGB";
+                $text = "PNG is type 2, RGB$transparent";
                 break;
 
             case self::PNG_RGB_PALETTE:
-                $text = "PNG is type 3, RGB with palette";
+                $text = "PNG is type 3, RGB with palette$transparent";
                 break;
 
             case self::PNG_GREYSCALE_ALPHA:
@@ -1556,7 +1578,7 @@ class CImage
      */
     public function preResize()
     {
-        $this->log("Pre-process before resizing");
+        $this->log("### Pre-process before resizing");
 
         // Rotate image
         if ($this->rotateBefore) {
@@ -1590,6 +1612,39 @@ class CImage
 
 
     /**
+     * Resize or resample the image while resizing.
+     *
+     * @param int $strategy as CImage::RESIZE or CImage::RESAMPLE
+     *
+     * @return $this
+     */
+     public function setCopyResizeStrategy($strategy)
+     {
+         $this->copyStrategy = $strategy;
+         return $this;
+     }
+
+
+
+    /**
+     * Resize and or crop the image.
+     *
+     * @return void
+     */
+    public function imageCopyResampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
+    {
+        if($this->copyStrategy == self::RESIZE) {
+            $this->log("Copy by resize");
+            imagecopyresized($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+        } else {
+            $this->log("Copy by resample");
+            imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+        }
+    }
+
+
+
+    /**
      * Resize and or crop the image.
      *
      * @return $this
@@ -1597,7 +1652,7 @@ class CImage
     public function resize()
     {
 
-        $this->log("Starting to Resize()");
+        $this->log("### Starting to Resize()");
         $this->log("Upscale = '$this->upscale'");
 
         // Only use a specified area of the image, $this->offset is defining the area to use
@@ -1657,7 +1712,7 @@ class CImage
                 $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
                 $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
                 imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
             }
 
@@ -1696,7 +1751,7 @@ class CImage
             } else {
                 $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
                 imagecopy($imageResized, $imgPreFill, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
             }
 
@@ -1742,7 +1797,7 @@ class CImage
                 }
             } else {
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
                 $this->image = $imageResized;
                 $this->width = $this->newWidth;
                 $this->height = $this->newHeight;
@@ -1761,7 +1816,7 @@ class CImage
      */
     public function postResize()
     {
-        $this->log("Post-process after resizing");
+        $this->log("### Post-process after resizing");
 
         // Rotate image
         if ($this->rotateAfter) {
@@ -2484,8 +2539,7 @@ class CImage
         $details['memoryLimit']   = ini_get('memory_limit');
 
         if ($details['mimeType'] == 'image/png') {
-            $details['pngTypeSource'] = $this->getPngTypeAsString();
-            $details['pngTypeCache']  = $this->getPngTypeAsString(null, $this->cacheFileName);
+            $details['pngType'] = $this->getPngTypeAsString(null, $file);
         }
 
         $options = null;

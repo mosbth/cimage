@@ -559,6 +559,19 @@ verbose("bgColor = $bgColor");
 
 
 /**
+ * Do or do not resample image when resizing.
+ */
+$resizeStrategy = getDefined(array('no-resample'), true, false);
+
+if ($resizeStrategy) {
+    $img->setCopyResizeStrategy($img::RESIZE);
+    verbose("Setting = Resize instead of resample");
+}
+
+
+
+
+/**
  * fill-to-fit, ff - affecting the resulting image width, height and resize options
  */
 $fillToFit = get(array('fill-to-fit', 'ff'), null);
@@ -924,7 +937,7 @@ if ($verbose) {
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio + "\\npng-type: " + data.pngType;
   });
 }
 </script>

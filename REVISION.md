@@ -8,6 +8,11 @@ Revision history
 v0.7.6* (2015-10-20)
 -------------------------------------
 
+* Added option to decide if resample or resize when copying images internally. `&no-resample` makes resize, instead of resample as is default.
+* Verbose now correctly states if transparent color is detected.
+* Compare-tool now supports 6 images.
+* Added option for dark background in the compare-tool.
+* Removed that source png-files, containing less than 255 colors, is always saved as palette images since this migth depend on processing of the image.
 * Adding save-as as part of the generated cache filename, #121.
 * Add extra fields to json-response, #114.
 * Add header for Content-Length, #111.
