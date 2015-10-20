@@ -29,7 +29,12 @@ input[type=text] {
 .area {
     float: left;
     padding: 1em;
-    background-color: #fff;
+    background-color: #eee;
+}
+
+.invert {
+    background-color: #666;
+    color: white;
 }
 
 .json {
@@ -45,7 +50,7 @@ input[type=text] {
 
 <body>
 <h1>Compare images</h1>
-<p>Add link to images and visually compare them. Change the link och press return to load the image. <a href="http://dbwebb.se/opensource/cimage">Read more...</a></p>
+<p>Add link to images and visually compare them. Change the link och press return to load the image. Add <code>&amp;black</code> to the querystring to get a black background. <a href="http://dbwebb.se/opensource/cimage">Read more...</a></p>
 
 <p><a id="permalink" href="?">Direct link to this setup.</a></p>
 
@@ -55,8 +60,11 @@ input[type=text] {
         <label>Image 2: <input type="text" id="input2" data-id="2"></label> <img id="thumb2"></br>
         <label>Image 3: <input type="text" id="input3" data-id="3"></label> <img id="thumb3"></br>
         <label>Image 4: <input type="text" id="input4" data-id="4"></label> <img id="thumb4"></br>
+        <label>Image 5: <input type="text" id="input5" data-id="5"></label> <img id="thumb5"></br>
+        <label>Image 6: <input type="text" id="input6" data-id="6"></label> <img id="thumb6"></br>
         <label><input type="checkbox" id="viewDetails">Show image details</label><br/>
-        <label><input type="checkbox" id="stack">Stack images?</label>
+        <label><input type="checkbox" id="stack">Stack images?</label><br/>
+        <label><input type="checkbox" id="bg">Dark background?</label>
     </p>
 </form>
 
@@ -65,6 +73,8 @@ input[type=text] {
     <button id="button2" class="button" data-id="2">Image 2</button>
     <button id="button3" class="button" data-id="3">Image 3</button>
     <button id="button4" class="button" data-id="4">Image 4</button>
+    <button id="button5" class="button" data-id="5">Image 5</button>
+    <button id="button6" class="button" data-id="6">Image 6</button>
 </div>
 
 <div id="wrap">
@@ -93,6 +103,18 @@ input[type=text] {
         <pre id="json4" class="json hidden"></pre>
     </div>
 
+    <div id="area5" class="area">
+        <code>Image 5</code><br>
+        <img id="img5">
+        <pre id="json5" class="json hidden"></pre>
+    </div>
+
+    <div id="area6" class="area">
+        <code>Image 6</code><br>
+        <img id="img6">
+        <pre id="json6" class="json hidden"></pre>
+    </div>
+
 </div>
 
 
@@ -110,8 +132,11 @@ if (isset($_GET['input1'])) {
         "input2": "<?=$_GET['input2']?>",
         "input3": "<?=$_GET['input3']?>",
         "input4": "<?=$_GET['input4']?>",
+        "input5": "<?=$_GET['input5']?>",
+        "input6": "<?=$_GET['input6']?>",
         "json": <?=$_GET['json']?>,
-        "stack": <?=$_GET['stack']?>
+        "stack": <?=$_GET['stack']?>,
+        "bg": <?=$_GET['bg']?>
     });
 <?php
 } elseif (isset($script)) {

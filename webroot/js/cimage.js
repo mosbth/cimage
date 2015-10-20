@@ -25,8 +25,11 @@ window.CImage = (function() {
             input2 = document.getElementById("input2"),
             input3 = document.getElementById("input3"),
             input4 = document.getElementById("input4"),
+            input5 = document.getElementById("input5"),
+            input6 = document.getElementById("input6"),
             details = document.getElementById("viewDetails"),
             stack = document.getElementById("stack"),
+            bg = document.getElementById("bg"),
             permalink = document.getElementById("permalink");
             
         link  = "?";
@@ -34,8 +37,11 @@ window.CImage = (function() {
         link += "input2=" + encodeURIComponent(input2.value) + "&";
         link += "input3=" + encodeURIComponent(input3.value) + "&";
         link += "input4=" + encodeURIComponent(input4.value) + "&";
+        link += "input5=" + encodeURIComponent(input5.value) + "&";
+        link += "input6=" + encodeURIComponent(input6.value) + "&";
         link += "json=" + encodeURIComponent(details.checked) + "&";
-        link += "stack=" + encodeURIComponent(stack.checked);
+        link += "stack=" + encodeURIComponent(stack.checked) + "&";
+        link += "bg=" + encodeURIComponent(bg.checked);
         permalink.href = link;
     }
 
@@ -69,7 +75,7 @@ window.CImage = (function() {
         area.classList.remove("hidden");
 
         $.getJSON(this.value + "&json", function(data) {
-            json.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio;
+            json.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio + "\npng-type: " + data.pngType;
         })
             .fail(function() {
                 json.innerHTML = "Details not available."
@@ -95,14 +101,19 @@ window.CImage = (function() {
             input2 = document.getElementById("input2"),
             input3 = document.getElementById("input3"),
             input4 = document.getElementById("input4"),
+            input5 = document.getElementById("input5"),
+            input6 = document.getElementById("input6"),
             details = document.getElementById("viewDetails"),
             stack = document.getElementById("stack"),
+            bg = document.getElementById("bg"),
             buttons = document.getElementById("buttonWrap");
 
         input1.addEventListener("change", compareLoadImage);
         input2.addEventListener("change", compareLoadImage);
         input3.addEventListener("change", compareLoadImage);
         input4.addEventListener("change", compareLoadImage);
+        input5.addEventListener("change", compareLoadImage);
+        input6.addEventListener("change", compareLoadImage);
 
         // Toggle json
         details.addEventListener("change", function() {
@@ -127,6 +138,23 @@ window.CImage = (function() {
             details.setAttribute("checked", "checked");
             myEvent = new CustomEvent("change");
             details.dispatchEvent(myEvent);
+        }
+
+        // Toggle background color
+        bg.addEventListener("change", function() {
+            var elements = document.querySelectorAll(".area");
+
+            forEach(elements, function (index, element) {
+                element.classList.toggle("invert");
+            });
+        });
+
+        // Check background
+        if (options.bg === true) {
+            bg.setAttribute("checked", "checked");
+            bg.classList.toggle("invert");
+            myEvent = new CustomEvent("change");
+            bg.dispatchEvent(myEvent);
         }
 
         // Toggle stack
@@ -200,11 +228,15 @@ window.CImage = (function() {
         input2.value = options.input2 || null;
         input3.value = options.input3 || null;
         input4.value = options.input4 || null;
+        input5.value = options.input5 || null;
+        input6.value = options.input6 || null;
 
         compareLoadImage.call(input1);
         compareLoadImage.call(input2);
         compareLoadImage.call(input3);
         compareLoadImage.call(input4);
+        compareLoadImage.call(input5);
+        compareLoadImage.call(input6);
 
         console.log(options);
     } 
