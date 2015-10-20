@@ -1430,41 +1430,71 @@ class CImage
     /**
      * Get the type of PNG image.
      *
+     * @param string $filename to use instead of default.
+     *
      * @return int as the type of the png-image
      *
      */
-    private function getPngType()
+    public function getPngType($filename = null)
     {
-        $pngType = ord(file_get_contents($this->pathToImage, false, null, 25, 1));
+        $filename = $filename ? $filename : $this->pathToImage;
+        
+        $pngType = ord(file_get_contents($filename, false, null, 25, 1));
+
+        if ($this->verbose) {
+            $this->log("Checking png type of: " . $filename);
+            $this->log($this->getPngTypeAsString($pngType));
+        }
+        
+        return $pngType;
+    }
+
+
+
+    /**
+     * Get the type of PNG image as a verbose string.
+     *
+     * @param integer $type     to use, default is to check the type.
+     * @param string  $filename to use instead of default.
+     *
+     * @return int as the type of the png-image
+     *
+     */
+    private function getPngTypeAsString($pngType = null, $filename = null)
+    {
+        if ($filename || !$pngType) {
+            $pngType = $this->getPngType($filename);
+        }
 
         switch ($pngType) {
 
             case self::PNG_GREYSCALE:
-                $this->log("PNG is type 0, Greyscale.");
+                $text = "PNG is type 0, Greyscale.";
                 break;
 
             case self::PNG_RGB:
-                $this->log("PNG is type 2, RGB");
+                $text = "PNG is type 2, RGB";
                 break;
 
             case self::PNG_RGB_PALETTE:
-                $this->log("PNG is type 3, RGB with palette");
+                $text = "PNG is type 3, RGB with palette";
                 break;
 
             case self::PNG_GREYSCALE_ALPHA:
-                $this->Log("PNG is type 4, Greyscale with alpha channel");
+                $text = "PNG is type 4, Greyscale with alpha channel";
                 break;
 
             case self::PNG_RGB_ALPHA:
-                $this->Log("PNG is type 6, RGB with alpha channel (PNG 32-bit)");
+                $text = "PNG is type 6, RGB with alpha channel (PNG 32-bit)";
                 break;
 
             default:
-                $this->Log("PNG is UNKNOWN type, is it really a PNG image?");
+                $text = "PNG is UNKNOWN type, is it really a PNG image?";
         }
 
-        return $pngType;
+        return $text;
     }
+
 
 
 
@@ -2425,6 +2455,15 @@ class CImage
         $details['aspectRatio'] = round($this->width / $this->height, 3);
         $details['size']        = filesize($file);
         $details['colors'] = $this->colorsTotal($this->image);
+        $details['includedFiles'] = count(get_included_files());
+        $details['memoryPeek']    = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
+        $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
+        $details['memoryLimit']   = ini_get('memory_limit');
+
+        if ($details['mimeType'] == 'image/png') {
+            $details['pngTypeSource'] = $this->getPngTypeAsString();
+            $details['pngTypeCache']  = $this->getPngTypeAsString(null, $this->cacheFileName);
+        }
 
         $options = null;
         if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {
