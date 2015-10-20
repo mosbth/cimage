@@ -5,7 +5,7 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.6* (2015-10-20)
+v0.7.7 (2015-10-21)
 -------------------------------------
 
 * One can now add a HTTP header for Cache-Control in the config file, #109.
