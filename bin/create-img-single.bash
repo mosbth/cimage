@@ -55,7 +55,7 @@ read answer
 #
 cat webroot/img_header.php > $TARGET_P
 cat webroot/img_header.php | sed "s|//'mode'         => 'production',|'mode'         => 'development',|" > $TARGET_D
-cat webroot/img_header.php | sed "s|//'mode'         => 'production',|'mode'         => 'development',|" > $TARGET_S
+cat webroot/img_header.php | sed "s|//'mode'         => 'production',|'mode'         => 'strict',|" > $TARGET_S
 
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
@@ -76,6 +76,8 @@ $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 webroot/img.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+php -w $TARGET_S > tmp && mv tmp $TARGET_S
 
 $ECHO "\nDone."
 $ECHO "\n"

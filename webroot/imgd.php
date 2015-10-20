@@ -1301,9 +1301,18 @@ class CImage
 
 
     /*
-     * output to ascii can take som options as an array.
+     * Output to ascii can take som options as an array.
      */
     private $asciiOptions = array();
+
+
+
+    /*
+     * Image copy strategy, defaults to RESAMPLE.
+     */
+     const RESIZE = 1;
+     const RESAMPLE = 2;
+     private $copyStrategy = NULL;
 
 
 
@@ -1515,6 +1524,26 @@ class CImage
             or $this->raiseError('Not a valid file extension.');
 
         return $this;
+    }
+
+
+
+    /**
+     * Normalize the file extension.
+     *
+     * @param string $extension of image file or skip to use internal.
+     *
+     * @return string $extension as a normalized file extension.
+     */
+    private function normalizeFileExtension($extension = null)
+    {
+        $extension = strtolower($extension ? $extension : $this->extension);
+        
+        if ($extension == 'jpeg') {
+                $extension = 'jpg';
+            }
+
+        return $extension;
     }
 
 
@@ -2198,6 +2227,14 @@ class CImage
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
 
+        $saveAs = $this->normalizeFileExtension();
+        $saveAs = $saveAs ? "_$saveAs" : null;
+
+        $copyStrat = null;
+        if ($this->copyStrategy === self::RESIZE) {
+            $copyStrat = "_rs";
+        }
+        
         $width  = $this->newWidth;
         $height = $this->newHeight;
 
@@ -2255,7 +2292,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve;
+            . $convolve . $copyStrat . $saveAs;
 
         return $this->setTarget($file, $base);
     }
@@ -2320,6 +2357,7 @@ class CImage
             throw new Exception("Could not load image.");
         }
         
+        /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
             $hasFewColors = imagecolorstotal($this->image);
@@ -2331,14 +2369,15 @@ class CImage
                 $this->palette = true;
             }
         }
+        */
 
         if ($this->verbose) {
-            $this->log("Image successfully loaded from file.");
+            $this->log("### Image successfully loaded from file.");
             $this->log(" imageistruecolor() : " . (imageistruecolor($this->image) ? 'true' : 'false'));
             $this->log(" imagecolorstotal() : " . imagecolorstotal($this->image));
             $this->log(" Number of colors in image = " . $this->colorsTotal($this->image));
             $index = imagecolortransparent($this->image);
-            $this->log(" Detected transparent color = " . ($index > 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
+            $this->log(" Detected transparent color = " . ($index >= 0 ? implode(", ", imagecolorsforindex($this->image, $index)) : "NONE") . " at index = $index");
         }
 
         return $this;
@@ -2349,41 +2388,77 @@ class CImage
     /**
      * Get the type of PNG image.
      *
+     * @param string $filename to use instead of default.
+     *
      * @return int as the type of the png-image
      *
      */
-    private function getPngType()
+    public function getPngType($filename = null)
     {
-        $pngType = ord(file_get_contents($this->pathToImage, false, null, 25, 1));
+        $filename = $filename ? $filename : $this->pathToImage;
+        
+        $pngType = ord(file_get_contents($filename, false, null, 25, 1));
+
+        if ($this->verbose) {
+            $this->log("Checking png type of: " . $filename);
+            $this->log($this->getPngTypeAsString($pngType));
+        }
+        
+        return $pngType;
+    }
+
+
+
+    /**
+     * Get the type of PNG image as a verbose string.
+     *
+     * @param integer $type     to use, default is to check the type.
+     * @param string  $filename to use instead of default.
+     *
+     * @return int as the type of the png-image
+     *
+     */
+    private function getPngTypeAsString($pngType = null, $filename = null)
+    {
+        if ($filename || !$pngType) {
+            $pngType = $this->getPngType($filename);
+        }
+
+        $index = imagecolortransparent($this->image);
+        $transparent = null;
+        if ($index != -1) {
+            $transparent = " (transparent)";            
+        }
 
         switch ($pngType) {
 
             case self::PNG_GREYSCALE:
-                $this->log("PNG is type 0, Greyscale.");
+                $text = "PNG is type 0, Greyscale$transparent";
                 break;
 
             case self::PNG_RGB:
-                $this->log("PNG is type 2, RGB");
+                $text = "PNG is type 2, RGB$transparent";
                 break;
 
             case self::PNG_RGB_PALETTE:
-                $this->log("PNG is type 3, RGB with palette");
+                $text = "PNG is type 3, RGB with palette$transparent";
                 break;
 
             case self::PNG_GREYSCALE_ALPHA:
-                $this->Log("PNG is type 4, Greyscale with alpha channel");
+                $text = "PNG is type 4, Greyscale with alpha channel";
                 break;
 
             case self::PNG_RGB_ALPHA:
-                $this->Log("PNG is type 6, RGB with alpha channel (PNG 32-bit)");
+                $text = "PNG is type 6, RGB with alpha channel (PNG 32-bit)";
                 break;
 
             default:
-                $this->Log("PNG is UNKNOWN type, is it really a PNG image?");
+                $text = "PNG is UNKNOWN type, is it really a PNG image?";
         }
 
-        return $pngType;
+        return $text;
     }
+
 
 
 
@@ -2422,7 +2497,7 @@ class CImage
      */
     public function preResize()
     {
-        $this->log("Pre-process before resizing");
+        $this->log("### Pre-process before resizing");
 
         // Rotate image
         if ($this->rotateBefore) {
@@ -2456,6 +2531,39 @@ class CImage
 
 
     /**
+     * Resize or resample the image while resizing.
+     *
+     * @param int $strategy as CImage::RESIZE or CImage::RESAMPLE
+     *
+     * @return $this
+     */
+     public function setCopyResizeStrategy($strategy)
+     {
+         $this->copyStrategy = $strategy;
+         return $this;
+     }
+
+
+
+    /**
+     * Resize and or crop the image.
+     *
+     * @return void
+     */
+    public function imageCopyResampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
+    {
+        if($this->copyStrategy == self::RESIZE) {
+            $this->log("Copy by resize");
+            imagecopyresized($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+        } else {
+            $this->log("Copy by resample");
+            imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+        }
+    }
+
+
+
+    /**
      * Resize and or crop the image.
      *
      * @return $this
@@ -2463,7 +2571,7 @@ class CImage
     public function resize()
     {
 
-        $this->log("Starting to Resize()");
+        $this->log("### Starting to Resize()");
         $this->log("Upscale = '$this->upscale'");
 
         // Only use a specified area of the image, $this->offset is defining the area to use
@@ -2523,7 +2631,7 @@ class CImage
                 $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
                 $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
                 imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
             }
 
@@ -2562,7 +2670,7 @@ class CImage
             } else {
                 $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imgPreFill, $this->image, 0, 0, 0, 0, $this->fillWidth, $this->fillHeight, $this->width, $this->height);
                 imagecopy($imageResized, $imgPreFill, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
             }
 
@@ -2608,7 +2716,7 @@ class CImage
                 }
             } else {
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopyresampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imageResized, $this->image, 0, 0, 0, 0, $this->newWidth, $this->newHeight, $this->width, $this->height);
                 $this->image = $imageResized;
                 $this->width = $this->newWidth;
                 $this->height = $this->newHeight;
@@ -2627,7 +2735,7 @@ class CImage
      */
     public function postResize()
     {
-        $this->log("Post-process after resizing");
+        $this->log("### Post-process after resizing");
 
         // Rotate image
         if ($this->rotateAfter) {
@@ -3087,10 +3195,11 @@ class CImage
      */
     protected function getTargetImageExtension()
     {
+        // switch on mimetype
         if (isset($this->extension)) {
             return strtolower($this->extension);
         } else {
-            return image_type_to_extension($this->fileType);
+            return substr(image_type_to_extension($this->fileType), 1);
         }
     }
     
@@ -3119,7 +3228,9 @@ class CImage
         is_writable($this->saveFolder)
             or $this->raiseError('Target directory is not writable.');
 
-        switch($this->getTargetImageExtension()) {
+        $type = $this->getTargetImageExtension();
+        $this->Log("Saving image as " . $type);
+        switch($type) {
 
             case 'jpeg':
             case 'jpg':
@@ -3213,8 +3324,6 @@ class CImage
             return $this;
         }
 
-        $alias = $alias . "." . $this->getTargetImageExtension();
-
         if (is_readable($alias)) {
             unlink($alias);
         }
@@ -3285,8 +3394,16 @@ class CImage
 
         } else {
 
+            // Get details on image
+            $info = getimagesize($file);
+            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
+            $mime = $info['mime'];
+            $size = filesize($file);
+
             if ($this->verbose) {
-                $this->log("Last modified: " . $gmdate . " GMT");
+                $this->log("Last-Modified: " . $gmdate . " GMT");
+                $this->log("Content-type: " . $mime);
+                $this->log("Content-length: " . $size);
                 $this->verboseOutput();
                 
                 if (is_null($this->verboseFileName)) {
@@ -3294,12 +3411,8 @@ class CImage
                 }
             }
 
-            // Get details on image
-            $info = getimagesize($file);
-            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-            $mime = $info['mime'];
-
-            header('Content-type: ' . $mime);
+            header("Content-type: $mime");
+            header("Content-length: $size");
             readfile($file);
         }
 
@@ -3340,6 +3453,18 @@ class CImage
         $details['aspectRatio'] = round($this->width / $this->height, 3);
         $details['size']        = filesize($file);
         $details['colors'] = $this->colorsTotal($this->image);
+        $details['includedFiles'] = count(get_included_files());
+        $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
+        $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
+        $details['memoryLimit'] = ini_get('memory_limit');
+        
+        if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+            $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
+        }
+
+        if ($details['mimeType'] == 'image/png') {
+            $details['pngType'] = $this->getPngTypeAsString(null, $file);
+        }
 
         $options = null;
         if (defined("JSON_PRETTY_PRINT") && defined("JSON_UNESCAPED_SLASHES")) {
@@ -3481,7 +3606,7 @@ EOD;
  *
  */
 
-$version = "v0.7.6 (2015-10-18)";
+$version = "v0.7.6* (2015-10-18)";
 
 
 
@@ -3631,6 +3756,13 @@ verbose("img.php version = $version");
 
 
 /**
+* status - do a verbose dump of the configuration
+*/
+$status = getDefined('status', true, false);
+
+
+
+/**
  * Set mode as strict, production or development.
  * Default is production environment.
  */
@@ -3651,6 +3783,7 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $status = false;
     $verboseFile = false;
     
 } elseif ($mode == 'production') {
@@ -3659,6 +3792,7 @@ if ($mode == 'strict') {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
+    $status = false;
     $verboseFile = false;
 
 } elseif ($mode == 'development') {
@@ -4032,6 +4166,19 @@ verbose("bgColor = $bgColor");
 
 
 /**
+ * Do or do not resample image when resizing.
+ */
+$resizeStrategy = getDefined(array('no-resample'), true, false);
+
+if ($resizeStrategy) {
+    $img->setCopyResizeStrategy($img::RESIZE);
+    verbose("Setting = Resize instead of resample");
+}
+
+
+
+
+/**
  * fill-to-fit, ff - affecting the resulting image width, height and resize options
  */
 $fillToFit = get(array('fill-to-fit', 'ff'), null);
@@ -4371,6 +4518,75 @@ $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
 
 
 /**
+ * Prepare a dummy image and use it as source image.
+ */
+$dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
+
+if ($dummyImage === true) {
+    is_writable($dummyDir)
+        or verbose("dummy dir not writable = $dummyDir");
+
+    $img->setSaveFolder($dummyDir)
+        ->setSource($dummyFilename, $dummyDir)
+        ->setOptions(
+            array(
+                'newWidth'  => $newWidth,
+                'newHeight' => $newHeight,
+                'bgColor'   => $bgColor,
+            )
+        )
+        ->setJpegQuality($quality)
+        ->setPngCompression($compress)
+        ->createDummyImage()
+        ->generateFilename(null, false)
+        ->save(null, null, false);
+
+    $srcImage = $img->getTarget();
+    $imagePath = null;
+    
+    verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Display status
+ */
+if ($status) {
+    $text  = "img.php version = $version\n";
+    $text .= "PHP version = " . PHP_VERSION . "\n";
+    $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
+    $text .= "Allow remote images = $allowRemote\n";
+    $text .= "Cache writable = " . is_writable($cachePath) . "\n";
+    $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
+    $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
+
+    $no = extension_loaded('exif') ? null : 'NOT';
+    $text .= "Extension exif is $no loaded.<br>";
+
+    $no = extension_loaded('curl') ? null : 'NOT';
+    $text .= "Extension curl is $no loaded.<br>";
+
+    $no = extension_loaded('gd') ? null : 'NOT';
+    $text .= "Extension gd is $no loaded.<br>";
+
+    if (!$no) {
+        $text .= print_r(gd_info(), 1);
+    }
+
+    echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage status</title>
+<pre>$text</pre>
+EOD;
+    exit;
+}
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -4397,7 +4613,7 @@ if ($verbose) {
 window.getDetails = function (url, id) {
   $.getJSON(url, function(data) {
     element = document.getElementById(id);
-    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio;
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio + ( data.pngType ? "\\npng-type: " + data.pngType : '');
   });
 }
 </script>
@@ -4412,44 +4628,6 @@ EOD;
  */
 if ($verboseFile) {
     $img->setVerboseToFile("$cachePath/log.txt");
-}
-
-
-
-/**
- * Set basic options for image processing.
- */
-
-
-/**
- * Prepare a dummy image and use it as source image.
- */
-if ($dummyImage === true) {
-    
-    $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
-
-    is_writable($dummyDir)
-        or verbose("dummy dir not writable = $dummyDir");
-
-    $img->setSaveFolder($dummyDir)
-        ->setSource($dummyFilename, $dummyDir)
-        ->setOptions(
-            array(
-                'newWidth'  => $newWidth,
-                'newHeight' => $newHeight,
-                'bgColor'   => $bgColor,
-            )
-        )
-        ->setJpegQuality($quality)
-        ->setPngCompression($compress)
-        ->createDummyImage()
-        ->generateFilename(null, false)
-        ->save(null, null, false);
-
-    $srcImage = $img->getTarget();
-    $imagePath = null;
-    
-    verbose("src (updated) = $srcImage");
 }
 
 
