@@ -649,10 +649,15 @@ verbose("use cache = $useCache");
  * quality, q - set level of quality for jpeg images
  */
 $quality = get(array('quality', 'q'));
+$qualityDefault = getConfig('jpg_quality', null);
 
 is_null($quality)
     or ($quality > 0 and $quality <= 100)
     or errorPage('Quality out of range');
+
+if (is_null($quality) && !is_null($qualityDefault)) {
+    $quality = $qualityDefault;
+}
 
 verbose("quality = $quality");
 
@@ -662,11 +667,15 @@ verbose("quality = $quality");
  * compress, co - what strategy to use when compressing png images
  */
 $compress = get(array('compress', 'co'));
-
+$compressDefault = getConfig('png_compression', null);
 
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
     or errorPage('Compress out of range');
+
+if (is_null($compress) && !is_null($compressDefault)) {
+    $compress = $compressDefault;
+}
 
 verbose("compress = $compress");
 

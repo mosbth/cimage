@@ -110,6 +110,19 @@ return array(
 
 
      /**
+      * Change the default values for CImage quality and compression used
+      * when saving images.
+      *
+      * Default value:
+      *  jpg_quality:     null, integer between 0-100
+      *  png_compression: null, integer between 0-9
+      */
+      //'jpg_quality'  => 75,
+      //'png_compression' => 1,
+
+
+
+     /**
       * The name representing a dummy image which is automatically created
       * and stored at the defined path. The dummy image can then be used
       * inplace of an original image as a placeholder.
