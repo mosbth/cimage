@@ -983,6 +983,13 @@ class CImage
 
 
     /**
+     * Add HTTP headers for outputing image.
+     */
+    private $HTTPHeader = array();
+
+
+
+    /**
      * Default background color, red, green, blue, alpha.
      *
      * @todo remake when upgrading to PHP 5.5
@@ -3342,10 +3349,27 @@ class CImage
 
 
     /**
+     * Add HTTP header for putputting together with image.
+     *
+     * @param string $type  the header type such as "Cache-Control"
+     * @param string $value the value to use
+     *
+     * @return void
+     */
+    public function addHTTPHeader($type, $value)
+    {
+        $this->HTTPHeader[$type] = $value;
+    }
+
+
+
+    /**
      * Output image to browser using caching.
      *
-     * @param string $file   to read and output, default is to use $this->cacheFileName
-     * @param string $format set to json to output file as json object with details
+     * @param string $file   to read and output, default is to
+     *                       use $this->cacheFileName
+     * @param string $format set to json to output file as json
+     *                       object with details
      *
      * @return void
      */
@@ -3380,6 +3404,10 @@ class CImage
 
         if (!$this->verbose) {
             header('Last-Modified: ' . $gmdate . " GMT");
+        }
+
+        foreach($this->HTTPHeader as $key => $val) {
+            header("$key: $val");
         }
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
@@ -3606,7 +3634,7 @@ EOD;
  *
  */
 
-$version = "v0.7.6* (2015-10-18)";
+$version = "v0.7.7 (2015-10-21)";
 
 
 
@@ -4247,10 +4275,15 @@ verbose("use cache = $useCache");
  * quality, q - set level of quality for jpeg images
  */
 $quality = get(array('quality', 'q'));
+$qualityDefault = getConfig('jpg_quality', null);
 
 is_null($quality)
     or ($quality > 0 and $quality <= 100)
     or errorPage('Quality out of range');
+
+if (is_null($quality) && !is_null($qualityDefault)) {
+    $quality = $qualityDefault;
+}
 
 verbose("quality = $quality");
 
@@ -4260,11 +4293,15 @@ verbose("quality = $quality");
  * compress, co - what strategy to use when compressing png images
  */
 $compress = get(array('compress', 'co'));
-
+$compressDefault = getConfig('png_compression', null);
 
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
     or errorPage('Compress out of range');
+
+if (is_null($compress) && !is_null($compressDefault)) {
+    $compress = $compressDefault;
+}
 
 verbose("compress = $compress");
 
@@ -4518,6 +4555,18 @@ $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cacheControl = getConfig('cache_control', null);
+
+if ($cacheControl) {
+    verbose("cacheControl = $cacheControl");
+    $img->addHTTPHeader("Cache-Control", $cacheControl);
+}
+
+
+
+/**
  * Prepare a dummy image and use it as source image.
  */
 $dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
@@ -4587,6 +4636,65 @@ EOD;
 
 
 /**
+ * Log verbose details to file
+ */
+if ($verboseFile) {
+    $img->setVerboseToFile("$cachePath/log.txt");
+}
+
+
+
+/**
+ * Hook after img.php configuration and before processing with CImage
+ */
+$hookBeforeCImage = getConfig('hook_before_CImage', null);
+
+if (is_callable($hookBeforeCImage)) {
+    verbose("hookBeforeCImage activated");
+    
+    $allConfig = $hookBeforeCImage($img, array(
+            // Options for calculate dimensions
+            'newWidth'  => $newWidth,
+            'newHeight' => $newHeight,
+            'aspectRatio' => $aspectRatio,
+            'keepRatio' => $keepRatio,
+            'cropToFit' => $cropToFit,
+            'fillToFit' => $fillToFit,
+            'crop'      => $crop,
+            'area'      => $area,
+            'upscale'   => $upscale,
+
+            // Pre-processing, before resizing is done
+            'scale'        => $scale,
+            'rotateBefore' => $rotateBefore,
+            'autoRotate'   => $autoRotate,
+
+            // General processing options
+            'bgColor'    => $bgColor,
+
+            // Post-processing, after resizing is done
+            'palette'   => $palette,
+            'filters'   => $filters,
+            'sharpen'   => $sharpen,
+            'emboss'    => $emboss,
+            'blur'      => $blur,
+            'convolve'  => $convolve,
+            'rotateAfter' => $rotateAfter,
+
+            // Output format
+            'outputFormat' => $outputFormat,
+            'dpr'          => $dpr,
+            
+            // Other
+            'postProcessing' => $postProcessing,
+    ));
+    verbose(print_r($allConfig, 1));
+    extract($allConfig);
+}
+
+
+
+/**
  * Display image if verbose mode
  */
 if ($verbose) {
@@ -4619,15 +4727,6 @@ window.getDetails = function (url, id) {
 </script>
 <script type="text/javascript">window.getDetails("{$url2}&json", "json")</script>
 EOD;
-}
-
-
-
-/**
- * Log verbose details to file
- */
-if ($verboseFile) {
-    $img->setVerboseToFile("$cachePath/log.txt");
 }
 
 
