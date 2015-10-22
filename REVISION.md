@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.7* (2015-10-21)
+-------------------------------------
+
+* Change path in `webroot/htaccess` to make it work in current environment.
+
+
 v0.7.7 (2015-10-21)
 -------------------------------------
 
