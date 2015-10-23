@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.7 (2015-10-21)";
+$version = "v0.7.7* (2015-10-21)";
 
 
 
@@ -973,6 +973,39 @@ if ($dummyImage === true) {
 
 
 /**
+ * Prepare a sRGB version of the image and use it as source image.
+ */
+$srgbDirName = "/srgb";
+$srgbDir = getConfig('srgb_dir', $cachePath . $srgbDirName);
+$srgb    = getDefined('srgb', true, null);
+
+if ($srgb) {
+    
+    if (!is_writable($srgbDir)) {
+        if (is_writable($cachePath)) {
+            mkdir($srgbDir);
+        }
+    }
+
+    $filename = $img->convert2sRGBColorSpace(
+        $srcImage, 
+        $imagePath, 
+        $srgbDir,
+        $useCache
+    );
+
+    if ($filename) {
+        $srcImage = $img->getTarget();
+        $imagePath = null;
+        verbose("srgb conversion and saved to cache = $srcImage");
+    } else {
+        verbose("srgb not op");
+    }
+}
+
+
+
+/**
  * Display status
  */
 if ($status) {
@@ -989,6 +1022,9 @@ if ($status) {
 
     $no = extension_loaded('curl') ? null : 'NOT';
     $text .= "Extension curl is $no loaded.<br>";
+
+    $no = extension_loaded('imagick') ? null : 'NOT';
+    $text .= "Extension imagick is $no loaded.<br>";
 
     $no = extension_loaded('gd') ? null : 'NOT';
     $text .= "Extension gd is $no loaded.<br>";

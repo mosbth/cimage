@@ -8,6 +8,7 @@ Revision history
 v0.7.7* (2015-10-21)
 -------------------------------------
 
+* Added conversion to sRGB using option `?srgb`, partly working. #120. 
 * Change path in `webroot/htaccess` to make it work in current environment.
 
 

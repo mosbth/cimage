@@ -10,6 +10,9 @@ echo "Extension exif is $no loaded.<br>";
 $no = extension_loaded('curl') ? null : 'NOT';
 echo "Extension curl is $no loaded.<br>";
 
+$no = extension_loaded('imagick') ? null : 'NOT';
+echo "Extension imagick is $no loaded.<br>";
+
 $no = extension_loaded('gd') ? null : 'NOT';
 echo "Extension gd is $no loaded.<br>";
 

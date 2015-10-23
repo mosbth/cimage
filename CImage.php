@@ -1323,8 +1323,8 @@ class CImage
             $copyStrat = "_rs";
         }
         
-        $width  = $this->newWidth;
-        $height = $this->newHeight;
+        $width  = $this->newWidth  ? '_' . $this->newWidth  : null;
+        $height = $this->newHeight ? '_' . $this->newHeight : null;
 
         $offset = isset($this->offset)
             ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left']
@@ -1374,8 +1374,8 @@ class CImage
             $subdir .= '_';
         }
         
-        $file = $subdir . $filename . '_' . $width . '_'
-            . $height . $offset . $crop . $cropToFit . $fillToFit
+        $file = $subdir . $filename . $width . $height 
+            . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
@@ -2393,6 +2393,75 @@ class CImage
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Convert image from one colorpsace/color profile to sRGB without
+     * color profile.
+     *
+     * @param string  $src      of image.
+     * @param string  $dir      as base directory where images are.
+     * @param string  $cache    as base directory where to store images.
+     * @param boolean $useCache or not, default to always use cache.
+     *
+     * @return string | boolean false if no conversion else the converted
+     *                          filename.
+     */
+    public function convert2sRGBColorSpace($src, $dir, $cache, $useCache = true)
+    {
+        if ($this->verbose) {
+            $this->log("# Converting image to sRGB colorspace.");
+        }
+
+        if (!class_exists("Imagick")) {
+            $this->log(" Ignoring since Imagemagick is not installed.");
+            return false;
+        }
+
+        // Prepare
+        $this->setSaveFolder($cache)
+             ->setSource($src, $dir)
+             ->generateFilename(null, false);
+
+        // Check if the cached version is accurate.
+        if ($useCache && is_readable($this->cacheFileName)) {
+            $fileTime  = filemtime($this->pathToImage);
+            $cacheTime = filemtime($this->cacheFileName);
+
+            if ($fileTime <= $cacheTime) {
+                $this->log(" Using cached version: " . $this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+
+        // Only covert if cachedir is writable
+        if (is_writable($this->saveFolder)) {
+            // Load file and check if conversion is needed
+            $image      = new Imagick($this->pathToImage);
+            $colorspace = $image->getImageColorspace();
+            $this->log(" Current colorspace: " . $colorspace);
+
+            $profiles      = $image->getImageProfiles('*', false); 
+            $hasICCProfile = (array_search('icc', $profiles) !== false);
+            $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
+
+            if ($colorspace != Imagick::COLORSPACE_SRGB || $hasICCProfile) {
+                $this->log(" Converting to sRGB.");
+
+                /*
+                $icc_rgb = file_get_contents('/path/to/icc/SomeRGBProfile.icc');
+                $image->profileImage('icc', $icc_rgb);
+                */
+                
+                $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+                $image->writeImage($this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+        
+        return false;
     }
 
 
