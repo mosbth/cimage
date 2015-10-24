@@ -1298,10 +1298,11 @@ class CImage
      * @param string  $base      as optional basepath for storing file.
      * @param boolean $useSubdir use or skip the subdir part when creating the
      *                           filename.
+     * @param string  $prefix    to add as part of filename
      *
      * @return $this
      */
-    public function generateFilename($base = null, $useSubdir = true)
+    public function generateFilename($base = null, $useSubdir = true, $prefix = null)
     {
         $filename     = basename($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
@@ -1374,7 +1375,7 @@ class CImage
             $subdir .= '_';
         }
         
-        $file = $subdir . $filename . $width . $height 
+        $file = $prefix . $subdir . $filename . $width . $height 
             . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
@@ -2424,7 +2425,7 @@ class CImage
         // Prepare
         $this->setSaveFolder($cache)
              ->setSource($src, $dir)
-             ->generateFilename(null, false);
+             ->generateFilename(null, false, 'srgb_');
 
         // Check if the cached version is accurate.
         if ($useCache && is_readable($this->cacheFileName)) {
