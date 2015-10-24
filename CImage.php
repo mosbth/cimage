@@ -2404,12 +2404,13 @@ class CImage
      * @param string  $src      of image.
      * @param string  $dir      as base directory where images are.
      * @param string  $cache    as base directory where to store images.
+     * @param string  $iccFile  filename of colorprofile.
      * @param boolean $useCache or not, default to always use cache.
      *
      * @return string | boolean false if no conversion else the converted
      *                          filename.
      */
-    public function convert2sRGBColorSpace($src, $dir, $cache, $useCache = true)
+    public function convert2sRGBColorSpace($src, $dir, $cache, $iccFile, $useCache = true)
     {
         if ($this->verbose) {
             $this->log("# Converting image to sRGB colorspace.");
@@ -2450,10 +2451,8 @@ class CImage
             if ($colorspace != Imagick::COLORSPACE_SRGB || $hasICCProfile) {
                 $this->log(" Converting to sRGB.");
 
-                /*
-                $icc_rgb = file_get_contents('/path/to/icc/SomeRGBProfile.icc');
-                $image->profileImage('icc', $icc_rgb);
-                */
+                $sRGBicc = file_get_contents($iccFile);
+                $image->profileImage('icc', $sRGBicc);
                 
                 $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
                 $image->writeImage($this->cacheFileName);

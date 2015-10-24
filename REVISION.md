@@ -5,10 +5,10 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.7* (2015-10-21)
+v0.7.7* (2015-10-24)
 -------------------------------------
 
-* Added conversion to sRGB using option `?srgb`, partly working. #120. 
+* Added conversion to sRGB using option `?srgb`. #120. 
 * Change path in `webroot/htaccess` to make it work in current environment.
 
 

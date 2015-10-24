@@ -7,7 +7,8 @@ class CImageSRGBTest extends \PHPUnit_Framework_TestCase
 {
     private $srgbDir = "srgb";
     private $cache;
-    
+    private $srgbColorProfile = __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc';
+
     
     
     /**
@@ -37,8 +38,9 @@ class CImageSRGBTest extends \PHPUnit_Framework_TestCase
 
         $filename = $img->convert2sRGBColorSpace(
             'car.png', 
-            IMAGE_PATH, 
-            $this->cache
+            IMAGE_PATH,
+            $this->cache,
+            $this->srgbColorProfile
         );
 
         if (class_exists("Imagick")) {
@@ -62,7 +64,8 @@ class CImageSRGBTest extends \PHPUnit_Framework_TestCase
         $filename = $img->convert2sRGBColorSpace(
             'car.jpg', 
             IMAGE_PATH, 
-            $this->cache
+            $this->cache,
+            $this->srgbColorProfile
         );
 
         $this->assertFalse($filename);

@@ -123,6 +123,24 @@ return array(
 
 
       /**
+       * Convert the image to srgb before processing. Saves the converted
+       * image in the sub cache dir. This option is default false but can
+       * be changed to default true to do this conversion for all images.
+       * This option requires PHP extension imagick and will silently fail
+       * if that is not installed.
+       *
+       * Default value:
+       *  srgb_dir:          $cachePath/srgb
+       *  srgb_default:      false
+       *  srgb_colorprofile: __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc'
+       */
+       //'srgb_dir'  => __DIR__ . '/../cache/srgb/',
+       //'srgb_default' => false,
+       //'srgb_colorprofile' => __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc',
+
+
+
+      /**
        * A function (hook) can be called after img.php has processed all
        * configuration options and before processing the image using CImage.
        * The function receives the $img variabel and an array with the

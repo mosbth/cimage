@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.7* (2015-10-21)";
+$version = "v0.7.7* (2015-10-24)";
 
 
 
@@ -976,10 +976,12 @@ if ($dummyImage === true) {
  * Prepare a sRGB version of the image and use it as source image.
  */
 $srgbDirName = "/srgb";
-$srgbDir = getConfig('srgb_dir', $cachePath . $srgbDirName);
-$srgb    = getDefined('srgb', true, null);
+$srgbDir     = getConfig('srgb_dir', $cachePath . $srgbDirName);
+$srgbDefault = getConfig('srgb_default', false);
+$srgbColorProfile = getConfig('srgb_colorprofile', __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc');
+$srgb = getDefined('srgb', true, null);
 
-if ($srgb) {
+if ($srgb || $srgbDefault) {
     
     if (!is_writable($srgbDir)) {
         if (is_writable($cachePath)) {
@@ -991,6 +993,7 @@ if ($srgb) {
         $srcImage, 
         $imagePath, 
         $srgbDir,
+        $srgbColorProfile,
         $useCache
     );
 
