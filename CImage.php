@@ -404,6 +404,11 @@ class CImage
 
 
 
+     /*
+      * Class for image resizer.
+      */
+      private $imageResizer = null;
+
     /**
      * Properties, the class is mutable and the method setOptions()
      * decides (partly) what properties are created.
@@ -435,6 +440,7 @@ class CImage
     {
         $this->setSource($imageSrc, $imageFolder);
         $this->setTarget($saveFolder, $saveName);
+        $this->imageResizer = new CImageResizer();
     }
 
 
@@ -921,6 +927,8 @@ class CImage
         if (empty($info)) {
             throw new Exception("The file doesn't seem to be a valid image.");
         }
+        
+        $this->imageResizer->setSource($this->width, $this->height);
 
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
@@ -935,8 +943,8 @@ class CImage
 
 
     /**
-     * Init new width and height and do some sanity checks on constraints, before any
-     * processing can be done.
+     * Init new width and height and do some sanity checks on constraints,
+     * before any processing can be done.
      *
      * @return $this
      * @throws Exception
