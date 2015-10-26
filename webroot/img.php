@@ -631,6 +631,12 @@ verbose("area = $area");
  * skip-original, so - skip the original image and always process a new image
  */
 $useOriginal = getDefined(array('skip-original', 'so'), false, true);
+$useOriginalDefault = getConfig('skip_original', false);
+
+if ($useOriginalDefault === true) {
+    verbose("use original is default ON");
+    $useOriginal = true;
+}
 
 verbose("use original = $useOriginal");
 
@@ -976,13 +982,13 @@ if ($dummyImage === true) {
  * Prepare a sRGB version of the image and use it as source image.
  */
 $srgbDirName = "/srgb";
-$srgbDir     = getConfig('srgb_dir', $cachePath . $srgbDirName);
+$srgbDir     = realpath(getConfig('srgb_dir', $cachePath . $srgbDirName));
 $srgbDefault = getConfig('srgb_default', false);
 $srgbColorProfile = getConfig('srgb_colorprofile', __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc');
 $srgb = getDefined('srgb', true, null);
 
 if ($srgb || $srgbDefault) {
-    
+
     if (!is_writable($srgbDir)) {
         if (is_writable($cachePath)) {
             mkdir($srgbDir);
@@ -1018,6 +1024,7 @@ if ($status) {
     $text .= "Allow remote images = $allowRemote\n";
     $text .= "Cache writable = " . is_writable($cachePath) . "\n";
     $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
+    $text .= "Cache srgb writable = " . is_writable($srgbDir) . "\n";
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
 
     $no = extension_loaded('exif') ? null : 'NOT';
