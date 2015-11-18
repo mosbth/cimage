@@ -75,7 +75,7 @@ There are some all-included bundles of `img.php` that can be downloaded and used
 Dowload the version of your choice like this.
 
 ```bash
-wget https://github.com/mosbth/cimage/tree/v0.7.7/webroot/imgp.php
+wget https://raw.githubusercontent.com/mosbth/cimage/v0.7.7/webroot/imgp.php
 ```
 
 Open up the file in your editor and edit the array `$config`. Ensure that the paths to the image directory and the cache directory matches your environment, or create an own config-file for the script.
