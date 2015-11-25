@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.7* (2015-10-25)
+-------------------------------------
+
+* Added Gitter badge to README, #126.
+* Fix proper download url in README, #125.
+
+
 v0.7.7 (2015-10-21)
 -------------------------------------
 
