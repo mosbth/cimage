@@ -339,7 +339,8 @@ class CImage
     /**
      * Used with option area to set which parts of the image to use.
      */
-    private $offset;
+     private $area;
+     private $offset;
 
 
 
@@ -440,8 +441,9 @@ class CImage
     {
         $this->setSource($imageSrc, $imageFolder);
         $this->setTarget($saveFolder, $saveName);
-        $this->imageResizer = new CImageResizer();
+        $this->imageResizer = new CImageResizer(array($this, 'log'));
     }
+
 
 
 
@@ -931,7 +933,7 @@ class CImage
         $this->imageResizer->setSource($this->width, $this->height);
 
         if ($this->verbose) {
-            $this->log("Loading image details for: {$file}");
+            $this->log("#Loading image details for: {$file}");
             $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
             $this->log(" Image filesize: " . filesize($file) . " bytes.");
             $this->log(" Image mimetype: " . image_type_to_mime_type($this->fileType));
@@ -951,66 +953,10 @@ class CImage
      */
     public function initDimensions()
     {
-        $this->log("Init dimension (before) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
-
-        // width as %
-        if ($this->newWidth[strlen($this->newWidth)-1] == '%') {
-            $this->newWidth = $this->width * substr($this->newWidth, 0, -1) / 100;
-            $this->log("Setting new width based on % to {$this->newWidth}");
-        }
-
-        // height as %
-        if ($this->newHeight[strlen($this->newHeight)-1] == '%') {
-            $this->newHeight = $this->height * substr($this->newHeight, 0, -1) / 100;
-            $this->log("Setting new height based on % to {$this->newHeight}");
-        }
-
-        is_null($this->aspectRatio) or is_numeric($this->aspectRatio) or $this->raiseError('Aspect ratio out of range');
-
-        // width & height from aspect ratio
-        if ($this->aspectRatio && is_null($this->newWidth) && is_null($this->newHeight)) {
-            if ($this->aspectRatio >= 1) {
-                $this->newWidth   = $this->width;
-                $this->newHeight  = $this->width / $this->aspectRatio;
-                $this->log("Setting new width & height based on width & aspect ratio (>=1) to (w x h) {$this->newWidth} x {$this->newHeight}");
-
-            } else {
-                $this->newHeight  = $this->height;
-                $this->newWidth   = $this->height * $this->aspectRatio;
-                $this->log("Setting new width & height based on width & aspect ratio (<1) to (w x h) {$this->newWidth} x {$this->newHeight}");
-            }
-
-        } elseif ($this->aspectRatio && is_null($this->newWidth)) {
-            $this->newWidth   = $this->newHeight * $this->aspectRatio;
-            $this->log("Setting new width based on aspect ratio to {$this->newWidth}");
-
-        } elseif ($this->aspectRatio && is_null($this->newHeight)) {
-            $this->newHeight  = $this->newWidth / $this->aspectRatio;
-            $this->log("Setting new height based on aspect ratio to {$this->newHeight}");
-        }
-
-        // Change width & height based on dpr
-        if ($this->dpr != 1) {
-            if (!is_null($this->newWidth)) {
-                $this->newWidth  = round($this->newWidth * $this->dpr);
-                $this->log("Setting new width based on dpr={$this->dpr} - w={$this->newWidth}");
-            }
-            if (!is_null($this->newHeight)) {
-                $this->newHeight = round($this->newHeight * $this->dpr);
-                $this->log("Setting new height based on dpr={$this->dpr} - h={$this->newHeight}");
-            }
-        }
-
-        // Check values to be within domain
-        is_null($this->newWidth)
-            or is_numeric($this->newWidth)
-            or $this->raiseError('Width not numeric');
-
-        is_null($this->newHeight)
-            or is_numeric($this->newHeight)
-            or $this->raiseError('Height not numeric');
-
-        $this->log("Init dimension (after) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
+        $this->imageResizer->setBaseWidthHeight($this->newWidth, $this->newHeight)
+                          ->setBaseAspecRatio($this->aspectRatio)
+                          ->setBaseDevicePixelRate($this->dpr)
+                          ->prepareTargetDimensions();
 
         return $this;
     }
@@ -1024,6 +970,26 @@ class CImage
      */
     public function calculateNewWidthAndHeight()
     {
+        $imres = $this->imageResizer;
+        $strategy = null;
+        
+        if ($this->keepRatio == true) {
+            $strategy = $imres::KEEP_RATIO;
+        }
+        if ($this->cropToFit == true) {
+            $strategy = $imres::CROP_TO_FIT;
+        }
+        if ($this->fillToFit == true) {
+            $strategy = $imres::FILL_TO_FIT;
+        }
+        
+        $imres->setResizeStrategy($strategy)
+              ->calculateTargetWidthAndHeight();
+        
+        $this->newWidth  = $imres->width();
+        $this->newHeight = $imres->height();
+
+        /*
         // Crop, use cropped width and height as base for calulations
         $this->log("Calculate new width and height.");
         $this->log("Original width x height is {$this->width} x {$this->height}.");
@@ -1145,18 +1111,12 @@ class CImage
             $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->crop['height']);
         }
 
-        // Fill to fit, ensure to set new width and height
-        /*if ($this->fillToFit) {
-            $this->log("FillToFit.");
-            $this->newWidth = round(isset($this->newWidth) ? $this->newWidth : $this->crop['width']);
-            $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->crop['height']);
-        }*/
-
         // No new height or width is set, use existing measures.
         $this->newWidth  = round(isset($this->newWidth) ? $this->newWidth : $this->width);
         $this->newHeight = round(isset($this->newHeight) ? $this->newHeight : $this->height);
         $this->log("Calculated new width x height as {$this->newWidth} x {$this->newHeight}.");
 
+        */
         return $this;
     }
 
@@ -1667,6 +1627,7 @@ class CImage
      */
     public function resize()
     {
+        $imgres = $this->imageResizer;
 
         $this->log("### Starting to Resize()");
         $this->log("Upscale = '$this->upscale'");
@@ -1724,11 +1685,21 @@ class CImage
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
                 imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->newWidth, $this->newHeight);
             } else {
-                $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
-                $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
-                $imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
+                $cropX      = $imgres->getCropX();
+                $cropY      = $imgres->getCropY();
+                $cropWidth  = $imgres->getCropWidth();
+                $cropHeight = $imgres->getCropHeight();
+                $this->log(" Crop from $cropX x $cropY by $cropWidth x $cropHeight.");
+
+                
+                //$cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
+                //$cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
+                
+                //$imgPreCrop   = $this->CreateImageKeepTransparency($this->cropWidth, $this->cropHeight);
+                $imgPreCrop   = $this->CreateImageKeepTransparency($cropWidth, $cropHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                $this->imageCopyResampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
+                // $this->imageCopyResampled($imgPreCrop, $this->image, 0, 0, 0, 0, $this->cropWidth, $this->cropHeight, $this->width, $this->height);
+                $this->imageCopyResampled($imgPreCrop, $this->image, 0, 0, 0, 0, $cropWidth, $cropHeight, $this->width, $this->height);
                 imagecopy($imageResized, $imgPreCrop, 0, 0, $cropX, $cropY, $this->newWidth, $this->newHeight);
             }
 
@@ -2507,7 +2478,7 @@ class CImage
 
 
     /**
-     * Add HTTP header for putputting together with image.
+     * Add HTTP header for outputting together with image.
      *
      * @param string $type  the header type such as "Cache-Control"
      * @param string $value the value to use

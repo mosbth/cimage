@@ -13,4 +13,14 @@
         <log type="coverage-clover" target="coverage.clover" />
    </logging>
 
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">.</directory>
+            <exclude>
+                <directory suffix=".php">test</directory>
+                <directory suffix=".php">webroot</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
 </phpunit>

@@ -140,6 +140,18 @@ return array(
 
 
 
+       /**
+        * Set skip-original to true to always process the image and use
+        * the cached version. Default is false and to use the original
+        * image when its no processing needed.
+        *
+        * Default value:
+        *  skip_original: false
+        */
+        //'skip_original' => false,
+
+
+
       /**
        * A function (hook) can be called after img.php has processed all
        * configuration options and before processing the image using CImage.
