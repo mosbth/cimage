@@ -25,12 +25,6 @@ function errorPage($msg, $type = 500)
     global $mode;
 
     switch ($type) {
-        case 400:
-            $header = "400 Bad Request";
-        break;
-        case 401:
-            $header = "401 Unauthorized";
-        break;
         case 403:
             $header = "403 Forbidden";
         break;
@@ -278,7 +272,7 @@ if ($pwd) {
 }
 
 if ($pwdAlways && $passwordMatch !== true) {
-    errorPage("Password required and does not match or exists.", 401);
+    errorPage("Password required and does not match or exists.", 403);
 }
 
 verbose("password match = $passwordMatch");
@@ -302,7 +296,7 @@ if (!$allowHotlinking) {
         ; // Always allow when password match
         verbose("Hotlinking since passwordmatch");
     } elseif ($passwordMatch === false) {
-        errorPage("Hotlinking/leeching not allowed when password missmatch.", 401);
+        errorPage("Hotlinking/leeching not allowed when password missmatch.", 403);
     } elseif (!$referer) {
         errorPage("Hotlinking/leeching not allowed and referer is missing.", 403);
     } elseif (strcmp($serverName, $refererHost) == 0) {
@@ -393,7 +387,7 @@ if (isset($shortcut)
  * src - the source image file.
  */
 $srcImage = urldecode(get('src'))
-    or errorPage('Must set src-attribute.', 400);
+    or errorPage('Must set src-attribute.', 404);
 
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
@@ -406,7 +400,7 @@ $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
 
 preg_match($validFilename, $srcImage)
-    or errorPage('Filename contains invalid characters.', 400);
+    or errorPage('Filename contains invalid characters.', 404);
 
 if ($dummyEnabled && $srcImage === $dummyFilename) {
 
@@ -433,7 +427,7 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
         or errorPage(
             'Security constraint: Source image is not below the directory "image_path"
             as specified in the config file img_config.php.'
-        , 500);
+        , 404);
 }
 
 verbose("src = $srcImage");
@@ -482,11 +476,11 @@ if (isset($sizes[$newWidth])) {
 // Support width as % of original width
 if ($newWidth[strlen($newWidth)-1] == '%') {
     is_numeric(substr($newWidth, 0, -1))
-        or errorPage('Width % not numeric.', 400);
+        or errorPage('Width % not numeric.', 404);
 } else {
     is_null($newWidth)
         or ($newWidth > 10 && $newWidth <= $maxWidth)
-        or errorPage('Width out of range.', 400);
+        or errorPage('Width out of range.', 404);
 }
 
 verbose("new width = $newWidth");
@@ -507,11 +501,11 @@ if (isset($sizes[$newHeight])) {
 // height
 if ($newHeight[strlen($newHeight)-1] == '%') {
     is_numeric(substr($newHeight, 0, -1))
-        or errorPage('Height % out of range.', 400);
+        or errorPage('Height % out of range.', 404);
 } else {
     is_null($newHeight)
         or ($newHeight > 10 && $newHeight <= $maxHeight)
-        or errorPage('Height out of range.', 400);
+        or errorPage('Height out of range.', 404);
 }
 
 verbose("new height = $newHeight");
@@ -549,7 +543,7 @@ if ($negateAspectRatio) {
 
 is_null($aspectRatio)
     or is_numeric($aspectRatio)
-    or errorPage('Aspect ratio out of range', 400);
+    or errorPage('Aspect ratio out of range', 404);
 
 verbose("aspect ratio = $aspectRatio");
 
@@ -671,7 +665,7 @@ $qualityDefault = getConfig('jpg_quality', null);
 
 is_null($quality)
     or ($quality > 0 and $quality <= 100)
-    or errorPage('Quality out of range', 400);
+    or errorPage('Quality out of range', 404);
 
 if (is_null($quality) && !is_null($qualityDefault)) {
     $quality = $qualityDefault;
@@ -689,7 +683,7 @@ $compressDefault = getConfig('png_compression', null);
 
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
-    or errorPage('Compress out of range', 400);
+    or errorPage('Compress out of range', 404);
 
 if (is_null($compress) && !is_null($compressDefault)) {
     $compress = $compressDefault;
@@ -715,7 +709,7 @@ $scale = get(array('scale', 's'));
 
 is_null($scale)
     or ($scale >= 0 and $scale <= 400)
-    or errorPage('Scale out of range', 400);
+    or errorPage('Scale out of range', 404);
 
 verbose("scale = $scale");
 
@@ -764,7 +758,7 @@ $rotateBefore = get(array('rotateBefore', 'rotate-before', 'rb'));
 
 is_null($rotateBefore)
     or ($rotateBefore >= -360 and $rotateBefore <= 360)
-    or errorPage('RotateBefore out of range', 400);
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateBefore = $rotateBefore");
 
@@ -777,7 +771,7 @@ $rotateAfter = get(array('rotateAfter', 'rotate-after', 'ra', 'rotate', 'r'));
 
 is_null($rotateAfter)
     or ($rotateAfter >= -360 and $rotateAfter <= 360)
-    or errorPage('RotateBefore out of range', 400);
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateAfter = $rotateAfter");
 
@@ -926,13 +920,13 @@ if ($alias && $aliasPath && $passwordMatch) {
     $useCache    = false;
 
     is_writable($aliasPath)
-        or errorPage("Directory for alias is not writable.", 500);
+        or errorPage("Directory for alias is not writable.", 403);
 
     preg_match($validAliasname, $alias)
-        or errorPage('Filename for alias contains invalid characters. Do not add extension.', 500);
+        or errorPage('Filename for alias contains invalid characters. Do not add extension.', 404);
 
 } elseif ($alias) {
-    errorPage('Alias is not enabled in the config file or password not matching.', 500);
+    errorPage('Alias is not enabled in the config file or password not matching.', 403);
 }
 
 verbose("alias = $alias");
