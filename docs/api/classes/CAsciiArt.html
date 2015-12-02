@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1100227540"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1847469476"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1100227540" class="accordion-body collapse in">
+            <div id="namespace-1847469476" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -166,8 +166,8 @@
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\</small>CWhitelist</h1>
-                    <p><em>Act as whitelist (or blacklist).</em></p>
+                    <h1><small>\</small>CAsciiArt</h1>
+                    <p><em>Create an ASCII version of an image.</em></p>
                     
                     
                                         
@@ -186,8 +186,13 @@
                         </section>
                         <section class="row-fluid public">
                             <section class="span4">
-                                                                    <a href="../classes/CWhitelist.html#method_set" class="">set()</a><br />
-                                                                    <a href="../classes/CWhitelist.html#method_check" class="">check()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_addCharacterSet" class="">addCharacterSet()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_setOptions" class="">setOptions()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_createFromFile" class="">createFromFile()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_luminanceAreaAverage" class="">luminanceAreaAverage()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_getLuminance" class="">getLuminance()</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#method_luminance2character" class="">luminance2character()</a><br />
                                                             </section>
                             <section class="span4">
                                                                     <em>No public properties found</em>
@@ -212,7 +217,11 @@
                                                                     <em>No private methods found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/CWhitelist.html#property_whitelist" class="">$whitelist</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#property_characterSet" class="">$characterSet</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#property_characters" class="">$characters</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#property_charCount" class="">$charCount</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#property_scale" class="">$scale</a><br />
+                                                                    <a href="../classes/CAsciiArt.html#property_luminanceStrategy" class="">$luminanceStrategy</a><br />
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -225,12 +234,12 @@
                     
                     <dl>
                         <dt>File</dt>
-                            <dd><a href="../files/CWhitelist.html"><div class="path-wrapper">CWhitelist.php</div></a></dd>
+                            <dd><a href="../files/CAsciiArt.html"><div class="path-wrapper">CAsciiArt.php</div></a></dd>
                                                 <dt>Package</dt>
                             <dd><div class="namespace-wrapper">Default</div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
-                                                                                                                                                                    <div class="namespace-wrapper">\CWhitelist</div>
+                                                                                                                                                                    <div class="namespace-wrapper">\CAsciiArt</div>
                             </dd>
 
                         
@@ -256,11 +265,107 @@
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_whitelist" name="property_whitelist" class="anchor"></a>
+            <a id="property_characterSet" name="property_characterSet" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$whitelist</h3>
-                <pre class="signature">$whitelist : </pre>
-                <p><em>Array to contain the whitelist options.</em></p>
+                <h3 class="private ">$characterSet</h3>
+                <pre class="signature">$characterSet : </pre>
+                <p><em>Character set to use.</em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_characters" name="property_characters" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$characters</h3>
+                <pre class="signature">$characters : </pre>
+                <p><em>Current character set.</em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_charCount" name="property_charCount" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$charCount</h3>
+                <pre class="signature">$charCount : </pre>
+                <p><em>Length of current character set.</em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_scale" name="property_scale" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$scale</h3>
+                <pre class="signature">$scale : </pre>
+                <p><em>Scale of the area to swap to a character.</em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_luminanceStrategy" name="property_luminanceStrategy" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$luminanceStrategy</h3>
+                <pre class="signature">$luminanceStrategy : </pre>
+                <p><em>Strategy to calculate luminance.</em></p>
                 
 
                                 <h4>Type</h4>
@@ -287,22 +392,51 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_set" name="method_set" class="anchor"></a>
+            <a id="method___construct" name="method___construct" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">set()</h3>
+                <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">set(array  <span class="argument">$whitelist = array()</span>) : $this</pre>
-                <p><em>Set the whitelist from an array of strings, each item in the
-whitelist should be a regexp without the surrounding / or #.</em></p>
+                <pre class="signature" style="margin-right: 54px;">__construct() </pre>
+                <p><em>Constructor which sets default options.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_addCharacterSet" name="method_addCharacterSet" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">addCharacterSet()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">addCharacterSet(string  <span class="argument">$key</span>, string  <span class="argument">$value</span>) : $this</pre>
+                <p><em>Add a custom character set.</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>array</td>
-                                <td>$whitelist </td>
-                                <td><p>with all valid options,
-default is to clear the whitelist.</p></td>
+                                <td>string</td>
+                                <td>$key </td>
+                                <td><p>for the character set.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$value </td>
+                                <td><p>for the character set.</p></td>
                             </tr>
                                             </table>
                 
@@ -325,32 +459,204 @@ default is to clear the whitelist.</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_check" name="method_check" class="anchor"></a>
+            <a id="method_setOptions" name="method_setOptions" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">check()</h3>
+                <h3 class="public ">setOptions()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">check(string  <span class="argument">$item</span>, array  <span class="argument">$whitelist = null</span>) : boolean</pre>
-                <p><em>Check if item exists in the whitelist.</em></p>
+                <pre class="signature" style="margin-right: 54px;">setOptions(array  <span class="argument">$options = array()</span>) : $this</pre>
+                <p><em>Set options for processing, defaults are available.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$options </td>
+                                <td><p>to use as default settings.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    $this
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createFromFile" name="method_createFromFile" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createFromFile()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createFromFile(string  <span class="argument">$filename</span>) : string</pre>
+                <p><em>Create an Ascii image from an image file.</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>string</td>
-                                <td>$item </td>
-                                <td><p>string to check.</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>array</td>
-                                <td>$whitelist </td>
-                                <td><p>optional with all valid options, default is null.</p></td>
+                                <td>$filename </td>
+                                <td><p>of the image to use.</p></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
-                    boolean
-                                            &mdash; <p>true if item is in whitelist, else false.</p>
+                    string
+                                            &mdash; <p>$ascii with the ASCII image.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_luminanceAreaAverage" name="method_luminanceAreaAverage" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">luminanceAreaAverage()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">luminanceAreaAverage(string  <span class="argument">$img</span>, integer  <span class="argument">$x1</span>, integer  <span class="argument">$y1</span>, integer  <span class="argument">$x2</span>, integer  <span class="argument">$y2</span>) : integer</pre>
+                <p><em>Get the luminance from a region of an image using average color value.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$img </td>
+                                <td><p>the image.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$x1 </td>
+                                <td><p>the area to get pixels from.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$y1 </td>
+                                <td><p>the area to get pixels from.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$x2 </td>
+                                <td><p>the area to get pixels from.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$y2 </td>
+                                <td><p>the area to get pixels from.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>$luminance with a value between 0 and 100.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getLuminance" name="method_getLuminance" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getLuminance()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getLuminance(integer  <span class="argument">$red</span>, integer  <span class="argument">$green</span>, integer  <span class="argument">$blue</span>) : float</pre>
+                <p><em>Calculate luminance value with different strategies.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$red </td>
+                                <td><p>The color red.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$green </td>
+                                <td><p>The color green.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$blue </td>
+                                <td><p>The color blue.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    float
+                                            &mdash; <p>$luminance with a value between 0 and 1.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_luminance2character" name="method_luminance2character" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">luminance2character()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">luminance2character(  <span class="argument">$luminance</span>) : string</pre>
+                <p><em>Translate the luminance value to a character.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$luminance </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>with the ascii character.</p>
                                     				
                             </article>
         </div>
@@ -371,10 +677,10 @@ default is to clear the whitelist.</p></td>
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="source-view-label">CWhitelist.php</h3>
+            <h3 id="source-view-label">CAsciiArt.php</h3>
         </div>
         <div class="modal-body">
-            <pre data-src="../files/CWhitelist.php.txt" class="language-php line-numbers"></pre>
+            <pre data-src="../files/CAsciiArt.php.txt" class="language-php line-numbers"></pre>
         </div>
     </div>
 
