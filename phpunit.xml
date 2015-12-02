@@ -13,4 +13,10 @@
         <log type="coverage-clover" target="coverage.clover" />
    </logging>
 
+   <filter>
+       <whitelist processUncoveredFilesFromWhitelist="true">
+           <file>*.php</file>
+       </whitelist>
+   </filter>
+
 </phpunit>
