@@ -8,6 +8,7 @@ Revision history
 v0.7.7* (2015-10-25)
 -------------------------------------
 
+* More examples on dealing with cache through bash `bin/cache.bash`, #129.
 * Added Gitter badge to README, #126.
 * Fix proper download url in README, #125.
 
