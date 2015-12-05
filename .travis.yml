@@ -41,11 +41,11 @@ before_script:
     
     # Install phpcs
     - curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-    - install --mode 0755 phpcs.phar $PWD/bin/phpcs
+    - install --mode 0755 phpcs.phar $PWD/build/bin/phpcs
 
     # Install phpmd
     #- wget -c http://static.phpmd.org/php/latest/phpmd.phar
-    #- install --mode 0755 phpmd.phar $PWD/bin/phpmd
+    #- install --mode 0755 phpmd.phar $PWD/build/bin/phpmd
 
 
 
