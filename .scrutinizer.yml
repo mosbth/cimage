@@ -39,10 +39,16 @@ filter:
 
 
 build:
+
+    dependencies:
+        before:
+            -
+                command: 'mkdir build'
+
     tests:
         override:
             -
-                command: 'phpunit'
+                command: 'phpunit --configuration .phpunit.xml'
                 coverage:
-                    file: 'coverage.clover'
+                    file: 'build/coverage.clover'
                     format: 'php-clover'
