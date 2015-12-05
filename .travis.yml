@@ -30,9 +30,10 @@ addons:
 
 before_script:
 
+    # Create a build directory for output
     # Store all files in your own bin
-    - mkdir bin
-    - export PATH=$PATH:$PWD/bin/
+    - install --directory build/bin
+    - export PATH=$PATH:$PWD/build/bin/
 
 
     # Install validation tools
@@ -45,9 +46,6 @@ before_script:
     # Install phpmd
     #- wget -c http://static.phpmd.org/php/latest/phpmd.phar
     #- install --mode 0755 phpmd.phar $PWD/bin/phpmd
-    
-    # Create a build directory for output
-    - mkdir build
 
 
 
