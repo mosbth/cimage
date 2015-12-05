@@ -1,0 +1,1167 @@
+<?php
+/**
+ * Resize and crop images on the fly, store generated images in a cache.
+ *
+ * @author  Mikael Roos mos@dbwebb.se
+ * @example http://dbwebb.se/opensource/cimage
+ * @link    https://github.com/mosbth/cimage
+ *
+ */
+
+$version = "v0.7.7 (2015-10-21)";
+
+
+
+/**
+ * Display error message.
+ *
+ * @param string $msg to display.
+ *
+ * @return void
+ */
+function errorPage($msg)
+{
+    global $mode;
+
+    header("HTTP/1.0 500 Internal Server Error");
+
+    if ($mode == 'development') {
+        die("[img.php] $msg");
+    }
+
+    error_log("[img.php] $msg");
+    die("HTTP/1.0 500 Internal Server Error");
+}
+
+
+
+/**
+ * Custom exception handler.
+ */
+set_exception_handler(function ($exception) {
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>"
+    );
+});
+
+
+
+/**
+ * Get input from query string or return default value if not set.
+ *
+ * @param mixed $key     as string or array of string values to look for in $_GET.
+ * @param mixed $default value to return when $key is not set in $_GET.
+ *
+ * @return mixed value from $_GET or default value.
+ */
+function get($key, $default = null)
+{
+    if (is_array($key)) {
+        foreach ($key as $val) {
+            if (isset($_GET[$val])) {
+                return $_GET[$val];
+            }
+        }
+    } elseif (isset($_GET[$key])) {
+        return $_GET[$key];
+    }
+    return $default;
+}
+
+
+
+/**
+ * Get input from query string and set to $defined if defined or else $undefined.
+ *
+ * @param mixed $key       as string or array of string values to look for in $_GET.
+ * @param mixed $defined   value to return when $key is set in $_GET.
+ * @param mixed $undefined value to return when $key is not set in $_GET.
+ *
+ * @return mixed value as $defined or $undefined.
+ */
+function getDefined($key, $defined, $undefined)
+{
+    return get($key) === null ? $undefined : $defined;
+}
+
+
+
+/**
+ * Get value from config array or default if key is not set in config array.
+ *
+ * @param string $key    the key in the config array.
+ * @param mixed $default value to be default if $key is not set in config.
+ *
+ * @return mixed value as $config[$key] or $default.
+ */
+function getConfig($key, $default)
+{
+    global $config;
+    return isset($config[$key])
+        ? $config[$key]
+        : $default;
+}
+
+
+
+/**
+ * Log when verbose mode, when used without argument it returns the result.
+ *
+ * @param string $msg to log.
+ *
+ * @return void or array.
+ */
+function verbose($msg = null)
+{
+    global $verbose, $verboseFile;
+    static $log = array();
+
+    if (!($verbose || $verboseFile)) {
+        return;
+    }
+
+    if (is_null($msg)) {
+        return $log;
+    }
+
+    $log[] = $msg;
+}
+
+
+
+/**
+ * Get configuration options from file, if the file exists, else use $config
+ * if its defined or create an empty $config.
+ */
+$configFile = __DIR__.'/'.basename(__FILE__, '.php').'_config.php';
+
+if (is_file($configFile)) {
+    $config = require $configFile;
+} elseif (!isset($config)) {
+    $config = array();
+}
+
+
+
+/**
+* verbose, v - do a verbose dump of what happens
+* vf - do verbose dump to file
+*/
+$verbose = getDefined(array('verbose', 'v'), true, false);
+$verboseFile = getDefined('vf', true, false);
+verbose("img.php version = $version");
+
+
+
+/**
+* status - do a verbose dump of the configuration
+*/
+$status = getDefined('status', true, false);
+
+
+
+/**
+ * Set mode as strict, production or development.
+ * Default is production environment.
+ */
+$mode = getConfig('mode', 'production');
+
+// Settings for any mode
+set_time_limit(20);
+ini_set('gd.jpeg_ignore_warning', 1);
+
+if (!extension_loaded('gd')) {
+    errorPage("Extension gd is nod loaded.");
+}
+
+// Specific settings for each mode
+if ($mode == 'strict') {
+
+    error_reporting(0);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    $verbose = false;
+    $status = false;
+    $verboseFile = false;
+    
+} elseif ($mode == 'production') {
+
+    error_reporting(-1);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    $verbose = false;
+    $status = false;
+    $verboseFile = false;
+
+} elseif ($mode == 'development') {
+
+    error_reporting(-1);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 0);
+    $verboseFile = false;
+
+} elseif ($mode == 'test') {
+
+    error_reporting(-1);
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 0);
+
+} else {
+    errorPage("Unknown mode: $mode");
+}
+
+verbose("mode = $mode");
+verbose("error log = " . ini_get('error_log'));
+
+
+
+/**
+ * Set default timezone if not set or if its set in the config-file.
+ */
+$defaultTimezone = getConfig('default_timezone', null);
+
+if ($defaultTimezone) {
+    date_default_timezone_set($defaultTimezone);
+} elseif (!ini_get('default_timezone')) {
+    date_default_timezone_set('UTC');
+}
+
+
+
+/**
+ * Check if passwords are configured, used and match.
+ * Options decide themself if they require passwords to be used.
+ */
+$pwdConfig   = getConfig('password', false);
+$pwdAlways   = getConfig('password_always', false);
+$pwdType     = getConfig('password_type', 'text');
+$pwd         = get(array('password', 'pwd'), null);
+
+// Check if passwords match, if configured to use passwords
+$passwordMatch = null;
+if ($pwd) {
+    switch($pwdType) {
+        case 'md5':
+            $passwordMatch = ($pwdConfig === md5($pwd));
+            break;
+        case 'hash':
+            $passwordMatch = password_verify($pwd, $pwdConfig);
+            break;
+        case 'text':
+            $passwordMatch = ($pwdConfig === $pwd);
+            break;
+        default:
+            $passwordMatch = false;
+    }
+}
+
+if ($pwdAlways && $passwordMatch !== true) {
+    errorPage("Password required and does not match or exists.");
+}
+
+verbose("password match = $passwordMatch");
+
+
+
+/**
+ * Prevent hotlinking, leeching, of images by controlling who access them
+ * from where.
+ *
+ */
+$allowHotlinking = getConfig('allow_hotlinking', true);
+$hotlinkingWhitelist = getConfig('hotlinking_whitelist', array());
+
+$serverName  = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : null;
+$referer     = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+$refererHost = parse_url($referer, PHP_URL_HOST);
+
+if (!$allowHotlinking) {
+    if ($passwordMatch) {
+        ; // Always allow when password match
+        verbose("Hotlinking since passwordmatch");
+    } elseif ($passwordMatch === false) {
+        errorPage("Hotlinking/leeching not allowed when password missmatch.");
+    } elseif (!$referer) {
+        errorPage("Hotlinking/leeching not allowed and referer is missing.");
+    } elseif (strcmp($serverName, $refererHost) == 0) {
+        ; // Allow when serverName matches refererHost
+        verbose("Hotlinking disallowed but serverName matches refererHost.");
+    } elseif (!empty($hotlinkingWhitelist)) {
+        $whitelist = new CWhitelist();
+        $allowedByWhitelist = $whitelist->check($refererHost, $hotlinkingWhitelist);
+
+        if ($allowedByWhitelist) {
+            verbose("Hotlinking/leeching allowed by whitelist.");
+        } else {
+            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.");
+        }
+
+    } else {
+        errorPage("Hotlinking/leeching not allowed.");
+    }
+}
+
+verbose("allow_hotlinking = $allowHotlinking");
+verbose("referer = $referer");
+verbose("referer host = $refererHost");
+
+
+
+/**
+ * Get the source files.
+ */
+$autoloader  = getConfig('autoloader', false);
+$cimageClass = getConfig('cimage_class', false);
+
+if ($autoloader) {
+    require $autoloader;
+} elseif ($cimageClass) {
+    require $cimageClass;
+}
+
+
+
+/**
+ * Create the class for the image.
+ */
+$img = new CImage();
+$img->setVerbose($verbose || $verboseFile);
+
+
+
+/**
+ * Allow or disallow remote download of images from other servers.
+ * Passwords apply if used.
+ *
+ */
+$allowRemote = getConfig('remote_allow', false);
+
+if ($allowRemote && $passwordMatch !== false) {
+    $pattern = getConfig('remote_pattern', null);
+    $img->setRemoteDownload($allowRemote, $pattern);
+
+    $whitelist = getConfig('remote_whitelist', null);
+    $img->setRemoteHostWhitelist($whitelist);
+}
+
+
+
+/**
+ * shortcut, sc - extend arguments with a constant value, defined
+ * in config-file.
+ */
+$shortcut       = get(array('shortcut', 'sc'), null);
+$shortcutConfig = getConfig('shortcut', array(
+    'sepia' => "&f=grayscale&f0=brightness,-10&f1=contrast,-20&f2=colorize,120,60,0,0&sharpen",
+));
+
+verbose("shortcut = $shortcut");
+
+if (isset($shortcut)
+    && isset($shortcutConfig[$shortcut])) {
+
+    parse_str($shortcutConfig[$shortcut], $get);
+    verbose("shortcut-constant = {$shortcutConfig[$shortcut]}");
+    $_GET = array_merge($_GET, $get);
+}
+
+
+
+/**
+ * src - the source image file.
+ */
+$srcImage = urldecode(get('src'))
+    or errorPage('Must set src-attribute.');
+
+// Check for valid/invalid characters
+$imagePath           = getConfig('image_path', __DIR__ . '/img/');
+$imagePathConstraint = getConfig('image_path_constraint', true);
+$validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
+
+// Dummy image feature
+$dummyEnabled  = getConfig('dummy_enabled', true);
+$dummyFilename = getConfig('dummy_filename', 'dummy');
+$dummyImage = false;
+
+preg_match($validFilename, $srcImage)
+    or errorPage('Filename contains invalid characters.');
+
+if ($dummyEnabled && $srcImage === $dummyFilename) {
+
+    // Prepare to create a dummy image and use it as the source image.
+    $dummyImage = true;
+
+} elseif ($allowRemote && $img->isRemoteSource($srcImage)) {
+
+    // If source is a remote file, ignore local file checks.
+
+} elseif ($imagePathConstraint) {
+
+    // Check that the image is a file below the directory 'image_path'.
+    $pathToImage = realpath($imagePath . $srcImage);
+    $imageDir    = realpath($imagePath);
+
+    is_file($pathToImage)
+        or errorPage(
+            'Source image is not a valid file, check the filename and that a
+            matching file exists on the filesystem.'
+        );
+
+    substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
+        or errorPage(
+            'Security constraint: Source image is not below the directory "image_path"
+            as specified in the config file img_config.php.'
+        );
+}
+
+verbose("src = $srcImage");
+
+
+
+/**
+ * Manage size constants from config file, use constants to replace values
+ * for width and height.
+ */
+$sizeConstant = getConfig('size_constant', function () {
+
+    // Set sizes to map constant to value, easier to use with width or height
+    $sizes = array(
+        'w1' => 613,
+        'w2' => 630,
+    );
+
+    // Add grid column width, useful for use as predefined size for width (or height).
+    $gridColumnWidth = 30;
+    $gridGutterWidth = 10;
+    $gridColumns     = 24;
+
+    for ($i = 1; $i <= $gridColumns; $i++) {
+        $sizes['c' . $i] = ($gridColumnWidth + $gridGutterWidth) * $i - $gridGutterWidth;
+    }
+
+    return $sizes;
+});
+
+$sizes = call_user_func($sizeConstant);
+
+
+
+/**
+ * width, w - set target width, affecting the resulting image width, height and resize options
+ */
+$newWidth     = get(array('width', 'w'));
+$maxWidth     = getConfig('max_width', 2000);
+
+// Check to replace predefined size
+if (isset($sizes[$newWidth])) {
+    $newWidth = $sizes[$newWidth];
+}
+
+// Support width as % of original width
+if ($newWidth[strlen($newWidth)-1] == '%') {
+    is_numeric(substr($newWidth, 0, -1))
+        or errorPage('Width % not numeric.');
+} else {
+    is_null($newWidth)
+        or ($newWidth > 10 && $newWidth <= $maxWidth)
+        or errorPage('Width out of range.');
+}
+
+verbose("new width = $newWidth");
+
+
+
+/**
+ * height, h - set target height, affecting the resulting image width, height and resize options
+ */
+$newHeight = get(array('height', 'h'));
+$maxHeight = getConfig('max_height', 2000);
+
+// Check to replace predefined size
+if (isset($sizes[$newHeight])) {
+    $newHeight = $sizes[$newHeight];
+}
+
+// height
+if ($newHeight[strlen($newHeight)-1] == '%') {
+    is_numeric(substr($newHeight, 0, -1))
+        or errorPage('Height % out of range.');
+} else {
+    is_null($newHeight)
+        or ($newHeight > 10 && $newHeight <= $maxHeight)
+        or errorPage('Hight out of range.');
+}
+
+verbose("new height = $newHeight");
+
+
+
+/**
+ * aspect-ratio, ar - affecting the resulting image width, height and resize options
+ */
+$aspectRatio         = get(array('aspect-ratio', 'ar'));
+$aspectRatioConstant = getConfig('aspect_ratio_constant', function () {
+    return array(
+        '3:1'    => 3/1,
+        '3:2'    => 3/2,
+        '4:3'    => 4/3,
+        '8:5'    => 8/5,
+        '16:10'  => 16/10,
+        '16:9'   => 16/9,
+        'golden' => 1.618,
+    );
+});
+
+// Check to replace predefined aspect ratio
+$aspectRatios = call_user_func($aspectRatioConstant);
+$negateAspectRatio = ($aspectRatio[0] == '!') ? true : false;
+$aspectRatio = $negateAspectRatio ? substr($aspectRatio, 1) : $aspectRatio;
+
+if (isset($aspectRatios[$aspectRatio])) {
+    $aspectRatio = $aspectRatios[$aspectRatio];
+}
+
+if ($negateAspectRatio) {
+    $aspectRatio = 1 / $aspectRatio;
+}
+
+is_null($aspectRatio)
+    or is_numeric($aspectRatio)
+    or errorPage('Aspect ratio out of range');
+
+verbose("aspect ratio = $aspectRatio");
+
+
+
+/**
+ * crop-to-fit, cf - affecting the resulting image width, height and resize options
+ */
+$cropToFit = getDefined(array('crop-to-fit', 'cf'), true, false);
+
+verbose("crop to fit = $cropToFit");
+
+
+
+/**
+ * Set default background color from config file.
+ */
+$backgroundColor = getConfig('background_color', null);
+
+if ($backgroundColor) {
+    $img->setDefaultBackgroundColor($backgroundColor);
+    verbose("Using default background_color = $backgroundColor");
+}
+
+
+
+/**
+ * bgColor - Default background color to use
+ */
+$bgColor = get(array('bgColor', 'bg-color', 'bgc'), null);
+
+verbose("bgColor = $bgColor");
+
+
+
+/**
+ * Do or do not resample image when resizing.
+ */
+$resizeStrategy = getDefined(array('no-resample'), true, false);
+
+if ($resizeStrategy) {
+    $img->setCopyResizeStrategy($img::RESIZE);
+    verbose("Setting = Resize instead of resample");
+}
+
+
+
+
+/**
+ * fill-to-fit, ff - affecting the resulting image width, height and resize options
+ */
+$fillToFit = get(array('fill-to-fit', 'ff'), null);
+
+verbose("fill-to-fit = $fillToFit");
+
+if ($fillToFit !== null) {
+
+    if (!empty($fillToFit)) {
+        $bgColor   = $fillToFit;
+        verbose("fillToFit changed bgColor to = $bgColor");
+    }
+
+    $fillToFit = true;
+    verbose("fill-to-fit (fixed) = $fillToFit");
+}
+
+
+
+/**
+ * no-ratio, nr, stretch - affecting the resulting image width, height and resize options
+ */
+$keepRatio = getDefined(array('no-ratio', 'nr', 'stretch'), false, true);
+
+verbose("keep ratio = $keepRatio");
+
+
+
+/**
+ * crop, c - affecting the resulting image width, height and resize options
+ */
+$crop = get(array('crop', 'c'));
+
+verbose("crop = $crop");
+
+
+
+/**
+ * area, a - affecting the resulting image width, height and resize options
+ */
+$area = get(array('area', 'a'));
+
+verbose("area = $area");
+
+
+
+/**
+ * skip-original, so - skip the original image and always process a new image
+ */
+$useOriginal = getDefined(array('skip-original', 'so'), false, true);
+
+verbose("use original = $useOriginal");
+
+
+
+/**
+ * no-cache, nc - skip the cached version and process and create a new version in cache.
+ */
+$useCache = getDefined(array('no-cache', 'nc'), false, true);
+
+verbose("use cache = $useCache");
+
+
+
+/**
+ * quality, q - set level of quality for jpeg images
+ */
+$quality = get(array('quality', 'q'));
+$qualityDefault = getConfig('jpg_quality', null);
+
+is_null($quality)
+    or ($quality > 0 and $quality <= 100)
+    or errorPage('Quality out of range');
+
+if (is_null($quality) && !is_null($qualityDefault)) {
+    $quality = $qualityDefault;
+}
+
+verbose("quality = $quality");
+
+
+
+/**
+ * compress, co - what strategy to use when compressing png images
+ */
+$compress = get(array('compress', 'co'));
+$compressDefault = getConfig('png_compression', null);
+
+is_null($compress)
+    or ($compress > 0 and $compress <= 9)
+    or errorPage('Compress out of range');
+
+if (is_null($compress) && !is_null($compressDefault)) {
+    $compress = $compressDefault;
+}
+
+verbose("compress = $compress");
+
+
+
+/**
+ * save-as, sa - what type of image to save
+ */
+$saveAs = get(array('save-as', 'sa'));
+
+verbose("save as = $saveAs");
+
+
+
+/**
+ * scale, s - Processing option, scale up or down the image prior actual resize
+ */
+$scale = get(array('scale', 's'));
+
+is_null($scale)
+    or ($scale >= 0 and $scale <= 400)
+    or errorPage('Scale out of range');
+
+verbose("scale = $scale");
+
+
+
+/**
+ * palette, p - Processing option, create a palette version of the image
+ */
+$palette = getDefined(array('palette', 'p'), true, false);
+
+verbose("palette = $palette");
+
+
+
+/**
+ * sharpen - Processing option, post filter for sharpen effect
+ */
+$sharpen = getDefined('sharpen', true, null);
+
+verbose("sharpen = $sharpen");
+
+
+
+/**
+ * emboss - Processing option, post filter for emboss effect
+ */
+$emboss = getDefined('emboss', true, null);
+
+verbose("emboss = $emboss");
+
+
+
+/**
+ * blur - Processing option, post filter for blur effect
+ */
+$blur = getDefined('blur', true, null);
+
+verbose("blur = $blur");
+
+
+
+/**
+ * rotateBefore - Rotate the image with an angle, before processing
+ */
+$rotateBefore = get(array('rotateBefore', 'rotate-before', 'rb'));
+
+is_null($rotateBefore)
+    or ($rotateBefore >= -360 and $rotateBefore <= 360)
+    or errorPage('RotateBefore out of range');
+
+verbose("rotateBefore = $rotateBefore");
+
+
+
+/**
+ * rotateAfter - Rotate the image with an angle, before processing
+ */
+$rotateAfter = get(array('rotateAfter', 'rotate-after', 'ra', 'rotate', 'r'));
+
+is_null($rotateAfter)
+    or ($rotateAfter >= -360 and $rotateAfter <= 360)
+    or errorPage('RotateBefore out of range');
+
+verbose("rotateAfter = $rotateAfter");
+
+
+
+/**
+ * autoRotate - Auto rotate based on EXIF information
+ */
+$autoRotate = getDefined(array('autoRotate', 'auto-rotate', 'aro'), true, false);
+
+verbose("autoRotate = $autoRotate");
+
+
+
+/**
+ * filter, f, f0-f9 - Processing option, post filter for various effects using imagefilter()
+ */
+$filters = array();
+$filter = get(array('filter', 'f'));
+if ($filter) {
+    $filters[] = $filter;
+}
+
+for ($i = 0; $i < 10; $i++) {
+    $filter = get(array("filter{$i}", "f{$i}"));
+    if ($filter) {
+        $filters[] = $filter;
+    }
+}
+
+verbose("filters = " . print_r($filters, 1));
+
+
+
+/**
+* json -  output the image as a JSON object with details on the image.
+* ascii - output the image as ASCII art.
+ */
+$outputFormat = getDefined('json', 'json', null);
+$outputFormat = getDefined('ascii', 'ascii', $outputFormat);
+
+verbose("outputformat = $outputFormat");
+
+if ($outputFormat == 'ascii') {
+    $defaultOptions = getConfig(
+        'ascii-options',
+        array(
+            "characterSet" => 'two',
+            "scale" => 14,
+            "luminanceStrategy" => 3,
+            "customCharacterSet" => null,
+        )
+    );
+    $options = get('ascii');
+    $options = explode(',', $options);
+
+    if (isset($options[0]) && !empty($options[0])) {
+        $defaultOptions['characterSet'] = $options[0];
+    }
+
+    if (isset($options[1]) && !empty($options[1])) {
+        $defaultOptions['scale'] = $options[1];
+    }
+
+    if (isset($options[2]) && !empty($options[2])) {
+        $defaultOptions['luminanceStrategy'] = $options[2];
+    }
+
+    if (count($options) > 3) {
+        // Last option is custom character string
+        unset($options[0]);
+        unset($options[1]);
+        unset($options[2]);
+        $characterString = implode($options);
+        $defaultOptions['customCharacterSet'] = $characterString;
+    }
+
+    $img->setAsciiOptions($defaultOptions);
+}
+
+
+
+
+/**
+ * dpr - change to get larger image to easier support larger dpr, such as retina.
+ */
+$dpr = get(array('ppi', 'dpr', 'device-pixel-ratio'), 1);
+
+verbose("dpr = $dpr");
+
+
+
+/**
+ * convolve - image convolution as in http://php.net/manual/en/function.imageconvolution.php
+ */
+$convolve = get('convolve', null);
+$convolutionConstant = getConfig('convolution_constant', array());
+
+// Check if the convolve is matching an existing constant
+if ($convolve && isset($convolutionConstant)) {
+    $img->addConvolveExpressions($convolutionConstant);
+    verbose("convolve constant = " . print_r($convolutionConstant, 1));
+}
+
+verbose("convolve = " . print_r($convolve, 1));
+
+
+
+/**
+ * no-upscale, nu - Do not upscale smaller image to larger dimension.
+ */
+$upscale = getDefined(array('no-upscale', 'nu'), false, true);
+
+verbose("upscale = $upscale");
+
+
+
+/**
+ * Get details for post processing
+ */
+$postProcessing = getConfig('postprocessing', array(
+    'png_filter'        => false,
+    'png_filter_cmd'    => '/usr/local/bin/optipng -q',
+
+    'png_deflate'       => false,
+    'png_deflate_cmd'   => '/usr/local/bin/pngout -q',
+
+    'jpeg_optimize'     => false,
+    'jpeg_optimize_cmd' => '/usr/local/bin/jpegtran -copy none -optimize',
+));
+
+
+
+/**
+ * alias - Save resulting image to another alias name.
+ * Password always apply, must be defined.
+ */
+$alias          = get('alias', null);
+$aliasPath      = getConfig('alias_path', null);
+$validAliasname = getConfig('valid_aliasname', '#^[a-z0-9A-Z-_]+$#');
+$aliasTarget    = null;
+
+if ($alias && $aliasPath && $passwordMatch) {
+
+    $aliasTarget = $aliasPath . $alias;
+    $useCache    = false;
+
+    is_writable($aliasPath)
+        or errorPage("Directory for alias is not writable.");
+
+    preg_match($validAliasname, $alias)
+        or errorPage('Filename for alias contains invalid characters. Do not add extension.');
+
+} elseif ($alias) {
+    errorPage('Alias is not enabled in the config file or password not matching.');
+}
+
+verbose("alias = $alias");
+
+
+
+/**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+
+
+
+/**
+ * Get the cachepath from config.
+ */
+$cacheControl = getConfig('cache_control', null);
+
+if ($cacheControl) {
+    verbose("cacheControl = $cacheControl");
+    $img->addHTTPHeader("Cache-Control", $cacheControl);
+}
+
+
+
+/**
+ * Prepare a dummy image and use it as source image.
+ */
+$dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
+
+if ($dummyImage === true) {
+    is_writable($dummyDir)
+        or verbose("dummy dir not writable = $dummyDir");
+
+    $img->setSaveFolder($dummyDir)
+        ->setSource($dummyFilename, $dummyDir)
+        ->setOptions(
+            array(
+                'newWidth'  => $newWidth,
+                'newHeight' => $newHeight,
+                'bgColor'   => $bgColor,
+            )
+        )
+        ->setJpegQuality($quality)
+        ->setPngCompression($compress)
+        ->createDummyImage()
+        ->generateFilename(null, false)
+        ->save(null, null, false);
+
+    $srcImage = $img->getTarget();
+    $imagePath = null;
+    
+    verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Display status
+ */
+if ($status) {
+    $text  = "img.php version = $version\n";
+    $text .= "PHP version = " . PHP_VERSION . "\n";
+    $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
+    $text .= "Allow remote images = $allowRemote\n";
+    $text .= "Cache writable = " . is_writable($cachePath) . "\n";
+    $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
+    $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
+
+    $no = extension_loaded('exif') ? null : 'NOT';
+    $text .= "Extension exif is $no loaded.<br>";
+
+    $no = extension_loaded('curl') ? null : 'NOT';
+    $text .= "Extension curl is $no loaded.<br>";
+
+    $no = extension_loaded('gd') ? null : 'NOT';
+    $text .= "Extension gd is $no loaded.<br>";
+
+    if (!$no) {
+        $text .= print_r(gd_info(), 1);
+    }
+
+    echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage status</title>
+<pre>$text</pre>
+EOD;
+    exit;
+}
+
+
+
+/**
+ * Log verbose details to file
+ */
+if ($verboseFile) {
+    $img->setVerboseToFile("$cachePath/log.txt");
+}
+
+
+
+/**
+ * Hook after img.php configuration and before processing with CImage
+ */
+$hookBeforeCImage = getConfig('hook_before_CImage', null);
+
+if (is_callable($hookBeforeCImage)) {
+    verbose("hookBeforeCImage activated");
+    
+    $allConfig = $hookBeforeCImage($img, array(
+            // Options for calculate dimensions
+            'newWidth'  => $newWidth,
+            'newHeight' => $newHeight,
+            'aspectRatio' => $aspectRatio,
+            'keepRatio' => $keepRatio,
+            'cropToFit' => $cropToFit,
+            'fillToFit' => $fillToFit,
+            'crop'      => $crop,
+            'area'      => $area,
+            'upscale'   => $upscale,
+
+            // Pre-processing, before resizing is done
+            'scale'        => $scale,
+            'rotateBefore' => $rotateBefore,
+            'autoRotate'   => $autoRotate,
+
+            // General processing options
+            'bgColor'    => $bgColor,
+
+            // Post-processing, after resizing is done
+            'palette'   => $palette,
+            'filters'   => $filters,
+            'sharpen'   => $sharpen,
+            'emboss'    => $emboss,
+            'blur'      => $blur,
+            'convolve'  => $convolve,
+            'rotateAfter' => $rotateAfter,
+
+            // Output format
+            'outputFormat' => $outputFormat,
+            'dpr'          => $dpr,
+            
+            // Other
+            'postProcessing' => $postProcessing,
+    ));
+    verbose(print_r($allConfig, 1));
+    extract($allConfig);
+}
+
+
+
+/**
+ * Display image if verbose mode
+ */
+if ($verbose) {
+    $query = array();
+    parse_str($_SERVER['QUERY_STRING'], $query);
+    unset($query['verbose']);
+    unset($query['v']);
+    unset($query['nocache']);
+    unset($query['nc']);
+    unset($query['json']);
+    $url1 = '?' . htmlentities(urldecode(http_build_query($query)));
+    $url2 = '?' . urldecode(http_build_query($query));
+    echo <<<EOD
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>CImage verbose output</title>
+<style>body{background-color: #ddd}</style>
+<a href=$url1><code>$url1</code></a><br>
+<img src='{$url1}' />
+<pre id="json"></pre>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+window.getDetails = function (url, id) {
+  $.getJSON(url, function(data) {
+    element = document.getElementById(id);
+    element.innerHTML = "filename: " + data.filename + "\\nmime type: " + data.mimeType + "\\ncolors: " + data.colors + "\\nsize: " + data.size + "\\nwidth: " + data.width + "\\nheigh: " + data.height + "\\naspect-ratio: " + data.aspectRatio + ( data.pngType ? "\\npng-type: " + data.pngType : '');
+  });
+}
+</script>
+<script type="text/javascript">window.getDetails("{$url2}&json", "json")</script>
+EOD;
+}
+
+
+
+/**
+ * Load, process and output the image
+ */
+$img->log("Incoming arguments: " . print_r(verbose(), 1))
+    ->setSaveFolder($cachePath)
+    ->useCache($useCache)
+    ->setSource($srcImage, $imagePath)
+    ->setOptions(
+        array(
+            // Options for calculate dimensions
+            'newWidth'  => $newWidth,
+            'newHeight' => $newHeight,
+            'aspectRatio' => $aspectRatio,
+            'keepRatio' => $keepRatio,
+            'cropToFit' => $cropToFit,
+            'fillToFit' => $fillToFit,
+            'crop'      => $crop,
+            'area'      => $area,
+            'upscale'   => $upscale,
+
+            // Pre-processing, before resizing is done
+            'scale'        => $scale,
+            'rotateBefore' => $rotateBefore,
+            'autoRotate'   => $autoRotate,
+
+            // General processing options
+            'bgColor'    => $bgColor,
+
+            // Post-processing, after resizing is done
+            'palette'   => $palette,
+            'filters'   => $filters,
+            'sharpen'   => $sharpen,
+            'emboss'    => $emboss,
+            'blur'      => $blur,
+            'convolve'  => $convolve,
+            'rotateAfter' => $rotateAfter,
+
+            // Output format
+            'outputFormat' => $outputFormat,
+            'dpr'          => $dpr,
+        )
+    )
+    ->loadImageDetails()
+    ->initDimensions()
+    ->calculateNewWidthAndHeight()
+    ->setSaveAsExtension($saveAs)
+    ->setJpegQuality($quality)
+    ->setPngCompression($compress)
+    ->useOriginalIfPossible($useOriginal)
+    ->generateFilename($cachePath)
+    ->useCacheIfPossible($useCache)
+    ->load()
+    ->preResize()
+    ->resize()
+    ->postResize()
+    ->setPostProcessingOptions($postProcessing)
+    ->save()
+    ->linkToCacheFile($aliasTarget)
+    ->output();
+

@@ -5,11 +5,14 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.7* (2015-10-24)
+v0.7.7* (2015-10-25)
 -------------------------------------
 
 * Added conversion to sRGB using option `?srgb`. #120. 
 * Change path in `webroot/htaccess` to make it work in current environment.
+* More examples on dealing with cache through bash `bin/cache.bash`, #129.
+* Added Gitter badge to README, #126.
+* Fix proper download url in README, #125.
 
 
 v0.7.7 (2015-10-21)
