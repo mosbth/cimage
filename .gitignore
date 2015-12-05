@@ -3,3 +3,7 @@ cache/*
 
 # Test and build
 build/
+
+# Composer
+composer.lock
+vendor/
