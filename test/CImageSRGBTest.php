@@ -38,7 +38,7 @@ class CImageSRGBTest extends \PHPUnit_Framework_TestCase
         $img = new CImage();
 
         $filename = $img->convert2sRGBColorSpace(
-            'car.png', 
+            'car.png',
             IMAGE_PATH,
             $this->cache,
             $this->srgbColorProfile
@@ -63,8 +63,8 @@ class CImageSRGBTest extends \PHPUnit_Framework_TestCase
         $img = new CImage();
 
         $filename = $img->convert2sRGBColorSpace(
-            'car.jpg', 
-            IMAGE_PATH, 
+            'car.jpg',
+            IMAGE_PATH,
             $this->cache,
             $this->srgbColorProfile
         );

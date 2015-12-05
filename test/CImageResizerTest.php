@@ -21,7 +21,7 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
 
             // $strategy
             // $srcWidth, $srcHeight, $targetWidth, $targetHeight,
-            // $aspectRatio, $dpr, 
+            // $aspectRatio, $dpr,
             // $expectedWidth, $expectedHeight,
             // $expectedWidth2, $expectedHeight2
             
@@ -162,7 +162,7 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
      */
     public function testResizeStrategy($strategy, $str)
     {
-    $img = new CImageResizer(/*'logger'*/);
+        $img = new CImageResizer(/*'logger'*/);
 
         $img->setResizeStrategy($strategy);
         $res = $img->getResizeStrategyAsString();

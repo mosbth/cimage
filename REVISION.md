@@ -1,11 +1,18 @@
 Revision history
 =====================================
 
-[![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=master)](https://travis-ci.org/mosbth/cimage)
-[![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.7* (2015-10-25)
+v0.8.* (2015-12-05) (branch resize)
+-------------------------------------
+
+* Improving build phase using travis and scrutinizer.
+* Code validating with phpunit and phpcs.
+* Moved classes to src/, adding namespace and support PSR-4.
+* Require PHP 5.4.
+
+
+v0.7.7* (2015-10-25) (branch master)
 -------------------------------------
 
 * Added conversion to sRGB using option `?srgb`. #120. 

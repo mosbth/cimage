@@ -46,7 +46,7 @@ class CImageResizerStrategyStretchTest extends \PHPUnit_Framework_TestCase
      */
     public function testResize1($sw, $sh, $tw, $th, $twa, $tha, $cx, $cy, $cw, $ch)
     {
-    $img = new CImageResizer(/*'logger'/**/);
+        $img = new CImageResizer(/*'logger'/**/);
 
         $img->setSource($sw, $sh)
             ->setBaseWidthHeight($tw, $th)

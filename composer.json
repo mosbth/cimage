@@ -1,8 +1,8 @@
 {
     "name": "mos/cimage",    
     "type": "library",
-    "description": "Process, scale, resize, crop and filter images.",
-    "keywords": ["image", "imageprocessing", "gd"],
+    "description": "Serverside image processing with PHP GD. Process, scale, resize, crop and filter images.",
+    "keywords": ["image", "imageprocessing", "gd", "crop", "resize"],
     "homepage": "http://dbwebb.se/opensource/cimage",
     "license": "MIT",
     "authors": [
@@ -18,15 +18,9 @@
         "docs": "http://dbwebb.se/opensource/cimage"
     },
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.4"
     },
     "autoload": {
-        "classmap": [
-            "CImage.php",
-            "CHttpGet.php",
-            "CRemoteImage.php",
-            "CWhitelist.php",
-            "CAsciiArt.php"
-        ]
+        "classmap": [ "src/CImage/" ]
     }
 }

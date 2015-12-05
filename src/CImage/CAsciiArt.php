@@ -175,7 +175,7 @@ class CAsciiArt
      */
     public function getLuminance($red, $green, $blue)
     {
-        switch($this->luminanceStrategy) {
+        switch ($this->luminanceStrategy) {
             case 1:
                 $luminance = ($red * 0.2126 + $green * 0.7152 + $blue * 0.0722) / 255;
                 break;

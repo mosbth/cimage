@@ -208,8 +208,8 @@ class CImage
     /**
      * Path to command to optimize jpeg images, for example jpegtran or null.
      */
-     private $jpegOptimize;
-     private $jpegOptimizeCmd;
+    private $jpegOptimize;
+    private $jpegOptimizeCmd;
 
 
 
@@ -339,8 +339,8 @@ class CImage
     /**
      * Used with option area to set which parts of the image to use.
      */
-     private $area;
-     private $offset;
+    private $area;
+    private $offset;
 
 
 
@@ -401,14 +401,14 @@ class CImage
      */
      const RESIZE = 1;
      const RESAMPLE = 2;
-     private $copyStrategy = NULL;
+    private $copyStrategy = null;
 
 
 
      /*
       * Class for image resizer.
       */
-      private $imageResizer = null;
+    private $imageResizer = null;
 
     /**
      * Properties, the class is mutable and the method setOptions()
@@ -637,7 +637,7 @@ class CImage
         
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
-            }
+        }
 
         return $extension;
     }
@@ -1343,7 +1343,7 @@ class CImage
             $subdir .= '_';
         }
         
-        $file = $prefix . $subdir . $filename . $width . $height 
+        $file = $prefix . $subdir . $filename . $width . $height
             . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
@@ -1484,7 +1484,7 @@ class CImage
         $index = imagecolortransparent($this->image);
         $transparent = null;
         if ($index != -1) {
-            $transparent = " (transparent)";            
+            $transparent = " (transparent)";
         }
 
         switch ($pngType) {
@@ -1594,11 +1594,11 @@ class CImage
      *
      * @return $this
      */
-     public function setCopyResizeStrategy($strategy)
-     {
-         $this->copyStrategy = $strategy;
-         return $this;
-     }
+    public function setCopyResizeStrategy($strategy)
+    {
+        $this->copyStrategy = $strategy;
+        return $this;
+    }
 
 
 
@@ -1609,7 +1609,7 @@ class CImage
      */
     public function imageCopyResampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
     {
-        if($this->copyStrategy == self::RESIZE) {
+        if ($this->copyStrategy == self::RESIZE) {
             $this->log("Copy by resize");
             imagecopyresized($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
         } else {
@@ -2298,7 +2298,7 @@ class CImage
 
         $type = $this->getTargetImageExtension();
         $this->Log("Saving image as " . $type);
-        switch($type) {
+        switch ($type) {
 
             case 'jpeg':
             case 'jpg':
@@ -2424,7 +2424,7 @@ class CImage
             $colorspace = $image->getImageColorspace();
             $this->log(" Current colorspace: " . $colorspace);
 
-            $profiles      = $image->getImageProfiles('*', false); 
+            $profiles      = $image->getImageProfiles('*', false);
             $hasICCProfile = (array_search('icc', $profiles) !== false);
             $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
 
@@ -2535,7 +2535,7 @@ class CImage
             header('Last-Modified: ' . $gmdate . " GMT");
         }
 
-        foreach($this->HTTPHeader as $key => $val) {
+        foreach ($this->HTTPHeader as $key => $val) {
             header("$key: $val");
         }
 

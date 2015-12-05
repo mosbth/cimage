@@ -1,6 +1,5 @@
 # Cache files
 cache/*
 
-# Test
-coverage/
-coverage.clover
+# Test and build
+build/

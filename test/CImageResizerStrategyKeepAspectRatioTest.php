@@ -44,21 +44,21 @@ class CImageResizerStrategyKeepAspectRatioTest extends \PHPUnit_Framework_TestCa
      *
      * @return void
      */
-     public function testResize1($sw, $sh, $tw, $th, $twa, $tha, $cx, $cy, $cw, $ch)
-     {
-     $img = new CImageResizer(/*'logger'/**/);
+    public function testResize1($sw, $sh, $tw, $th, $twa, $tha, $cx, $cy, $cw, $ch)
+    {
+        $img = new CImageResizer(/*'logger'/**/);
 
-         $img->setSource($sw, $sh)
-             ->setBaseWidthHeight($tw, $th)
-             ->setResizeStrategy(CImageResizer::KEEP_RATIO)
-             ->calculateTargetWidthAndHeight();
+        $img->setSource($sw, $sh)
+            ->setBaseWidthHeight($tw, $th)
+            ->setResizeStrategy(CImageResizer::KEEP_RATIO)
+            ->calculateTargetWidthAndHeight();
 
-         $this->assertEquals($twa, $img->getTargetWidth(), "Target width not correct.");
-         $this->assertEquals($tha, $img->getTargetHeight(), "Target height not correct.");
+        $this->assertEquals($twa, $img->getTargetWidth(), "Target width not correct.");
+        $this->assertEquals($tha, $img->getTargetHeight(), "Target height not correct.");
 
-         $this->assertEquals($cx, $img->getCropX(), "CropX not correct.");
-         $this->assertEquals($cy, $img->getCropY(), "CropY not correct.");
-         $this->assertEquals($cw, $img->getCropWidth(), "CropWidth not correct.");
-         $this->assertEquals($ch, $img->getCropHeight(), "CropHeight not correct.");
-     }
+        $this->assertEquals($cx, $img->getCropX(), "CropX not correct.");
+        $this->assertEquals($cy, $img->getCropY(), "CropY not correct.");
+        $this->assertEquals($cw, $img->getCropWidth(), "CropWidth not correct.");
+        $this->assertEquals($ch, $img->getCropHeight(), "CropHeight not correct.");
+    }
 }

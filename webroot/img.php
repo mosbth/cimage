@@ -244,7 +244,7 @@ $pwd         = get(array('password', 'pwd'), null);
 // Check if passwords match, if configured to use passwords
 $passwordMatch = null;
 if ($pwd) {
-    switch($pwdType) {
+    switch ($pwdType) {
         case 'md5':
             $passwordMatch = ($pwdConfig === md5($pwd));
             break;
@@ -996,8 +996,8 @@ if ($srgb || $srgbDefault) {
     }
 
     $filename = $img->convert2sRGBColorSpace(
-        $srcImage, 
-        $imagePath, 
+        $srcImage,
+        $imagePath,
         $srgbDir,
         $srgbColorProfile,
         $useCache
