@@ -22,7 +22,8 @@ $images = array(
 
 
 // For each image, apply these testcases
-$nc = null; //"&nc"; //null; //&nc'; 
+$nc = empty($_SERVER['QUERY_STRING']) ? "" : "&" . $_SERVER['QUERY_STRING'];
+
 $testcase = array(
     $nc . '&w=600',
     $nc . '&w=600&no-upscale',
@@ -42,8 +43,8 @@ $testcase = array(
     $nc . '&w=600&h=200&no-upscale&crop-to-fit',
     $nc . '&w=300&h=400&crop-to-fit',
     $nc . '&w=300&h=400&no-upscale&crop-to-fit',
-    $nc . '&w=600&h=400&fill-to-fit',
-    $nc . '&w=600&h=400&no-upscale&fill-to-fit',
+    $nc . '&w=600&h=500&fill-to-fit',
+    $nc . '&w=600&h=500&no-upscale&fill-to-fit',
 /*
     $nc . '&w=600&ar=1.6',
     $nc . '&w=600&ar=1.6&no-upscale',

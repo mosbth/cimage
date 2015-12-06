@@ -24,12 +24,20 @@ class CImageResizer
 
 
     /**
-     * Set as expected target image dimensions.
+     * Set as expected target image/canvas dimensions.
      */
     private $targetWidth;
-    //private $targetWidthOrig;  // Save original value
     private $targetHeight;
-    //private $targetheightOrig; // Save original value
+
+
+
+    /**
+     * Where should the image go on the canvas.
+     */
+    private $destinationX;
+    private $destinationY;
+    private $destinationWidth;
+    private $destinationHeight;
 
 
 
@@ -114,7 +122,14 @@ class CImageResizer
     /**
      * The currently selected resize strategy.
      */
-    private $resizeStrategy;
+    private $resizeStrategy = self::KEEP_RATIO;
+
+
+
+    /**
+     * Allow upscale of smaller images by default, set to false to disallow.
+     */
+    private $upscale = true;
 
 
 
@@ -177,15 +192,19 @@ class CImageResizer
             case self::KEEP_RATIO:
                 return "KEEP_RATIO";
                 break;
-             
+
             case self::CROP_TO_FIT:
                 return "CROP_TO_FIT";
                 break;
-                
+
             case self::FILL_TO_FIT:
                 return "FILL_TO_FIT";
                 break;
-            
+
+            case self::STRETCH:
+                return "STRETCH";
+                break;
+
             default:
                 return "UNKNOWN";
         }
@@ -210,16 +229,52 @@ class CImageResizer
 
 
 
-     /**
-      * Set base for requested width and height.
-      *
-      * @param numeric|null $width  as requested target width
-      * @param numeric|null $height as requested target height
-      *
-      * @throws Exception
-      *
-      * @return $this
-      */
+    /**
+     * Allow or disallow upscale smaller images.
+     *
+     * @param boolean $upscale
+     *
+     * @return $this
+     */
+    public function allowUpscale($upscale)
+    {
+        $this->upscale = $upscale;
+        $this->log("# Allow upscale is $this->upscale.");
+
+        return $this;
+    }
+
+
+
+    /**
+     * Check if a value is upscaled or not by compare $current to $orig,
+     * if $current is larger than $orig then check if upscaled is allowed.
+     *
+     * @param float &$current value to check and change.
+     * @param float  $orig    value to check against.
+     *
+     * @return float as the value respected by the upscale setting.
+     */
+    public function respectUpscale(&$current, $orig)
+    {
+        if (!$this->upscale && $current > $orig) {
+            $this->log("# Disallowed upscale of $orig to $current");
+            $current = $orig;
+        }
+    }
+
+
+
+    /**
+     * Set base for requested width and height.
+     *
+     * @param numeric|null $width  as requested target width
+     * @param numeric|null $height as requested target height
+     *
+     * @throws Exception
+     *
+     * @return $this
+     */
     public function setBaseWidthHeight($width = null, $height = null)
     {
         $this->log("# Set base for width and height.");
@@ -332,11 +387,11 @@ class CImageResizer
             $this->targetHeight = ($this->aspectRatio >= 1)
                 ? null
                 : $this->srcHeight;
-            
+
             $this->log("  Using source as base {$this->targetWidth}x{$this->targetHeight}");
 
         }
-        
+
         // Both or either set, calculate the other
         if (isset($this->targetWidth) && isset($this->targetHeight)) {
 
@@ -347,7 +402,7 @@ class CImageResizer
             $this->targetHeight = ($this->aspectRatio >= 1)
                 ? $this->targetWidth / $this->aspectRatio
                 : $this->targetHeight;
-            
+
             $this->log("  New target width height {$this->targetWidth}x{$this->targetHeight}");
 
         } elseif (isset($this->targetWidth)) {
@@ -419,7 +474,7 @@ class CImageResizer
 
         $this->prepareByConsiderAspectRatio()
              ->prepareByConsiderDpr();
-         
+
         $this->log(" Prepare target dimension (after): {$this->targetWidth}x{$this->targetHeight}.");
 
         return $this;
@@ -437,18 +492,6 @@ class CImageResizer
         $this->log("# Calculate new width and height.");
         $this->log(" Source size {$this->srcWidth}x{$this->srcHeight}.");
         $this->log(" Target dimension (before) {$this->targetWidth}x{$this->targetHeight}.");
-/*
-        // Set default values to crop area to be whole source image
-        $aspectRatio       = $this->srcWidth / $this->srcHeight;
-        $this->cropX       = 0;
-        $this->cropY       = 0;
-        $this->cropWidth   = $this->srcWidth;
-        $this->cropHeight  = $this->srcHeight;
-
-        // Get relations of original & target image
-        $width  = $this->srcWidth;
-        $height = $this->srcHeight;
-*/
 
         // Set default values to crop area to be whole source image
         $sw = $this->srcWidth;
@@ -456,10 +499,17 @@ class CImageResizer
         $ar = $sw / $sh;
         $tw = $this->targetWidth;
         $th = $this->targetHeight;
+        $dx = 0;
+        $dy = 0;
+        $dw = null;
+        $dh = null;
         $cx = 0;
         $cy = 0;
-        $cw = $this->srcWidth;
-        $ch = $this->srcHeight;
+        $cw = $sw;
+        $ch = $sh;
+        $rs = $this->resizeStrategy;
+        $both = isset($tw) && isset($th);
+        $ratio = $both ? $tw / $th : null;
 
         if (is_null($tw) && is_null($th)) {
 
@@ -471,109 +521,103 @@ class CImageResizer
         } elseif (isset($tw) && is_null($th)) {
 
             // Keep aspect ratio, make th based on tw
+            $this->respectUpscale($tw, $sw);
             $th = $tw / $ar;
             $this->log("  New th x{$th}");
 
         } elseif (is_null($tw) && isset($th)) {
 
             // Keep aspect ratio, make tw based on th
+            $this->respectUpscale($th, $sh);
             $tw = $th * $ar;
             $this->log("  New tw {$tw}x");
 
-        } elseif (isset($tw) && isset($th)) {
+        } elseif ($rs === CImageResizer::KEEP_RATIO && $both) {
 
-            // Keep aspect ratio, make fit in imaginary box
-            if ($ar < 1) {
+            // Keep aspect ratio, make fit in box not larger than tw/th
+            $this->log("  Keep ratio, ratio target=$ratio, source=$ar");
+            
+            if ($ratio > $ar) {
+                $this->respectUpscale($th, $sh);
                 $tw = $th * $ar;
-                $this->log("  New tw {$tw}x");
-            } else {
+                $this->log("   New tw {$tw}x");
+            } elseif ($ratio < $ar) {
+                $this->respectUpscale($tw, $sw);
                 $th = $tw / $ar;
-                $this->log("  New th x{$th}");
+                $this->log("   New th x{$th}");
+            } else {
+                $this->respectUpscale($tw, $sw);
+                $this->respectUpscale($th, $sh);
             }
+
+        } elseif ($rs === CImageResizer::STRETCH && $both) {
+
+            // Stretch to fit, leave as is
+            $this->log("  Stretch, leave as is");
+            $this->respectUpscale($tw, $sw);
+            $this->respectUpscale($th, $sh);
+
+        } elseif ($rs === CImageResizer::CROP_TO_FIT && $both) {
+
+            // Crop to fit image in box
+            // Ignores respectUpscale by intention
+            $this->log("  Crop to fit, ratio target=$ratio, source=$ar");
+
+            if ($ratio > $ar) {
+                $ch = $sw / $ratio;
+                $cy = ($sh - $ch) / 2;
+            } elseif ($ratio < $ar) {
+                $cw = $sh * $ratio;
+                $cx = ($sw - $cw) / 2;
+            }
+
+            $this->log("   Parts cx=$cx, cy=$cy, cw=$cw, ch=$ch");
+
+        } elseif ($rs === CImageResizer::FILL_TO_FIT && $both) {
+
+            // Fill to fit image in box
+            $this->log("  Fill to fit, ratio target=$ratio, source=$ar");
+            $dw = $tw;
+            $dh = $th;
+
+            if ($ratio > $ar) {
+                $dw = $th * $ar;
+                $dh = $th;
+            } elseif ($ratio < $ar) {
+                $dw = $tw;
+                $dh = $tw / $ar;
+            }
+            
+            $this->respectUpscale($dw, $sw);
+            $this->respectUpscale($dh, $sh);
+            $dx = ($tw - $dw) / 2;
+            $dy = ($th - $dh) / 2;
+
+            $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
+
         }
 
-/*
-        if (isset($tw) && isset($th)) {
+        // All done, sum it up
+        $dw = is_null($dw) ? $tw : $dw;
+        $dh = is_null($dh) ? $th : $dh;
 
-            // Both new width and height are set.
-            // Use targetWidth and targetHeight as max width/height, image
-            // should not be larger.
-            $ratioWidth  = $width  / $this->targetWidth;
-            $ratioHeight = $height / $this->targetHeight;
-            $ratio = ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
-            $this->targetWidth  = round($width  / $ratio);
-            $this->targetHeight = round($height / $ratio);
-            $this->log("  New width and height was set.");
-
-        } elseif (isset($this->targetWidth)) {
-
-            // Use new width as max-width
-            $factor = (float)$this->targetWidth / (float)$width;
-            $this->targetHeight = round($factor * $height);
-            $this->log("  New height x$this->targetHeight.");
-
-        } elseif (isset($this->targetHeight)) {
-
-            // Use new height as max-hight
-            $factor = (float)$this->targetHeight / (float)$height;
-            $this->targetWidth = round($factor * $width);
-            $this->log("  New width {$this->targetWidth}x.");
-
-        }
-
-*/
-
-        // No new height or width is set, use existing measures.
-
-/*
-        $this->targetWidth  = isset($this->targetWidth)
-           ? $this->targetWidth
-           : $this->srcWidth;
-        $this->targetHeight = isset($this->targetHeight)
-           ? $this->targetHeight
-           : $this->srcHeight;
-*/
-
-        $this->targetWidth  = round($tw);
-        $this->targetHeight = round($th);
-        $this->cropX        = round($cx);
-        $this->cropY        = round($cy);
-        $this->cropWidth    = round($cw);
-        $this->cropHeight   = round($ch);
+        $this->targetWidth       = round($tw);
+        $this->targetHeight      = round($th);
+        $this->destinationX      = round($dx);
+        $this->destinationY      = round($dy);
+        $this->destinationWidth  = round($dw);
+        $this->destinationHeight = round($dh);
+        $this->cropX             = round($cx);
+        $this->cropY             = round($cy);
+        $this->cropWidth         = round($cw);
+        $this->cropHeight        = round($ch);
 
         $this->log(" Target dimension (after) {$this->targetWidth}x{$this->targetHeight}.");
-        $this->log(" Crop {$this->cropX}x{$this->cropY} by {$this->cropWidth}x{$this->cropHeight}.");
-
+        $this->log("  Crop area {$this->cropX}x{$this->cropY} by {$this->cropWidth}x{$this->cropHeight}.");
+        $this->log("  Destination area {$this->destinationX}x{$this->destinationY} by {$this->destinationWidth}x{$this->destinationHeight}.");
 
 
 /*
-        $ratioWidth  = $this->srcWidth  / $this->targetWidth;
-        $ratioHeight = $this->srcHeight / $this->targetHeight;
-
-
-
-        if ($this->resizeStrategy === self::CROP_TO_FIT) {
-
-            // Use targetWidth and targetHeight as defined
-            // width/height, image should fit the area.
-            $this->log(" Crop to fit.");
-            $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
-            $this->cropWidth  = round($width  / $ratio);
-            $this->cropHeight = round($height / $ratio);
-            $this->log(" Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
-
-        } elseif ($this->resizeStrategy === self::FILL_TO_FIT) {
-
-            // Use targetWidth and targetHeight as defined
-            // width/height, image should fit the area.
-            $this->log(" Fill to fit.");
-            $ratio = ($ratioWidth < $ratioHeight) ? $ratioHeight : $ratioWidth;
-            $this->fillWidth  = round($width  / $ratio);
-            $this->fillHeight = round($height / $ratio);
-            $this->log(" Fill width, height, ratio: $this->fillWidth x $this->fillHeight ($ratio).");
-        }
-*/
-
 
         // Check if there is an area to crop off
         if (isset($this->area)) {
@@ -614,85 +658,6 @@ class CImageResizer
             $this->log(" Crop area is width {$width}px, height {$height}px, start_x {$this->crop['start_x']}px, start_y {$this->crop['start_y']}px.");
         }
 
-/*
-        // Calculate new width and height if keeping aspect-ratio.
-        if ($this->resizeStrategy === self::KEEP_RATIO) {
-
-            $this->log(" Keep aspect ratio.");
-
-            // Crop-to-fit and both new width and height are set.
-            if (($this->resizeStrategy === self::CROP_TO_FIT
-               || $this->resizeStrategy === self::FILL_TO_FIT)
-               && isset($this->targetWidth)
-               && isset($this->targetHeight)
-           ) {
-
-                // Use targetWidth and targetHeight as width/height, image should
-                // fit in box.
-                $this->log(" Use targetWidth and targetHeight as width/height, image should fit in box.");
-
-            } elseif (isset($this->targetWidth) && isset($this->targetHeight)) {
-
-                // Both new width and height are set.
-                // Use targetWidth and targetHeight as max width/height, image
-                // should not be larger.
-                $ratioWidth  = $width  / $this->targetWidth;
-                $ratioHeight = $height / $this->targetHeight;
-                $ratio = ($ratioWidth > $ratioHeight) ? $ratioWidth : $ratioHeight;
-                $this->targetWidth  = round($width  / $ratio);
-                $this->targetHeight = round($height / $ratio);
-                $this->log("  New width and height was set.");
-
-            } elseif (isset($this->targetWidth)) {
-
-                // Use new width as max-width
-                $factor = (float)$this->targetWidth / (float)$width;
-                $this->targetHeight = round($factor * $height);
-                $this->log("  New height x$this->targetHeight.");
-
-            } elseif (isset($this->targetHeight)) {
-
-                // Use new height as max-hight
-                $factor = (float)$this->targetHeight / (float)$height;
-                $this->targetWidth = round($factor * $width);
-                $this->log("  New width {$this->targetWidth}x.");
-
-            }
-        }
-         
-
-/*
-        // Get image dimensions for pre-resize image.
-        if ($this->resizeStrategy === self::CROP_TO_FIT
-           || $this->resizeStrategy === self::FILL_TO_FIT
-        ) {
-
-            // Get relations of original & target image
-            $ratioWidth  = $width  / $this->targetWidth;
-            $ratioHeight = $height / $this->targetHeight;
-
-            if ($this->resizeStrategy === self::CROP_TO_FIT) {
-
-                // Use targetWidth and targetHeight as defined
-                // width/height, image should fit the area.
-                $this->log(" Crop to fit.");
-                $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
-                $this->cropWidth  = round($width  / $ratio);
-                $this->cropHeight = round($height / $ratio);
-                $this->log(" Crop width, height, ratio: $this->cropWidth x $this->cropHeight ($ratio).");
-
-            } elseif ($this->resizeStrategy === self::FILL_TO_FIT) {
-
-                // Use targetWidth and targetHeight as defined
-                // width/height, image should fit the area.
-                $this->log(" Fill to fit.");
-                $ratio = ($ratioWidth < $ratioHeight) ? $ratioHeight : $ratioWidth;
-                $this->fillWidth  = round($width  / $ratio);
-                $this->fillHeight = round($height / $ratio);
-                $this->log(" Fill width, height, ratio: $this->fillWidth x $this->fillHeight ($ratio).");
-            }
-        }
-*/
 
 
         // Crop, ensure to set new width and height
@@ -706,38 +671,105 @@ class CImageResizer
                : $this->crop['height']);
         }
 
-        // Fill to fit, ensure to set new width and height
-        /*if ($this->fillToFit) {
-            $this->log("FillToFit.");
-            $this->targetWidth = round(isset($this->targetWidth) ? $this->targetWidth : $this->crop['width']);
-            $this->targetHeight = round(isset($this->targetHeight) ? $this->targetHeight : $this->crop['height']);
-        }*/
+*/
 
         return $this;
     }
 
 
 
-     /**
-      * Get target width.
-      *
-      * @return integer as target width
-      */
-    public function getTargetwidth()
+    /**
+     * Get source width.
+     *
+     * @return integer as source width
+     */
+    public function getSourceWidth()
     {
-        return $this->targetWidth ? round($this->targetWidth) : null;
+        return $this->srcWidth;
     }
 
 
 
-     /**
-      * Get target height.
-      *
-      * @return integer as target height
-      */
-    public function getTargetheight()
+    /**
+     * Get source height.
+     *
+     * @return integer as source height
+     */
+    public function getSourceHeight()
     {
-        return $this->targetHeight ? round($this->targetHeight) : null;
+        return $this->srcHeight;
+    }
+
+
+
+    /**
+     * Get target width.
+     *
+     * @return integer as target width
+     */
+    public function getTargetWidth()
+    {
+        return $this->targetWidth;
+    }
+
+
+
+    /**
+     * Get target height.
+     *
+     * @return integer as target height
+     */
+    public function getTargetHeight()
+    {
+        return $this->targetHeight;
+    }
+
+
+
+    /**
+     * Get destination x.
+     *
+     * @return integer as destination x
+     */
+    public function getDestinationX()
+    {
+        return $this->destinationX;
+    }
+
+
+
+    /**
+     * Get destination y.
+     *
+     * @return integer as destination y
+     */
+    public function getDestinationY()
+    {
+        return $this->destinationY;
+    }
+
+
+
+    /**
+     * Get destination width.
+     *
+     * @return integer as destination width
+     */
+    public function getDestinationWidth()
+    {
+        return $this->destinationWidth;
+    }
+
+
+
+    /**
+     * Get destination height.
+     *
+     * @return integer as destination height
+     */
+    public function getDestinationHeight()
+    {
+        return $this->destinationHeight;
     }
 
 
@@ -750,14 +782,6 @@ class CImageResizer
     public function getCropX()
     {
         return $this->cropX;
-        /*
-        $cropX = 0;
-        
-        if ($this->cropWidth) {
-            $cropX = round(($this->cropWidth/2) - ($this->targetWidth/2));
-        };
-        
-        return $cropX;*/
     }
 
 
@@ -770,14 +794,6 @@ class CImageResizer
     public function getCropY()
     {
         return $this->cropY;
-        /*
-        $cropY = 0;
-        
-        if ($this->cropHeight) {
-            $cropY = round(($this->cropHeight/2) - ($this->targetHeight/2));
-        }
-        
-        return $cropY;*/
     }
 
 
@@ -790,14 +806,6 @@ class CImageResizer
     public function getCropWidth()
     {
         return $this->cropWidth;
-        /*
-        $cropWidth = $this->srcWidth;
-
-        if ($this->cropWidth) {
-            $cropWidth = round($this->cropWidth);
-        }
-
-        return $cropWidth;*/
     }
 
 
@@ -810,13 +818,5 @@ class CImageResizer
     public function getCropHeight()
     {
         return $this->cropHeight;
-        /*
-        $cropHeight = $this->srcHeight;
-
-        if ($this->cropHeight) {
-            $cropHeight = round($this->cropHeight);
-        }
-
-        return $cropHeight;*/
     }
 }

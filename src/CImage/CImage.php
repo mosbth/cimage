@@ -954,9 +954,9 @@ class CImage
     public function initDimensions()
     {
         $this->imageResizer->setBaseWidthHeight($this->newWidth, $this->newHeight)
-                          ->setBaseAspecRatio($this->aspectRatio)
-                          ->setBaseDevicePixelRate($this->dpr)
-                          ->prepareTargetDimensions();
+                           ->setBaseAspecRatio($this->aspectRatio)
+                           ->setBaseDevicePixelRate($this->dpr)
+                           ->prepareTargetDimensions();
 
         return $this;
     }
@@ -973,21 +973,26 @@ class CImage
         $imres = $this->imageResizer;
         $strategy = null;
         
-        if ($this->keepRatio == true) {
-            $strategy = $imres::KEEP_RATIO;
+        $strategy = $imres::KEEP_RATIO;
+
+        if ($this->keepRatio == false) {
+            $strategy = $imres::STRETCH;
         }
+
         if ($this->cropToFit == true) {
             $strategy = $imres::CROP_TO_FIT;
         }
+
         if ($this->fillToFit == true) {
             $strategy = $imres::FILL_TO_FIT;
         }
         
         $imres->setResizeStrategy($strategy)
+              ->allowUpscale($this->upscale)
               ->calculateTargetWidthAndHeight();
         
-        $this->newWidth  = $imres->width();
-        $this->newHeight = $imres->height();
+        //$this->newWidth  = $imres->getTargetWidth();
+        //$this->newHeight = $imres->getTargetHeight();
 
         /*
         // Crop, use cropped width and height as base for calulations
@@ -1275,6 +1280,7 @@ class CImage
         $filename     = basename($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
         $fillToFit    = $this->fillToFit    ? '_ff'                      : null;
+        $stretch      = $this->keepRatio === false ? '_st'               : null;
         $crop_x       = $this->crop_x       ? "_x{$this->crop_x}"        : null;
         $crop_y       = $this->crop_y       ? "_y{$this->crop_y}"        : null;
         $scale        = $this->scale        ? "_s{$this->scale}"         : null;
@@ -1344,7 +1350,7 @@ class CImage
         }
         
         $file = $prefix . $subdir . $filename . $width . $height
-            . $offset . $crop . $cropToFit . $fillToFit
+            . $offset . $crop . $cropToFit . $fillToFit . $stretch
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
@@ -1392,8 +1398,7 @@ class CImage
 
 
     /**
-     * Load image from disk. Try to load image without verbose error message,
-     * if fail, load again and display error messages.
+     * Load image from disk.
      *
      * @param string $src of image.
      * @param string $dir as base directory where images are.
@@ -1627,10 +1632,32 @@ class CImage
      */
     public function resize()
     {
-        $imgres = $this->imageResizer;
+        $res = $this->imageResizer;
 
         $this->log("### Starting to Resize()");
-        $this->log("Upscale = '$this->upscale'");
+        $this->log(" Upscale = '$this->upscale'");
+
+        $sw = $res->getSourceWidth();
+        $sh = $res->getSourceHeight();
+        $tw = $res->getTargetWidth();
+        $th = $res->getTargetHeight();
+        $cx = $res->getCropX();
+        $cy = $res->getCropY();
+        $cw = $res->getCropWidth();
+        $ch = $res->getCropHeight();
+        $dx = $res->getDestinationX();
+        $dy = $res->getDestinationY();
+        $dw = $res->getDestinationWidth();
+        $dh = $res->getDestinationHeight();
+
+        $img = $this->CreateImageKeepTransparency($tw, $th);
+        $this->imageCopyResampled($img, $this->image, $dx, $dy, $cx, $cy, $dw, $dh, $cw, $ch);
+        $this->image = $img;
+        $this->width = $tw;
+        $this->height = $th;
+
+        return $this;
+
 
         // Only use a specified area of the image, $this->offset is defining the area to use
         if (isset($this->offset)) {
@@ -2417,7 +2444,7 @@ class CImage
             }
         }
 
-        // Only covert if cachedir is writable
+        // Only convert if cachedir is writable
         if (is_writable($this->saveFolder)) {
             // Load file and check if conversion is needed
             $image      = new Imagick($this->pathToImage);

@@ -31,7 +31,7 @@ window.CImage = (function() {
             stack = document.getElementById("stack"),
             bg = document.getElementById("bg"),
             permalink = document.getElementById("permalink");
-            
+
         link  = "?";
         link += "input1=" + encodeURIComponent(input1.value) + "&";
         link += "input2=" + encodeURIComponent(input2.value) + "&";
@@ -59,9 +59,9 @@ window.CImage = (function() {
         button = document.getElementById("button" + id);
         area = document.getElementById("area" + id);
         deck = document.getElementById("deck" + id);
-        
+
         updatePermaLink();
-        
+
         if (this.value == "") {
             // Clear image if input is cleared
             button.setAttribute("disabled", "disabled");
@@ -75,7 +75,7 @@ window.CImage = (function() {
         area.classList.remove("hidden");
 
         $.getJSON(this.value + "&json", function(data) {
-            json.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheigh: " + data.height + "\naspect-ratio: " + data.aspectRatio + "\npng-type: " + data.pngType;
+            json.innerHTML = "filename: " + data.filename + "\ncolors: " + data.colors + "\nsize: " + data.size + "\nwidth: " + data.width + "\nheight: " + data.height + "\naspect-ratio: " + data.aspectRatio + "\npng-type: " + data.pngType;
         })
             .fail(function() {
                 json.innerHTML = "Details not available."
@@ -94,7 +94,7 @@ window.CImage = (function() {
     /**
      * Init the compare page with details.
      */
-    function compareInit(options) 
+    function compareInit(options)
     {
         var elements, id, onTop, myEvent,
             input1 = document.getElementById("input1"),
@@ -118,7 +118,7 @@ window.CImage = (function() {
         // Toggle json
         details.addEventListener("change", function() {
             var elements = document.querySelectorAll(".json");
-            
+
             forEach(elements, function (index, element) {
                 element.classList.toggle("hidden");
             });
@@ -128,7 +128,7 @@ window.CImage = (function() {
                 element.classList.toggle("hidden");
             }
             */
-            
+
             updatePermaLink();
             console.log("View JSON");
         });
@@ -215,7 +215,7 @@ window.CImage = (function() {
             element.addEventListener("click", function() {
                 var id = this.dataset.id,
                     area = document.getElementById("area" + id);
-                
+
                 area.classList.toggle("top");
                 onTop.classList.toggle("top");
                 onTop = area;
@@ -239,7 +239,7 @@ window.CImage = (function() {
         compareLoadImage.call(input6);
 
         console.log(options);
-    } 
+    }
 
 
     return {

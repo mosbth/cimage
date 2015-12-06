@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.7* (2015-10-24)";
+$version = "v0.8.0dev (2015-12-05)";
 
 
 
@@ -315,12 +315,9 @@ verbose("referer host = $refererHost");
  * Get the source files.
  */
 $autoloader  = getConfig('autoloader', false);
-$cimageClass = getConfig('cimage_class', false);
 
 if ($autoloader) {
     require $autoloader;
-} elseif ($cimageClass) {
-    require $cimageClass;
 }
 
 

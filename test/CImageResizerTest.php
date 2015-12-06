@@ -8,97 +8,13 @@ function logger($str)
     echo "$str\n";
 }
 
+function loggerDummy($str)
+{
+    ;
+}
+
 class CImageResizerTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * Provider
-     *
-     * @return array
-     */
-    public function providerImages()
-    {
-        return array(
-
-            // $strategy
-            // $srcWidth, $srcHeight, $targetWidth, $targetHeight,
-            // $aspectRatio, $dpr,
-            // $expectedWidth, $expectedHeight,
-            // $expectedWidth2, $expectedHeight2
-            
-            // Same as source, does not set target
-
-            // ===== Keep aspect ratio
-/*
-            array(1, 100, 100, null, null, null, 1, null, null,  100, 100),
-            array(1, 100, 150, null, null, null, 1, null, null,  100, 150),
-            array(1, 150, 100, null, null, null, 1, null, null,  150, 100),
-
-            // Width & Height as %
-            array(1, 100, 100, '200%', null, null, 1,  200, null,  200, 200),
-            array(1, 100, 100,  null, '50%', null, 1, null,   50,   50,  50),
-
-            // dpr
-            //array(1, 100, 100, null, null, null, 2, null, null,  100, 100), // do dpr?
-/*
-            array(1, 100, 100,  100, null, null, 2,  200, null,  200, 200),
-            array(1, 100, 100, null,  100, null, 2, null,  200,  200, 200),
-            array(1, 100, 100,  100,  100, null, 2,  200,  200,  200, 200),
-*/
-
-            // ===== Need crop to fit or fill to fit
-            // Aspect ratio
-/*
-            array(2, 100, 100, null, null, 2, 1, 100,  50,  100,  50),
-            array(2, 100, 200, null, null, 4, 1, 100,  25,  100,  25),
-            array(2, 200, 100, null, null, 4, 1, 200,  50,  200,  50),
-
-            // Aspect ratio inverted
-            array(2, 100, 100, null, null, 1/2, 1,  50, 100,  50, 100),
-            array(2, 100, 200, null, null, 1/4, 1,  50, 200,  50, 200),
-            array(2, 200, 100, null, null, 1/4, 1,  25, 100,  25, 100),
-
-            // Aspect ratio & width
-            array(2, 100, 100, 200, null, 2, 1, 200, 100,  200, 100),
-
-            // Aspect ratio & height
-            array(2, 100, 100, null, 200, 1/2, 1, 100, 200,  100, 200),
-*/
-        );
-    }
-
-
-
-    /**
-     * Test
-     *
-     * @dataProvider providerImages
-     *
-     * @return void
-     */
-     /*
-    public function testResize1($strategy, $srcWidth, $srcHeight, $targetWidth, $targetHeight, $aspectRatio, $dpr, $expectedWidth, $expectedHeight, $expectedWidth2, $expectedHeight2)
-    {
-        $img = new CImageResizer(/*'logger'*/ /*);
-        //$img = new CImageResizer('logger');
-
-        $img->setSource($srcWidth, $srcHeight)
-            ->setResizeStrategy($strategy)
-            ->setBaseWidthHeight($targetWidth, $targetHeight)
-            ->setBaseAspecRatio($aspectRatio)
-            ->setBaseDevicePixelRate($dpr)
-            ->prepareTargetDimensions();
-
-        $this->assertEquals($expectedWidth, $img->getTargetWidth(), "Width not correct.");
-        $this->assertEquals($expectedHeight, $img->getTargetHeight(), "Height not correct.");
-        
-        $img->calculateTargetWidthAndHeight();
-        $this->assertEquals($expectedWidth2, $img->getTargetWidth(), "Width not correct.");
-        $this->assertEquals($expectedHeight2, $img->getTargetHeight(), "Height not correct.");
-
-    }
-
-*/
-
     /**
      * Provider
      *
@@ -137,6 +53,21 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
 
 
     /**
+     * Test
+     *
+     * @return void
+     */
+    public function testLogger()
+    {
+        $img = new CImageResizer('loggerDummy');
+
+        $img->setBaseWidthHeight(100, 100);
+    }
+
+
+
+
+    /**
      * Provider
      *
      * @return array
@@ -147,6 +78,7 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
             array(CImageResizer::KEEP_RATIO,  "KEEP_RATIO"),
             array(CImageResizer::CROP_TO_FIT, "CROP_TO_FIT"),
             array(CImageResizer::FILL_TO_FIT, "FILL_TO_FIT"),
+            array(CImageResizer::STRETCH,     "STRETCH"),
             array(-1, "UNKNOWN"),
         );
     }
@@ -168,5 +100,105 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
         $res = $img->getResizeStrategyAsString();
         
         $this->assertEquals($str, $res, "Strategy not matching.");
+    }
+
+
+
+    /**
+     * Provider
+     *
+     * @return array
+     */
+    public function providerPercent()
+    {
+        return array(
+            array(100, 100, "100%", "100%", 100, 100),
+            array(100, 100, "50%", "50%", 50, 50),
+        );
+    }
+
+
+
+    /**
+     * Test
+     *
+     * @dataProvider providerPercent
+     *
+     * @return void
+     */
+    public function testPercent($sw, $sh, $tw, $th, $w, $h)
+    {
+        $img = new CImageResizer(/*'logger'*/);
+
+        $img->setSource($sw, $sh)
+            ->setBaseWidthHeight($tw, $th);
+
+        $this->assertEquals($w, $img->getTargetWidth(), "Target width not correct.");
+        $this->assertEquals($h, $img->getTargetHeight(), "Target height not correct.");
+    }
+
+
+
+    /**
+     * Test
+     *
+     * @return void
+     */
+    public function testGetSource()
+    {
+        $img = new CImageResizer(/*'logger'*/);
+
+        $w = 100;
+        $h = 100;
+
+        $img->setSource($w, $h);
+
+        $this->assertEquals($w, $img->getSourceWidth(), "Source width not correct.");
+        $this->assertEquals($h, $img->getSourceHeight(), "Source height not correct.");
+    }
+
+
+
+    /**
+     * Provider
+     *
+     * @return array
+     */
+    public function providerImages()
+    {
+        return [
+
+            // car.png
+            [CImageResizer::KEEP_RATIO, 491, 324,   500, 200,   303, 200,   0, 0, 491, 324],
+            [CImageResizer::KEEP_RATIO, 491, 324,   500, 500,   500, 330,   0, 0, 491, 324],
+
+        ];
+    }
+
+
+
+    /**
+     * Test
+     *
+     * @dataProvider providerImages
+     *
+     * @return void
+     */
+    public function testResize($strat, $sw, $sh, $tw, $th, $twa, $tha, $cx, $cy, $cw, $ch)
+    {
+        $img = new CImageResizer(/*'logger'/**/);
+
+        $img->setSource($sw, $sh)
+            ->setBaseWidthHeight($tw, $th)
+            ->setResizeStrategy($strat)
+            ->calculateTargetWidthAndHeight();
+
+        $this->assertEquals($twa, $img->getTargetWidth(), "Target width not correct.");
+        $this->assertEquals($tha, $img->getTargetHeight(), "Target height not correct.");
+
+        $this->assertEquals($cx, $img->getCropX(), "CropX not correct.");
+        $this->assertEquals($cy, $img->getCropY(), "CropY not correct.");
+        $this->assertEquals($cw, $img->getCropWidth(), "CropWidth not correct.");
+        $this->assertEquals($ch, $img->getCropHeight(), "CropHeight not correct.");
     }
 }

@@ -8,7 +8,7 @@ v0.8.* (2015-12-05) (branch resize)
 
 * Improving build phase using travis and scrutinizer.
 * Code validating with phpunit and phpcs.
-* Moved classes to src/, adding namespace and support PSR-4.
+* Moved classes to src/, adding namespace and (only) support PSR-4.
 * Require PHP 5.4.
 
 
