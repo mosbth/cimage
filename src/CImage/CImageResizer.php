@@ -553,9 +553,8 @@ class CImageResizer
         } elseif ($rs === CImageResizer::STRETCH && $both) {
 
             // Stretch to fit, leave as is
+            // Ignores respectUpscale by intention
             $this->log("  Stretch, leave as is");
-            $this->respectUpscale($tw, $sw);
-            $this->respectUpscale($th, $sh);
 
         } elseif ($rs === CImageResizer::CROP_TO_FIT && $both) {
 
