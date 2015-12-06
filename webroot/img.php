@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.8 (2015-12-06)";
+$version = "v0.7.8* (2015-12-06)";
 
 
 
@@ -943,11 +943,13 @@ verbose("alias = $alias");
  * Get the cachepath from config.
  */
 $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+$cache = new CCache();
+$cache->setDir($cachePath);
 
 
 
 /**
- * Get the cachepath from config.
+ * Add cache control HTTP header.
  */
 $cacheControl = getConfig('cache_control', null);
 
@@ -961,11 +963,8 @@ if ($cacheControl) {
 /**
  * Prepare a dummy image and use it as source image.
  */
-$dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
-
 if ($dummyImage === true) {
-    is_writable($dummyDir)
-        or verbose("dummy dir not writable = $dummyDir");
+    $dummyDir = $cache->getPathToSubdir("dummy");
 
     $img->setSaveFolder($dummyDir)
         ->setSource($dummyFilename, $dummyDir)
@@ -993,24 +992,16 @@ if ($dummyImage === true) {
 /**
  * Prepare a sRGB version of the image and use it as source image.
  */
-$srgbDirName = "/srgb";
-$srgbDir     = realpath(getConfig('srgb_dir', $cachePath . $srgbDirName));
 $srgbDefault = getConfig('srgb_default', false);
 $srgbColorProfile = getConfig('srgb_colorprofile', __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc');
 $srgb = getDefined('srgb', true, null);
 
 if ($srgb || $srgbDefault) {
 
-    if (!is_writable($srgbDir)) {
-        if (is_writable($cachePath)) {
-            mkdir($srgbDir);
-        }
-    }
-
     $filename = $img->convert2sRGBColorSpace(
         $srcImage,
         $imagePath,
-        $srgbDir,
+        $cache->getPathToSubdir("srgb"),
         $srgbColorProfile,
         $useCache
     );
@@ -1034,9 +1025,16 @@ if ($status) {
     $text .= "PHP version = " . PHP_VERSION . "\n";
     $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
     $text .= "Allow remote images = $allowRemote\n";
-    $text .= "Cache writable = " . is_writable($cachePath) . "\n";
-    $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
-    $text .= "Cache srgb writable = " . is_writable($srgbDir) . "\n";
+
+    $res = $cache->getStatusOfSubdir("");
+    $text .= "Cache $res\n";
+
+    $res = $cache->getStatusOfSubdir("dummy");
+    $text .= "Cache dummy $res\n";
+
+    $res = $cache->getStatusOfSubdir("srgb");
+    $text .= "Cache srgb $res\n";
+
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
 
     $no = extension_loaded('exif') ? null : 'NOT';

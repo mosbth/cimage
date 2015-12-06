@@ -11,3 +11,6 @@ vendor
 
 # Build and test
 build/
+
+# Mac OS
+.DS_Store

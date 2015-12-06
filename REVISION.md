@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.8* (2015-12-06)
+-------------------------------------
+
+* Adding CCache to improve cache handling of dummy and srgb, #130.
+
+
 v0.7.8 (2015-12-06)
 -------------------------------------
 

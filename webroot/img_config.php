@@ -14,7 +14,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production', // 'development', 'strict'
-     //'mode' => 'development', // 'development', 'strict'
+     'mode' => 'development', // 'development', 'strict'
 
 
 
@@ -124,17 +124,15 @@ return array(
 
       /**
        * Convert the image to srgb before processing. Saves the converted
-       * image in the sub cache dir. This option is default false but can
+       * image in a cache subdir 'srgb'. This option is default false but can
        * be changed to default true to do this conversion for all images.
        * This option requires PHP extension imagick and will silently fail
        * if that is not installed.
        *
        * Default value:
-       *  srgb_dir:          $cachePath/srgb
        *  srgb_default:      false
        *  srgb_colorprofile: __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc'
        */
-       //'srgb_dir'  => __DIR__ . '/../cache/srgb/',
        //'srgb_default' => false,
        //'srgb_colorprofile' => __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc',
 
@@ -170,23 +168,19 @@ return array(
 
      /**
       * The name representing a dummy image which is automatically created
-      * and stored at the defined path. The dummy image can then be used
-      * inplace of an original image as a placeholder.
-      * The dummy_dir must be writable and it defaults to a subdir of the
-      * cache directory.
-      * Write protect the dummy_dir to prevent creation of new dummy images,
-      * but continue to use the existing ones.
+      * and stored as a image in the dir CACHE_PATH/dummy. The dummy image
+      * can then be used as a placeholder image.
+      * The dir CACHE_PATH/dummy is automatically created when needed.
+      * Write protect the CACHE_PATH/dummy to prevent creation of new
+      * dummy images, but continue to use the existing ones.
       *
       * Default value:
       *  dummy_enabled:  true as default, disable dummy feature by setting
       *                  to false.
       *  dummy_filename: 'dummy' use this as ?src=dummy to create a dummy image.
-      *  dummy_dir:      Defaults to subdirectory of 'cache_path',
-      *                  named the same as 'dummy_filename'
       */
       //'dummy_enabled' => true,
       //'dummy_filename' => 'dummy',
-      //'dummy_dir' => 'some writable directory',
 
 
 

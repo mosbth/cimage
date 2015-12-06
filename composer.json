@@ -27,6 +27,7 @@
             "CRemoteImage.php",
             "CWhitelist.php",
             "CAsciiArt.php"
+            "CCache.php"
         ]
     }
 }
