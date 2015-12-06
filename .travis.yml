@@ -1,4 +1,5 @@
 language: php
+
 php:
     - 5.4
     - 5.5
@@ -7,19 +8,85 @@ php:
     - nightly
     - "7.0"
 
+
+
+sudo: false
+
+
+
+git:
+    submodules: false
+
+
+
+addons:
+    apt:
+        packages:
+            #- php-codesniffer
+            #- phpmd
+            #- shellcheck
+
+
 matrix:
     allow_failures:
-        - php: nightly
         - php: hhvm
+        - php: nightly
+
+
+
+before_script:
+
+    # Create a build directory for output
+    # Store all files in your own bin
+    #- install --directory build/bin
+    #- export PATH=$PATH:$PWD/build/bin/
+
+
+    # Install validation tools
+    #- npm install -g htmlhint csslint jshint jscs jsonlint js-yaml html-minifier@0.8.0 clean-css uglify-js
+    
+    # Install phpcs
+    #- curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+    #- install --mode 0755 phpcs.phar $PWD/build/bin/phpcs
+
+    # Install phpmd
+    #- wget -c http://static.phpmd.org/php/latest/phpmd.phar
+    #- install --mode 0755 phpmd.phar $PWD/build/bin/phpmd
+
+
 
 script:
+    # Check versions of validation tools
+    #- node --version
+    #- npm --version
+    
+    #- htmlhint --version
+    #- csslint --version
+    #- jscs --version
+    #- jshint --version
+    #- phpcs --version
+    #- phpmd --version
+    #- jsonlint --version
+    #- js-yaml --version
+    #- shellcheck --version
+    
+    #- html-minifier --version
+    #- cleancss --version
+    #- uglifyjs --version
+    
+    # Run validation & publish
+    #- make phpunit
     - phpunit
+    #- make phpcs
+
+
 
 notifications:
     irc: "irc.freenode.org#dbwebb"
+
     webhooks:
         urls:
-          - https://webhooks.gitter.im/e/cce29c69604daa8a60ab
+          - https://webhooks.gitter.im/e/a89832db4f939e85ba97
         on_success: change  # options: [always|never|change] default: always
         on_failure: always  # options: [always|never|change] default: always
         on_start: never     # options: [always|never|change] default: always
