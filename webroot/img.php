@@ -16,21 +16,33 @@ $version = "v0.7.7 (2015-10-21)";
  * Display error message.
  *
  * @param string $msg to display.
+ * @param int $type of HTTP error to display.
  *
  * @return void
  */
-function errorPage($msg)
+function errorPage($msg, $type = 500)
 {
     global $mode;
 
-    header("HTTP/1.0 500 Internal Server Error");
+    switch ($type) {
+        case 403:
+            $header = "403 Forbidden";
+        break;
+        case 404:
+            $header = "404 Not Found";
+        break;
+        default:
+            $header = "500 Internal Server Error";
+    }
+
+    header("HTTP/1.0 $header");
 
     if ($mode == 'development') {
         die("[img.php] $msg");
     }
 
     error_log("[img.php] $msg");
-    die("HTTP/1.0 500 Internal Server Error");
+    die("HTTP/1.0 $header");
 }
 
 
@@ -45,7 +57,7 @@ set_exception_handler(function ($exception) {
         . "</p><pre>"
         . $exception->getTraceAsString()
         . "</pre>"
-    );
+    , 500);
 });
 
 
@@ -175,7 +187,7 @@ set_time_limit(20);
 ini_set('gd.jpeg_ignore_warning', 1);
 
 if (!extension_loaded('gd')) {
-    errorPage("Extension gd is nod loaded.");
+    errorPage("Extension gd is not loaded.", 500);
 }
 
 // Specific settings for each mode
@@ -187,7 +199,7 @@ if ($mode == 'strict') {
     $verbose = false;
     $status = false;
     $verboseFile = false;
-    
+
 } elseif ($mode == 'production') {
 
     error_reporting(-1);
@@ -211,7 +223,7 @@ if ($mode == 'strict') {
     ini_set('log_errors', 0);
 
 } else {
-    errorPage("Unknown mode: $mode");
+    errorPage("Unknown mode: $mode", 500);
 }
 
 verbose("mode = $mode");
@@ -260,7 +272,7 @@ if ($pwd) {
 }
 
 if ($pwdAlways && $passwordMatch !== true) {
-    errorPage("Password required and does not match or exists.");
+    errorPage("Password required and does not match or exists.", 403);
 }
 
 verbose("password match = $passwordMatch");
@@ -284,9 +296,9 @@ if (!$allowHotlinking) {
         ; // Always allow when password match
         verbose("Hotlinking since passwordmatch");
     } elseif ($passwordMatch === false) {
-        errorPage("Hotlinking/leeching not allowed when password missmatch.");
+        errorPage("Hotlinking/leeching not allowed when password missmatch.", 403);
     } elseif (!$referer) {
-        errorPage("Hotlinking/leeching not allowed and referer is missing.");
+        errorPage("Hotlinking/leeching not allowed and referer is missing.", 403);
     } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
         verbose("Hotlinking disallowed but serverName matches refererHost.");
@@ -297,11 +309,11 @@ if (!$allowHotlinking) {
         if ($allowedByWhitelist) {
             verbose("Hotlinking/leeching allowed by whitelist.");
         } else {
-            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.");
+            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.", 403);
         }
 
     } else {
-        errorPage("Hotlinking/leeching not allowed.");
+        errorPage("Hotlinking/leeching not allowed.", 403);
     }
 }
 
@@ -375,7 +387,7 @@ if (isset($shortcut)
  * src - the source image file.
  */
 $srcImage = urldecode(get('src'))
-    or errorPage('Must set src-attribute.');
+    or errorPage('Must set src-attribute.', 404);
 
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
@@ -388,7 +400,7 @@ $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
 
 preg_match($validFilename, $srcImage)
-    or errorPage('Filename contains invalid characters.');
+    or errorPage('Filename contains invalid characters.', 404);
 
 if ($dummyEnabled && $srcImage === $dummyFilename) {
 
@@ -409,13 +421,13 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
         or errorPage(
             'Source image is not a valid file, check the filename and that a
             matching file exists on the filesystem.'
-        );
+        , 404);
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
             'Security constraint: Source image is not below the directory "image_path"
             as specified in the config file img_config.php.'
-        );
+        , 404);
 }
 
 verbose("src = $srcImage");
@@ -464,11 +476,11 @@ if (isset($sizes[$newWidth])) {
 // Support width as % of original width
 if ($newWidth[strlen($newWidth)-1] == '%') {
     is_numeric(substr($newWidth, 0, -1))
-        or errorPage('Width % not numeric.');
+        or errorPage('Width % not numeric.', 404);
 } else {
     is_null($newWidth)
         or ($newWidth > 10 && $newWidth <= $maxWidth)
-        or errorPage('Width out of range.');
+        or errorPage('Width out of range.', 404);
 }
 
 verbose("new width = $newWidth");
@@ -489,11 +501,11 @@ if (isset($sizes[$newHeight])) {
 // height
 if ($newHeight[strlen($newHeight)-1] == '%') {
     is_numeric(substr($newHeight, 0, -1))
-        or errorPage('Height % out of range.');
+        or errorPage('Height % out of range.', 404);
 } else {
     is_null($newHeight)
         or ($newHeight > 10 && $newHeight <= $maxHeight)
-        or errorPage('Hight out of range.');
+        or errorPage('Height out of range.', 404);
 }
 
 verbose("new height = $newHeight");
@@ -531,7 +543,7 @@ if ($negateAspectRatio) {
 
 is_null($aspectRatio)
     or is_numeric($aspectRatio)
-    or errorPage('Aspect ratio out of range');
+    or errorPage('Aspect ratio out of range', 404);
 
 verbose("aspect ratio = $aspectRatio");
 
@@ -653,7 +665,7 @@ $qualityDefault = getConfig('jpg_quality', null);
 
 is_null($quality)
     or ($quality > 0 and $quality <= 100)
-    or errorPage('Quality out of range');
+    or errorPage('Quality out of range', 404);
 
 if (is_null($quality) && !is_null($qualityDefault)) {
     $quality = $qualityDefault;
@@ -671,7 +683,7 @@ $compressDefault = getConfig('png_compression', null);
 
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
-    or errorPage('Compress out of range');
+    or errorPage('Compress out of range', 404);
 
 if (is_null($compress) && !is_null($compressDefault)) {
     $compress = $compressDefault;
@@ -697,7 +709,7 @@ $scale = get(array('scale', 's'));
 
 is_null($scale)
     or ($scale >= 0 and $scale <= 400)
-    or errorPage('Scale out of range');
+    or errorPage('Scale out of range', 404);
 
 verbose("scale = $scale");
 
@@ -746,7 +758,7 @@ $rotateBefore = get(array('rotateBefore', 'rotate-before', 'rb'));
 
 is_null($rotateBefore)
     or ($rotateBefore >= -360 and $rotateBefore <= 360)
-    or errorPage('RotateBefore out of range');
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateBefore = $rotateBefore");
 
@@ -759,7 +771,7 @@ $rotateAfter = get(array('rotateAfter', 'rotate-after', 'ra', 'rotate', 'r'));
 
 is_null($rotateAfter)
     or ($rotateAfter >= -360 and $rotateAfter <= 360)
-    or errorPage('RotateBefore out of range');
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateAfter = $rotateAfter");
 
@@ -908,13 +920,13 @@ if ($alias && $aliasPath && $passwordMatch) {
     $useCache    = false;
 
     is_writable($aliasPath)
-        or errorPage("Directory for alias is not writable.");
+        or errorPage("Directory for alias is not writable.", 403);
 
     preg_match($validAliasname, $alias)
-        or errorPage('Filename for alias contains invalid characters. Do not add extension.');
+        or errorPage('Filename for alias contains invalid characters. Do not add extension.', 404);
 
 } elseif ($alias) {
-    errorPage('Alias is not enabled in the config file or password not matching.');
+    errorPage('Alias is not enabled in the config file or password not matching.', 403);
 }
 
 verbose("alias = $alias");
@@ -966,7 +978,7 @@ if ($dummyImage === true) {
 
     $srcImage = $img->getTarget();
     $imagePath = null;
-    
+
     verbose("src (updated) = $srcImage");
 }
 
@@ -1025,7 +1037,7 @@ $hookBeforeCImage = getConfig('hook_before_CImage', null);
 
 if (is_callable($hookBeforeCImage)) {
     verbose("hookBeforeCImage activated");
-    
+
     $allConfig = $hookBeforeCImage($img, array(
             // Options for calculate dimensions
             'newWidth'  => $newWidth,
@@ -1058,7 +1070,7 @@ if (is_callable($hookBeforeCImage)) {
             // Output format
             'outputFormat' => $outputFormat,
             'dpr'          => $dpr,
-            
+
             // Other
             'postProcessing' => $postProcessing,
     ));
