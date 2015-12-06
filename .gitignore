@@ -3,6 +3,8 @@ cache/*
 
 # Test and build
 build/
+coverage/
+coverage.clover
 
 # Composer
 composer.lock
