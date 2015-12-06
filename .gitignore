@@ -8,3 +8,6 @@ coverage.clover
 # Composer
 composer.lock
 vendor
+
+# Build and test
+build/
