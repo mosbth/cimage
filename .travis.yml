@@ -76,6 +76,7 @@ script:
     
     # Run validation & publish
     #- make phpunit
+    - composer validate
     - phpunit
     #- make phpcs
 

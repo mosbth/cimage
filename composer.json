@@ -26,7 +26,7 @@
             "CHttpGet.php",
             "CRemoteImage.php",
             "CWhitelist.php",
-            "CAsciiArt.php"
+            "CAsciiArt.php",
             "CCache.php"
         ]
     }
