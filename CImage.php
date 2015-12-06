@@ -626,7 +626,7 @@ class CImage
     private function normalizeFileExtension($extension = null)
     {
         $extension = strtolower($extension ? $extension : $this->extension);
-        
+
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
             }
@@ -648,7 +648,7 @@ class CImage
         if (!$this->isRemoteSourceOnWhitelist($src)) {
             throw new Exception("Hostname is not on whitelist for remote sources.");
         }
-        
+
         $remote = new CRemoteImage();
         $cache  = $this->saveFolder . "/remote/";
 
@@ -1323,7 +1323,7 @@ class CImage
         if ($this->copyStrategy === self::RESIZE) {
             $copyStrat = "_rs";
         }
-        
+
         $width  = $this->newWidth  ? '_' . $this->newWidth  : null;
         $height = $this->newHeight ? '_' . $this->newHeight : null;
 
@@ -1374,8 +1374,8 @@ class CImage
             $subdir = ($subdir == '.') ? '_.' : $subdir;
             $subdir .= '_';
         }
-        
-        $file = $prefix . $subdir . $filename . $width . $height 
+
+        $file = $prefix . $subdir . $filename . $width . $height
             . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
@@ -1445,7 +1445,7 @@ class CImage
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
-        
+
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
@@ -1485,14 +1485,14 @@ class CImage
     public function getPngType($filename = null)
     {
         $filename = $filename ? $filename : $this->pathToImage;
-        
+
         $pngType = ord(file_get_contents($filename, false, null, 25, 1));
 
         if ($this->verbose) {
             $this->log("Checking png type of: " . $filename);
             $this->log($this->getPngTypeAsString($pngType));
         }
-        
+
         return $pngType;
     }
 
@@ -1516,7 +1516,7 @@ class CImage
         $index = imagecolortransparent($this->image);
         $transparent = null;
         if ($index != -1) {
-            $transparent = " (transparent)";            
+            $transparent = " (transparent)";
         }
 
         switch ($pngType) {
@@ -2223,7 +2223,7 @@ class CImage
         $index = $this->image
             ? imagecolortransparent($this->image)
             : -1;
-            
+
         if ($index != -1) {
 
             imagealphablending($img, true);
@@ -2291,8 +2291,8 @@ class CImage
             return substr(image_type_to_extension($this->fileType), 1);
         }
     }
-    
-    
+
+
 
     /**
      * Save image.
@@ -2445,7 +2445,7 @@ class CImage
             $colorspace = $image->getImageColorspace();
             $this->log(" Current colorspace: " . $colorspace);
 
-            $profiles      = $image->getImageProfiles('*', false); 
+            $profiles      = $image->getImageProfiles('*', false);
             $hasICCProfile = (array_search('icc', $profiles) !== false);
             $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
 
@@ -2454,13 +2454,13 @@ class CImage
 
                 $sRGBicc = file_get_contents($iccFile);
                 $image->profileImage('icc', $sRGBicc);
-                
+
                 $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
                 $image->writeImage($this->cacheFileName);
                 return $this->cacheFileName;
             }
         }
-        
+
         return false;
     }
 
@@ -2583,7 +2583,7 @@ class CImage
                 $this->log("Content-type: " . $mime);
                 $this->log("Content-length: " . $size);
                 $this->verboseOutput();
-                
+
                 if (is_null($this->verboseFileName)) {
                     exit;
                 }
@@ -2635,7 +2635,7 @@ class CImage
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
         $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
         $details['memoryLimit'] = ini_get('memory_limit');
-        
+
         if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
         }
