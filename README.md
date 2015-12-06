@@ -1,8 +1,9 @@
-[![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=master)](https://travis-ci.org/mosbth/cimage)
-[![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
-
 Image conversion on the fly using PHP
 =====================================
+
+[![Join the chat at https://gitter.im/mosbth/cimage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mosbth/cimage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=master)](https://travis-ci.org/mosbth/cimage)
+[![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 About
 -------------------------------------
@@ -75,7 +76,7 @@ There are some all-included bundles of `img.php` that can be downloaded and used
 Dowload the version of your choice like this.
 
 ```bash
-wget https://github.com/mosbth/cimage/tree/v0.7.7/webroot/imgp.php
+wget https://raw.githubusercontent.com/mosbth/cimage/v0.7.7/webroot/imgp.php
 ```
 
 Open up the file in your editor and edit the array `$config`. Ensure that the paths to the image directory and the cache directory matches your environment, or create an own config-file for the script.

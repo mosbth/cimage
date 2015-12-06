@@ -17,7 +17,7 @@
 spl_autoload_register(function ($class) {
     //$path = CIMAGE_SOURCE_PATH . "/{$class}.php";
     $path = __DIR__ . "/{$class}.php";
-    if(is_file($path)) {
+    if (is_file($path)) {
         require($path);
     }
 });
