@@ -75,6 +75,7 @@ script:
     #- uglifyjs --version
     
     # Run validation & publish
+    - composer validate
     - make phpunit
     #- make phpcs
 
