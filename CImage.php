@@ -626,7 +626,7 @@ class CImage
     private function normalizeFileExtension($extension = null)
     {
         $extension = strtolower($extension ? $extension : $this->extension);
-        
+
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
             }
@@ -648,7 +648,7 @@ class CImage
         if (!$this->isRemoteSourceOnWhitelist($src)) {
             throw new Exception("Hostname is not on whitelist for remote sources.");
         }
-        
+
         $remote = new CRemoteImage();
         $cache  = $this->saveFolder . "/remote/";
 
@@ -1298,10 +1298,11 @@ class CImage
      * @param string  $base      as optional basepath for storing file.
      * @param boolean $useSubdir use or skip the subdir part when creating the
      *                           filename.
+     * @param string  $prefix    to add as part of filename
      *
      * @return $this
      */
-    public function generateFilename($base = null, $useSubdir = true)
+    public function generateFilename($base = null, $useSubdir = true, $prefix = null)
     {
         $filename     = basename($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
@@ -1322,9 +1323,9 @@ class CImage
         if ($this->copyStrategy === self::RESIZE) {
             $copyStrat = "_rs";
         }
-        
-        $width  = $this->newWidth;
-        $height = $this->newHeight;
+
+        $width  = $this->newWidth  ? '_' . $this->newWidth  : null;
+        $height = $this->newHeight ? '_' . $this->newHeight : null;
 
         $offset = isset($this->offset)
             ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left']
@@ -1373,9 +1374,9 @@ class CImage
             $subdir = ($subdir == '.') ? '_.' : $subdir;
             $subdir .= '_';
         }
-        
-        $file = $subdir . $filename . '_' . $width . '_'
-            . $height . $offset . $crop . $cropToFit . $fillToFit
+
+        $file = $prefix . $subdir . $filename . $width . $height
+            . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
@@ -1444,7 +1445,7 @@ class CImage
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
-        
+
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
@@ -1484,14 +1485,14 @@ class CImage
     public function getPngType($filename = null)
     {
         $filename = $filename ? $filename : $this->pathToImage;
-        
+
         $pngType = ord(file_get_contents($filename, false, null, 25, 1));
 
         if ($this->verbose) {
             $this->log("Checking png type of: " . $filename);
             $this->log($this->getPngTypeAsString($pngType));
         }
-        
+
         return $pngType;
     }
 
@@ -1515,7 +1516,7 @@ class CImage
         $index = imagecolortransparent($this->image);
         $transparent = null;
         if ($index != -1) {
-            $transparent = " (transparent)";            
+            $transparent = " (transparent)";
         }
 
         switch ($pngType) {
@@ -2222,7 +2223,7 @@ class CImage
         $index = $this->image
             ? imagecolortransparent($this->image)
             : -1;
-            
+
         if ($index != -1) {
 
             imagealphablending($img, true);
@@ -2290,8 +2291,8 @@ class CImage
             return substr(image_type_to_extension($this->fileType), 1);
         }
     }
-    
-    
+
+
 
     /**
      * Save image.
@@ -2393,6 +2394,74 @@ class CImage
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Convert image from one colorpsace/color profile to sRGB without
+     * color profile.
+     *
+     * @param string  $src      of image.
+     * @param string  $dir      as base directory where images are.
+     * @param string  $cache    as base directory where to store images.
+     * @param string  $iccFile  filename of colorprofile.
+     * @param boolean $useCache or not, default to always use cache.
+     *
+     * @return string | boolean false if no conversion else the converted
+     *                          filename.
+     */
+    public function convert2sRGBColorSpace($src, $dir, $cache, $iccFile, $useCache = true)
+    {
+        if ($this->verbose) {
+            $this->log("# Converting image to sRGB colorspace.");
+        }
+
+        if (!class_exists("Imagick")) {
+            $this->log(" Ignoring since Imagemagick is not installed.");
+            return false;
+        }
+
+        // Prepare
+        $this->setSaveFolder($cache)
+             ->setSource($src, $dir)
+             ->generateFilename(null, false, 'srgb_');
+
+        // Check if the cached version is accurate.
+        if ($useCache && is_readable($this->cacheFileName)) {
+            $fileTime  = filemtime($this->pathToImage);
+            $cacheTime = filemtime($this->cacheFileName);
+
+            if ($fileTime <= $cacheTime) {
+                $this->log(" Using cached version: " . $this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+
+        // Only covert if cachedir is writable
+        if (is_writable($this->saveFolder)) {
+            // Load file and check if conversion is needed
+            $image      = new Imagick($this->pathToImage);
+            $colorspace = $image->getImageColorspace();
+            $this->log(" Current colorspace: " . $colorspace);
+
+            $profiles      = $image->getImageProfiles('*', false);
+            $hasICCProfile = (array_search('icc', $profiles) !== false);
+            $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
+
+            if ($colorspace != Imagick::COLORSPACE_SRGB || $hasICCProfile) {
+                $this->log(" Converting to sRGB.");
+
+                $sRGBicc = file_get_contents($iccFile);
+                $image->profileImage('icc', $sRGBicc);
+
+                $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+                $image->writeImage($this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+
+        return false;
     }
 
 
@@ -2514,7 +2583,7 @@ class CImage
                 $this->log("Content-type: " . $mime);
                 $this->log("Content-length: " . $size);
                 $this->verboseOutput();
-                
+
                 if (is_null($this->verboseFileName)) {
                     exit;
                 }
@@ -2566,7 +2635,7 @@ class CImage
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
         $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
         $details['memoryLimit'] = ini_get('memory_limit');
-        
+
         if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
         }

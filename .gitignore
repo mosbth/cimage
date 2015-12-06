@@ -4,3 +4,7 @@ cache/*
 # Test
 coverage/
 coverage.clover
+
+# Composer
+composer.lock
+vendor
