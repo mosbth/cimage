@@ -101,7 +101,7 @@ class CRemoteImage
      */
     public function setCache($path)
     {
-        $this->saveFolder = $path;
+        $this->saveFolder = rtrim($path, "/") . "/";
         return $this;
     }
 

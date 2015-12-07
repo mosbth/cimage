@@ -208,8 +208,8 @@ class CImage
     /**
      * Path to command to optimize jpeg images, for example jpegtran or null.
      */
-    private $jpegOptimize;
-    private $jpegOptimizeCmd;
+     private $jpegOptimize;
+     private $jpegOptimizeCmd;
 
 
 
@@ -344,17 +344,24 @@ class CImage
 
 
     /**
-    * Calculate target dimension for image when using fill-to-fit resize strategy.
-    */
+     * Calculate target dimension for image when using fill-to-fit resize strategy.
+     */
     private $fillWidth;
     private $fillHeight;
 
 
 
     /**
-    * Allow remote file download, default is to disallow remote file download.
-    */
+     * Allow remote file download, default is to disallow remote file download.
+     */
     private $allowRemote = false;
+
+
+
+    /**
+     * Path to cache for remote download.
+     */
+    private $remoteCache;
 
 
 
@@ -400,7 +407,7 @@ class CImage
      */
      const RESIZE = 1;
      const RESAMPLE = 2;
-    private $copyStrategy = null;
+     private $copyStrategy = NULL;
 
 
 
@@ -631,7 +638,7 @@ class CImage
 
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
-        }
+            }
 
         return $extension;
     }
@@ -1619,11 +1626,11 @@ class CImage
      *
      * @return $this
      */
-    public function setCopyResizeStrategy($strategy)
-    {
-        $this->copyStrategy = $strategy;
-        return $this;
-    }
+     public function setCopyResizeStrategy($strategy)
+     {
+         $this->copyStrategy = $strategy;
+         return $this;
+     }
 
 
 
@@ -1634,7 +1641,7 @@ class CImage
      */
     public function imageCopyResampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
     {
-        if ($this->copyStrategy == self::RESIZE) {
+        if($this->copyStrategy == self::RESIZE) {
             $this->log("Copy by resize");
             imagecopyresized($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
         } else {
@@ -2312,7 +2319,7 @@ class CImage
 
         $type = $this->getTargetImageExtension();
         $this->Log("Saving image as " . $type);
-        switch ($type) {
+        switch($type) {
 
             case 'jpeg':
             case 'jpg':
@@ -2549,7 +2556,7 @@ class CImage
             header('Last-Modified: ' . $gmdate . " GMT");
         }
 
-        foreach ($this->HTTPHeader as $key => $val) {
+        foreach($this->HTTPHeader as $key => $val) {
             header("$key: $val");
         }
 
