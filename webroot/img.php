@@ -11,7 +11,7 @@
 $version = "v0.7.8* (2015-12-06)";
 
 // For CRemoteImage
-define(CIMAGE_USER_AGENT, "CImage/$version");
+define("CIMAGE_USER_AGENT", "CImage/$version");
 
 
 
@@ -369,7 +369,7 @@ if ($allowRemote && $passwordMatch !== false) {
     $cacheRemote = $cache->getPathToSubdir("remote");
     
     $pattern = getConfig('remote_pattern', null);
-    $img->setRemoteDownload($allowRemote, $pattern, $cacheRemote);
+    $img->setRemoteDownload($allowRemote, $cacheRemote, $pattern);
 
     $whitelist = getConfig('remote_whitelist', null);
     $img->setRemoteHostWhitelist($whitelist);
@@ -1034,6 +1034,9 @@ if ($status) {
 
     $res = $cache->getStatusOfSubdir("");
     $text .= "Cache $res\n";
+
+    $res = $cache->getStatusOfSubdir("remote");
+    $text .= "Cache remote $res\n";
 
     $res = $cache->getStatusOfSubdir("dummy");
     $text .= "Cache dummy $res\n";

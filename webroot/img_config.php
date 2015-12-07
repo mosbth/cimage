@@ -14,7 +14,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production', // 'development', 'strict'
-     'mode' => 'development', // 'development', 'strict'
+     //'mode' => 'development', // 'development', 'strict'
 
 
 
