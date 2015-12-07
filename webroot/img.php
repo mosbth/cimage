@@ -8,7 +8,7 @@
  *
  */
 
-$version = "v0.7.9 (2015-12-07)";
+$version = "v0.7.9* (2015-12-07)";
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/$version");
@@ -38,14 +38,14 @@ function errorPage($msg, $type = 500)
             $header = "500 Internal Server Error";
     }
 
+    if ($mode == "strict") {
+        $header = "404 Not Found";
+    }
+
     header("HTTP/1.0 $header");
 
     if ($mode == "development") {
         die("[img.php] $msg");
-    }
-
-    if ($mode == "strict") {
-        $header = "404 Not Found";
     }
 
     error_log("[img.php] $msg");
