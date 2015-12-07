@@ -39,6 +39,7 @@ $ECHO "\n CRemoteImage.php"
 $ECHO "\n CWhitelist.php"
 $ECHO "\n CAsciiArt.php"
 $ECHO "\n CImage.php"
+$ECHO "\n CCache.php"
 $ECHO "\n webroot/img.php"
 $ECHO "\n"
 $ECHO "\n'$TARGET_D' is for development mode."
@@ -72,6 +73,9 @@ tail -n +2 CAsciiArt.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 CImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+tail -n +2 CCache.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 webroot/img.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
