@@ -512,13 +512,15 @@ class CImage
      * Allow or disallow remote image download.
      *
      * @param boolean $allow   true or false to enable and disable.
+     * @param string  $cache   path to cache dir.
      * @param string  $pattern to use to detect if its a remote file.
      *
      * @return $this
      */
-    public function setRemoteDownload($allow, $pattern = null)
+    public function setRemoteDownload($allow, $cache, $pattern = null)
     {
         $this->allowRemote = $allow;
+        $this->remoteCache = $cache;
         $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
         $this->log(
@@ -650,21 +652,12 @@ class CImage
         }
 
         $remote = new CRemoteImage();
-        $cache  = $this->saveFolder . "/remote/";
 
-        if (!is_dir($cache)) {
-            if (!is_writable($this->saveFolder)) {
-                throw new Exception("Can not create remote cache, cachefolder not writable.");
-            }
-            mkdir($cache);
-            $this->log("The remote cache does not exists, creating it.");
-        }
-
-        if (!is_writable($cache)) {
+        if (!is_writable($this->remoteCache)) {
             $this->log("The remote cache is not writable.");
         }
 
-        $remote->setCache($cache);
+        $remote->setCache($this->remoteCache);
         $remote->useCache($this->useCache);
         $src = $remote->download($src);
 

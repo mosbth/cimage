@@ -349,6 +349,16 @@ $img->setVerbose($verbose || $verboseFile);
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+$cache = new CCache();
+$cache->setDir($cachePath);
+
+
+
+
+/**
  * Allow or disallow remote download of images from other servers.
  * Passwords apply if used.
  *
@@ -356,8 +366,10 @@ $img->setVerbose($verbose || $verboseFile);
 $allowRemote = getConfig('remote_allow', false);
 
 if ($allowRemote && $passwordMatch !== false) {
+    $cacheRemote = $cache->getPathToSubdir("remote");
+    
     $pattern = getConfig('remote_pattern', null);
-    $img->setRemoteDownload($allowRemote, $pattern);
+    $img->setRemoteDownload($allowRemote, $pattern, $cacheRemote);
 
     $whitelist = getConfig('remote_whitelist', null);
     $img->setRemoteHostWhitelist($whitelist);
@@ -939,15 +951,6 @@ if ($alias && $aliasPath && $passwordMatch) {
 }
 
 verbose("alias = $alias");
-
-
-
-/**
- * Get the cachepath from config.
- */
-$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
-$cache = new CCache();
-$cache->setDir($cachePath);
 
 
 
