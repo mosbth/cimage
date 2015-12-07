@@ -10,6 +10,9 @@
 
 $version = "v0.7.8* (2015-12-06)";
 
+// For CRemoteImage
+define(CIMAGE_USER_AGENT, "CImage/$version");
+
 
 
 /**

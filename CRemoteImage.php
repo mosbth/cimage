@@ -147,7 +147,12 @@ class CRemoteImage
      */
     public function setHeaderFields()
     {
-        $this->http->setHeader("User-Agent", "CImage/0.7.2 (PHP/". phpversion() . " cURL)");
+        $cimageVersion = "CImage";
+        if (defined("CIMAGE_USER_AGENT")) {
+            $cimageVersion = CIMAGE_USER_AGENT;
+        }
+        
+        $this->http->setHeader("User-Agent", "$cimageVersion (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
         if ($this->useCache) {
