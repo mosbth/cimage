@@ -50,14 +50,14 @@ There are several ways of installing. You either install the whole project which
 
 The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
 
-**Latest stable version is v0.7.7 released 2015-10-21.**
+**Latest stable version is v0.7.9 released 2015-12-07.**
 
 I prefer cloning like this. Do switch to the latest stable version.
 
 ```bash
 git clone git://github.com/mosbth/cimage.git
 cd cimage
-git checkout v0.7.7
+git checkout v0.7.9
 ```
 
 Make the cache-directory writable by the webserver.
@@ -80,7 +80,7 @@ There are some all-included bundles of `img.php` that can be downloaded and used
 Dowload the version of your choice like this.
 
 ```bash
-wget https://raw.githubusercontent.com/mosbth/cimage/v0.7.7/webroot/imgp.php
+wget https://raw.githubusercontent.com/mosbth/cimage/v0.7.9/webroot/imgp.php
 ```
 
 Open up the file in your editor and edit the array `$config`. Ensure that the paths to the image directory and the cache directory matches your environment, or create an own config-file for the script.

@@ -41,7 +41,6 @@ before_script:
     - install --directory build/bin
     - export PATH=$PATH:$PWD/build/bin/
 
-
     # Install validation tools
     #- npm install -g htmlhint csslint jshint jscs jsonlint js-yaml html-minifier@0.8.0 clean-css uglify-js
     
@@ -57,8 +56,8 @@ before_script:
 
 script:
     # Check versions of validation tools
-    - node --version
-    - npm --version
+    #- node --version
+    #- npm --version
     
     #- htmlhint --version
     #- csslint --version

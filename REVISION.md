@@ -12,14 +12,23 @@ v0.8.* (2015-12-05) (branch resize)
 * Require PHP 5.4.
 
 
-v0.7.7* (2015-10-25) (branch master)
+v0.7.9 (2015-12-07)
 -------------------------------------
 
-* Added conversion to sRGB using option `?srgb`. #120. 
-* Change path in `webroot/htaccess` to make it work in current environment.
+* Strict mode only reporting 404 when failure, #127.
+* Added correct CImage version to remote agent string, #131.
+* Adding CCache to improve cache handling of caching for dummy, remote and srgb. #130.
+
+
+v0.7.8 (2015-12-06)
+-------------------------------------
+
+* HTTP error messages now 403, 404 and 500 as in #128 and #127.
 * More examples on dealing with cache through bash `bin/cache.bash`, #129.
+* Added conversion to sRGB using option `?srgb`. #120. 
 * Added Gitter badge to README, #126.
 * Fix proper download url in README, #125.
+* Change path in `webroot/htaccess` to make it work in current environment.
 
 
 v0.7.7 (2015-10-21)

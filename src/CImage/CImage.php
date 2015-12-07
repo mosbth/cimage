@@ -345,17 +345,24 @@ class CImage
 
 
     /**
-    * Calculate target dimension for image when using fill-to-fit resize strategy.
-    */
+     * Calculate target dimension for image when using fill-to-fit resize strategy.
+     */
     private $fillWidth;
     private $fillHeight;
 
 
 
     /**
-    * Allow remote file download, default is to disallow remote file download.
-    */
+     * Allow remote file download, default is to disallow remote file download.
+     */
     private $allowRemote = false;
+
+
+
+    /**
+     * Path to cache for remote download.
+     */
+    private $remoteCache;
 
 
 
@@ -520,13 +527,15 @@ class CImage
      * Allow or disallow remote image download.
      *
      * @param boolean $allow   true or false to enable and disable.
+     * @param string  $cache   path to cache dir.
      * @param string  $pattern to use to detect if its a remote file.
      *
      * @return $this
      */
-    public function setRemoteDownload($allow, $pattern = null)
+    public function setRemoteDownload($allow, $cache, $pattern = null)
     {
         $this->allowRemote = $allow;
+        $this->remoteCache = $cache;
         $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
         $this->log(
@@ -634,7 +643,7 @@ class CImage
     private function normalizeFileExtension($extension = null)
     {
         $extension = strtolower($extension ? $extension : $this->extension);
-        
+
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
         }
@@ -656,23 +665,14 @@ class CImage
         if (!$this->isRemoteSourceOnWhitelist($src)) {
             throw new Exception("Hostname is not on whitelist for remote sources.");
         }
-        
+
         $remote = new CRemoteImage();
-        $cache  = $this->saveFolder . "/remote/";
 
-        if (!is_dir($cache)) {
-            if (!is_writable($this->saveFolder)) {
-                throw new Exception("Can not create remote cache, cachefolder not writable.");
-            }
-            mkdir($cache);
-            $this->log("The remote cache does not exists, creating it.");
-        }
-
-        if (!is_writable($cache)) {
+        if (!is_writable($this->remoteCache)) {
             $this->log("The remote cache is not writable.");
         }
 
-        $remote->setCache($cache);
+        $remote->setCache($this->remoteCache);
         $remote->useCache($this->useCache);
         $src = $remote->download($src);
 
@@ -1297,7 +1297,7 @@ class CImage
         if ($this->copyStrategy === self::RESIZE) {
             $copyStrat = "_rs";
         }
-        
+
         $width  = $this->newWidth  ? '_' . $this->newWidth  : null;
         $height = $this->newHeight ? '_' . $this->newHeight : null;
 
@@ -1418,7 +1418,7 @@ class CImage
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
-        
+
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
@@ -1458,14 +1458,14 @@ class CImage
     public function getPngType($filename = null)
     {
         $filename = $filename ? $filename : $this->pathToImage;
-        
+
         $pngType = ord(file_get_contents($filename, false, null, 25, 1));
 
         if ($this->verbose) {
             $this->log("Checking png type of: " . $filename);
             $this->log($this->getPngTypeAsString($pngType));
         }
-        
+
         return $pngType;
     }
 
@@ -2229,7 +2229,7 @@ class CImage
         $index = $this->image
             ? imagecolortransparent($this->image)
             : -1;
-            
+
         if ($index != -1) {
 
             imagealphablending($img, true);
@@ -2297,8 +2297,8 @@ class CImage
             return substr(image_type_to_extension($this->fileType), 1);
         }
     }
-    
-    
+
+
 
     /**
      * Save image.
@@ -2460,13 +2460,13 @@ class CImage
 
                 $sRGBicc = file_get_contents($iccFile);
                 $image->profileImage('icc', $sRGBicc);
-                
+
                 $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
                 $image->writeImage($this->cacheFileName);
                 return $this->cacheFileName;
             }
         }
-        
+
         return false;
     }
 
@@ -2589,7 +2589,7 @@ class CImage
                 $this->log("Content-type: " . $mime);
                 $this->log("Content-length: " . $size);
                 $this->verboseOutput();
-                
+
                 if (is_null($this->verboseFileName)) {
                     exit;
                 }
@@ -2641,7 +2641,7 @@ class CImage
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
         $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
         $details['memoryLimit'] = ini_get('memory_limit');
-        
+
         if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
         }

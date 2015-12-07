@@ -61,7 +61,7 @@ class CImageRemoteDownloadTest extends \PHPUnit_Framework_TestCase
     public function testAllowRemoteDownloadDefaultPatternValid($source)
     {
         $img = new CImage();
-        $img->setRemoteDownload(true);
+        $img->setRemoteDownload(true, "");
         
         $res = $img->isRemoteSource($source);
         $this->assertTrue($res, "Should be a valid remote source: '$source'.");
@@ -79,7 +79,7 @@ class CImageRemoteDownloadTest extends \PHPUnit_Framework_TestCase
     public function testAllowRemoteDownloadDefaultPatternInvalid($source)
     {
         $img = new CImage();
-        $img->setRemoteDownload(true);
+        $img->setRemoteDownload(true, "");
         
         $res = $img->isRemoteSource($source);
         $this->assertFalse($res, "Should not be a valid remote source: '$source'.");

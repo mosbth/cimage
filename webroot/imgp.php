@@ -430,7 +430,7 @@ class CRemoteImage
      */
     public function setCache($path)
     {
-        $this->saveFolder = $path;
+        $this->saveFolder = rtrim($path, "/") . "/";
         return $this;
     }
 
@@ -476,7 +476,12 @@ class CRemoteImage
      */
     public function setHeaderFields()
     {
-        $this->http->setHeader("User-Agent", "CImage/0.7.2 (PHP/". phpversion() . " cURL)");
+        $cimageVersion = "CImage";
+        if (defined("CIMAGE_USER_AGENT")) {
+            $cimageVersion = CIMAGE_USER_AGENT;
+        }
+        
+        $this->http->setHeader("User-Agent", "$cimageVersion (PHP/". phpversion() . " cURL)");
         $this->http->setHeader("Accept", "image/jpeg,image/png,image/gif");
 
         if ($this->useCache) {
@@ -880,7 +885,7 @@ class CAsciiArt
      */
     public function getLuminance($red, $green, $blue)
     {
-        switch($this->luminanceStrategy) {
+        switch ($this->luminanceStrategy) {
             case 1:
                 $luminance = ($red * 0.2126 + $green * 0.7152 + $blue * 0.0722) / 255;
                 break;
@@ -1263,17 +1268,24 @@ class CImage
 
 
     /**
-    * Calculate target dimension for image when using fill-to-fit resize strategy.
-    */
+     * Calculate target dimension for image when using fill-to-fit resize strategy.
+     */
     private $fillWidth;
     private $fillHeight;
 
 
 
     /**
-    * Allow remote file download, default is to disallow remote file download.
-    */
+     * Allow remote file download, default is to disallow remote file download.
+     */
     private $allowRemote = false;
+
+
+
+    /**
+     * Path to cache for remote download.
+     */
+    private $remoteCache;
 
 
 
@@ -1431,13 +1443,15 @@ class CImage
      * Allow or disallow remote image download.
      *
      * @param boolean $allow   true or false to enable and disable.
+     * @param string  $cache   path to cache dir.
      * @param string  $pattern to use to detect if its a remote file.
      *
      * @return $this
      */
-    public function setRemoteDownload($allow, $pattern = null)
+    public function setRemoteDownload($allow, $cache, $pattern = null)
     {
         $this->allowRemote = $allow;
+        $this->remoteCache = $cache;
         $this->remotePattern = is_null($pattern) ? $this->remotePattern : $pattern;
 
         $this->log(
@@ -1545,7 +1559,7 @@ class CImage
     private function normalizeFileExtension($extension = null)
     {
         $extension = strtolower($extension ? $extension : $this->extension);
-        
+
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
             }
@@ -1567,23 +1581,14 @@ class CImage
         if (!$this->isRemoteSourceOnWhitelist($src)) {
             throw new Exception("Hostname is not on whitelist for remote sources.");
         }
-        
+
         $remote = new CRemoteImage();
-        $cache  = $this->saveFolder . "/remote/";
 
-        if (!is_dir($cache)) {
-            if (!is_writable($this->saveFolder)) {
-                throw new Exception("Can not create remote cache, cachefolder not writable.");
-            }
-            mkdir($cache);
-            $this->log("The remote cache does not exists, creating it.");
-        }
-
-        if (!is_writable($cache)) {
+        if (!is_writable($this->remoteCache)) {
             $this->log("The remote cache is not writable.");
         }
 
-        $remote->setCache($cache);
+        $remote->setCache($this->remoteCache);
         $remote->useCache($this->useCache);
         $src = $remote->download($src);
 
@@ -2217,10 +2222,11 @@ class CImage
      * @param string  $base      as optional basepath for storing file.
      * @param boolean $useSubdir use or skip the subdir part when creating the
      *                           filename.
+     * @param string  $prefix    to add as part of filename
      *
      * @return $this
      */
-    public function generateFilename($base = null, $useSubdir = true)
+    public function generateFilename($base = null, $useSubdir = true, $prefix = null)
     {
         $filename     = basename($this->pathToImage);
         $cropToFit    = $this->cropToFit    ? '_cf'                      : null;
@@ -2241,9 +2247,9 @@ class CImage
         if ($this->copyStrategy === self::RESIZE) {
             $copyStrat = "_rs";
         }
-        
-        $width  = $this->newWidth;
-        $height = $this->newHeight;
+
+        $width  = $this->newWidth  ? '_' . $this->newWidth  : null;
+        $height = $this->newHeight ? '_' . $this->newHeight : null;
 
         $offset = isset($this->offset)
             ? '_o' . $this->offset['top'] . '-' . $this->offset['right'] . '-' . $this->offset['bottom'] . '-' . $this->offset['left']
@@ -2292,9 +2298,9 @@ class CImage
             $subdir = ($subdir == '.') ? '_.' : $subdir;
             $subdir .= '_';
         }
-        
-        $file = $subdir . $filename . '_' . $width . '_'
-            . $height . $offset . $crop . $cropToFit . $fillToFit
+
+        $file = $prefix . $subdir . $filename . $width . $height
+            . $offset . $crop . $cropToFit . $fillToFit
             . $crop_x . $crop_y . $upscale
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
@@ -2363,7 +2369,7 @@ class CImage
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
-        
+
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
             $type = $this->getPngType();
@@ -2403,14 +2409,14 @@ class CImage
     public function getPngType($filename = null)
     {
         $filename = $filename ? $filename : $this->pathToImage;
-        
+
         $pngType = ord(file_get_contents($filename, false, null, 25, 1));
 
         if ($this->verbose) {
             $this->log("Checking png type of: " . $filename);
             $this->log($this->getPngTypeAsString($pngType));
         }
-        
+
         return $pngType;
     }
 
@@ -2434,7 +2440,7 @@ class CImage
         $index = imagecolortransparent($this->image);
         $transparent = null;
         if ($index != -1) {
-            $transparent = " (transparent)";            
+            $transparent = " (transparent)";
         }
 
         switch ($pngType) {
@@ -3141,7 +3147,7 @@ class CImage
         $index = $this->image
             ? imagecolortransparent($this->image)
             : -1;
-            
+
         if ($index != -1) {
 
             imagealphablending($img, true);
@@ -3209,8 +3215,8 @@ class CImage
             return substr(image_type_to_extension($this->fileType), 1);
         }
     }
-    
-    
+
+
 
     /**
      * Save image.
@@ -3312,6 +3318,74 @@ class CImage
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Convert image from one colorpsace/color profile to sRGB without
+     * color profile.
+     *
+     * @param string  $src      of image.
+     * @param string  $dir      as base directory where images are.
+     * @param string  $cache    as base directory where to store images.
+     * @param string  $iccFile  filename of colorprofile.
+     * @param boolean $useCache or not, default to always use cache.
+     *
+     * @return string | boolean false if no conversion else the converted
+     *                          filename.
+     */
+    public function convert2sRGBColorSpace($src, $dir, $cache, $iccFile, $useCache = true)
+    {
+        if ($this->verbose) {
+            $this->log("# Converting image to sRGB colorspace.");
+        }
+
+        if (!class_exists("Imagick")) {
+            $this->log(" Ignoring since Imagemagick is not installed.");
+            return false;
+        }
+
+        // Prepare
+        $this->setSaveFolder($cache)
+             ->setSource($src, $dir)
+             ->generateFilename(null, false, 'srgb_');
+
+        // Check if the cached version is accurate.
+        if ($useCache && is_readable($this->cacheFileName)) {
+            $fileTime  = filemtime($this->pathToImage);
+            $cacheTime = filemtime($this->cacheFileName);
+
+            if ($fileTime <= $cacheTime) {
+                $this->log(" Using cached version: " . $this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+
+        // Only covert if cachedir is writable
+        if (is_writable($this->saveFolder)) {
+            // Load file and check if conversion is needed
+            $image      = new Imagick($this->pathToImage);
+            $colorspace = $image->getImageColorspace();
+            $this->log(" Current colorspace: " . $colorspace);
+
+            $profiles      = $image->getImageProfiles('*', false);
+            $hasICCProfile = (array_search('icc', $profiles) !== false);
+            $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
+
+            if ($colorspace != Imagick::COLORSPACE_SRGB || $hasICCProfile) {
+                $this->log(" Converting to sRGB.");
+
+                $sRGBicc = file_get_contents($iccFile);
+                $image->profileImage('icc', $sRGBicc);
+
+                $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+                $image->writeImage($this->cacheFileName);
+                return $this->cacheFileName;
+            }
+        }
+
+        return false;
     }
 
 
@@ -3433,7 +3507,7 @@ class CImage
                 $this->log("Content-type: " . $mime);
                 $this->log("Content-length: " . $size);
                 $this->verboseOutput();
-                
+
                 if (is_null($this->verboseFileName)) {
                     exit;
                 }
@@ -3485,7 +3559,7 @@ class CImage
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
         $details['memoryCurrent'] = round(memory_get_usage()/1024/1024, 3) . " MB";
         $details['memoryLimit'] = ini_get('memory_limit');
-        
+
         if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             $details['loadTime'] = (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3) . "s";
         }
@@ -3626,6 +3700,115 @@ EOD;
 
 
 /**
+ * Deal with the cache directory and cached items.
+ *
+ */
+class CCache
+{
+    /**
+     * Path to the cache directory.
+     */
+    private $path;
+
+
+
+    /**
+     * Set the path to the cache dir which must exist.
+     *
+     * @param string path to the cache dir.
+     *
+     * @throws Exception when $path is not a directory.
+     *
+     * @return $this
+     */
+    public function setDir($path)
+    {
+        if (!is_dir($path)) {
+            throw new Exception("Cachedir is not a directory.");
+        }
+
+        $this->path = $path;
+
+        return $this;
+    }
+
+
+
+    /**
+     * Get the path to the cache subdir and try to create it if its not there.
+     *
+     * @param string $subdir name of subdir
+     * @param array  $create default is to try to create the subdir
+     *
+     * @return string | boolean as real path to the subdir or
+     *                          false if it does not exists
+     */
+    public function getPathToSubdir($subdir, $create = true)
+    {
+        $path = realpath($this->path . "/" . $subdir);
+
+        if (is_dir($path)) {
+            return $path;
+        }
+
+        if ($create && is_writable($this->path)) {
+            $path = $this->path . "/" . $subdir;
+
+            if (mkdir($path)) {
+                return realpath($path);
+            }
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Get status of the cache subdir.
+     *
+     * @param string $subdir name of subdir
+     *
+     * @return string with status
+     */
+    public function getStatusOfSubdir($subdir)
+    {
+        $path = realpath($this->path . "/" . $subdir);
+
+        $exists = is_dir($path);
+        $res  = $exists ? "exists" : "does not exist";
+        
+        if ($exists) {
+            $res .= is_writable($path) ? ", writable" : ", not writable";
+        }
+
+        return $res;
+    }
+
+
+
+    /**
+     * Remove the cache subdir.
+     *
+     * @param string $subdir name of subdir
+     *
+     * @return null | boolean true if success else false, null if no operation
+     */
+    public function removeSubdir($subdir)
+    {
+        $path = realpath($this->path . "/" . $subdir);
+
+        if (is_dir($path)) {
+            return rmdir($path);
+        }
+
+        return null;
+    }
+}
+
+
+
+/**
  * Resize and crop images on the fly, store generated images in a cache.
  *
  * @author  Mikael Roos mos@dbwebb.se
@@ -3634,7 +3817,10 @@ EOD;
  *
  */
 
-$version = "v0.7.7 (2015-10-21)";
+$version = "v0.7.9 (2015-12-07)";
+
+// For CRemoteImage
+define("CIMAGE_USER_AGENT", "CImage/$version");
 
 
 
@@ -3642,21 +3828,37 @@ $version = "v0.7.7 (2015-10-21)";
  * Display error message.
  *
  * @param string $msg to display.
+ * @param int $type of HTTP error to display.
  *
  * @return void
  */
-function errorPage($msg)
+function errorPage($msg, $type = 500)
 {
     global $mode;
 
-    header("HTTP/1.0 500 Internal Server Error");
+    switch ($type) {
+        case 403:
+            $header = "403 Forbidden";
+            break;
+        case 404:
+            $header = "404 Not Found";
+            break;
+        default:
+            $header = "500 Internal Server Error";
+    }
 
-    if ($mode == 'development') {
+    header("HTTP/1.0 $header");
+
+    if ($mode == "development") {
         die("[img.php] $msg");
     }
 
+    if ($mode == "strict") {
+        $header = "404 Not Found";
+    }
+
     error_log("[img.php] $msg");
-    die("HTTP/1.0 500 Internal Server Error");
+    die("HTTP/1.0 $header");
 }
 
 
@@ -3670,7 +3872,8 @@ set_exception_handler(function ($exception) {
         . $exception->getMessage()
         . "</p><pre>"
         . $exception->getTraceAsString()
-        . "</pre>"
+        . "</pre>",
+        500
     );
 });
 
@@ -3801,7 +4004,7 @@ set_time_limit(20);
 ini_set('gd.jpeg_ignore_warning', 1);
 
 if (!extension_loaded('gd')) {
-    errorPage("Extension gd is nod loaded.");
+    errorPage("Extension gd is not loaded.", 500);
 }
 
 // Specific settings for each mode
@@ -3813,7 +4016,7 @@ if ($mode == 'strict') {
     $verbose = false;
     $status = false;
     $verboseFile = false;
-    
+
 } elseif ($mode == 'production') {
 
     error_reporting(-1);
@@ -3837,7 +4040,7 @@ if ($mode == 'strict') {
     ini_set('log_errors', 0);
 
 } else {
-    errorPage("Unknown mode: $mode");
+    errorPage("Unknown mode: $mode", 500);
 }
 
 verbose("mode = $mode");
@@ -3870,7 +4073,7 @@ $pwd         = get(array('password', 'pwd'), null);
 // Check if passwords match, if configured to use passwords
 $passwordMatch = null;
 if ($pwd) {
-    switch($pwdType) {
+    switch ($pwdType) {
         case 'md5':
             $passwordMatch = ($pwdConfig === md5($pwd));
             break;
@@ -3886,7 +4089,7 @@ if ($pwd) {
 }
 
 if ($pwdAlways && $passwordMatch !== true) {
-    errorPage("Password required and does not match or exists.");
+    errorPage("Password required and does not match or exists.", 403);
 }
 
 verbose("password match = $passwordMatch");
@@ -3910,9 +4113,9 @@ if (!$allowHotlinking) {
         ; // Always allow when password match
         verbose("Hotlinking since passwordmatch");
     } elseif ($passwordMatch === false) {
-        errorPage("Hotlinking/leeching not allowed when password missmatch.");
+        errorPage("Hotlinking/leeching not allowed when password missmatch.", 403);
     } elseif (!$referer) {
-        errorPage("Hotlinking/leeching not allowed and referer is missing.");
+        errorPage("Hotlinking/leeching not allowed and referer is missing.", 403);
     } elseif (strcmp($serverName, $refererHost) == 0) {
         ; // Allow when serverName matches refererHost
         verbose("Hotlinking disallowed but serverName matches refererHost.");
@@ -3923,11 +4126,11 @@ if (!$allowHotlinking) {
         if ($allowedByWhitelist) {
             verbose("Hotlinking/leeching allowed by whitelist.");
         } else {
-            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.");
+            errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.", 403);
         }
 
     } else {
-        errorPage("Hotlinking/leeching not allowed.");
+        errorPage("Hotlinking/leeching not allowed.", 403);
     }
 }
 
@@ -3960,6 +4163,16 @@ $img->setVerbose($verbose || $verboseFile);
 
 
 /**
+ * Get the cachepath from config.
+ */
+$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
+$cache = new CCache();
+$cache->setDir($cachePath);
+
+
+
+
+/**
  * Allow or disallow remote download of images from other servers.
  * Passwords apply if used.
  *
@@ -3967,8 +4180,10 @@ $img->setVerbose($verbose || $verboseFile);
 $allowRemote = getConfig('remote_allow', false);
 
 if ($allowRemote && $passwordMatch !== false) {
+    $cacheRemote = $cache->getPathToSubdir("remote");
+    
     $pattern = getConfig('remote_pattern', null);
-    $img->setRemoteDownload($allowRemote, $pattern);
+    $img->setRemoteDownload($allowRemote, $cacheRemote, $pattern);
 
     $whitelist = getConfig('remote_whitelist', null);
     $img->setRemoteHostWhitelist($whitelist);
@@ -4001,7 +4216,7 @@ if (isset($shortcut)
  * src - the source image file.
  */
 $srcImage = urldecode(get('src'))
-    or errorPage('Must set src-attribute.');
+    or errorPage('Must set src-attribute.', 404);
 
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
@@ -4014,7 +4229,7 @@ $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
 
 preg_match($validFilename, $srcImage)
-    or errorPage('Filename contains invalid characters.');
+    or errorPage('Filename contains invalid characters.', 404);
 
 if ($dummyEnabled && $srcImage === $dummyFilename) {
 
@@ -4034,13 +4249,15 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
     is_file($pathToImage)
         or errorPage(
             'Source image is not a valid file, check the filename and that a
-            matching file exists on the filesystem.'
+            matching file exists on the filesystem.',
+            404
         );
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
             'Security constraint: Source image is not below the directory "image_path"
-            as specified in the config file img_config.php.'
+            as specified in the config file img_config.php.',
+            404
         );
 }
 
@@ -4090,11 +4307,11 @@ if (isset($sizes[$newWidth])) {
 // Support width as % of original width
 if ($newWidth[strlen($newWidth)-1] == '%') {
     is_numeric(substr($newWidth, 0, -1))
-        or errorPage('Width % not numeric.');
+        or errorPage('Width % not numeric.', 404);
 } else {
     is_null($newWidth)
         or ($newWidth > 10 && $newWidth <= $maxWidth)
-        or errorPage('Width out of range.');
+        or errorPage('Width out of range.', 404);
 }
 
 verbose("new width = $newWidth");
@@ -4115,11 +4332,11 @@ if (isset($sizes[$newHeight])) {
 // height
 if ($newHeight[strlen($newHeight)-1] == '%') {
     is_numeric(substr($newHeight, 0, -1))
-        or errorPage('Height % out of range.');
+        or errorPage('Height % out of range.', 404);
 } else {
     is_null($newHeight)
         or ($newHeight > 10 && $newHeight <= $maxHeight)
-        or errorPage('Hight out of range.');
+        or errorPage('Height out of range.', 404);
 }
 
 verbose("new height = $newHeight");
@@ -4157,7 +4374,7 @@ if ($negateAspectRatio) {
 
 is_null($aspectRatio)
     or is_numeric($aspectRatio)
-    or errorPage('Aspect ratio out of range');
+    or errorPage('Aspect ratio out of range', 404);
 
 verbose("aspect ratio = $aspectRatio");
 
@@ -4257,6 +4474,12 @@ verbose("area = $area");
  * skip-original, so - skip the original image and always process a new image
  */
 $useOriginal = getDefined(array('skip-original', 'so'), false, true);
+$useOriginalDefault = getConfig('skip_original', false);
+
+if ($useOriginalDefault === true) {
+    verbose("use original is default ON");
+    $useOriginal = true;
+}
 
 verbose("use original = $useOriginal");
 
@@ -4279,7 +4502,7 @@ $qualityDefault = getConfig('jpg_quality', null);
 
 is_null($quality)
     or ($quality > 0 and $quality <= 100)
-    or errorPage('Quality out of range');
+    or errorPage('Quality out of range', 404);
 
 if (is_null($quality) && !is_null($qualityDefault)) {
     $quality = $qualityDefault;
@@ -4297,7 +4520,7 @@ $compressDefault = getConfig('png_compression', null);
 
 is_null($compress)
     or ($compress > 0 and $compress <= 9)
-    or errorPage('Compress out of range');
+    or errorPage('Compress out of range', 404);
 
 if (is_null($compress) && !is_null($compressDefault)) {
     $compress = $compressDefault;
@@ -4323,7 +4546,7 @@ $scale = get(array('scale', 's'));
 
 is_null($scale)
     or ($scale >= 0 and $scale <= 400)
-    or errorPage('Scale out of range');
+    or errorPage('Scale out of range', 404);
 
 verbose("scale = $scale");
 
@@ -4372,7 +4595,7 @@ $rotateBefore = get(array('rotateBefore', 'rotate-before', 'rb'));
 
 is_null($rotateBefore)
     or ($rotateBefore >= -360 and $rotateBefore <= 360)
-    or errorPage('RotateBefore out of range');
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateBefore = $rotateBefore");
 
@@ -4385,7 +4608,7 @@ $rotateAfter = get(array('rotateAfter', 'rotate-after', 'ra', 'rotate', 'r'));
 
 is_null($rotateAfter)
     or ($rotateAfter >= -360 and $rotateAfter <= 360)
-    or errorPage('RotateBefore out of range');
+    or errorPage('RotateBefore out of range', 404);
 
 verbose("rotateAfter = $rotateAfter");
 
@@ -4534,13 +4757,13 @@ if ($alias && $aliasPath && $passwordMatch) {
     $useCache    = false;
 
     is_writable($aliasPath)
-        or errorPage("Directory for alias is not writable.");
+        or errorPage("Directory for alias is not writable.", 403);
 
     preg_match($validAliasname, $alias)
-        or errorPage('Filename for alias contains invalid characters. Do not add extension.');
+        or errorPage('Filename for alias contains invalid characters. Do not add extension.', 404);
 
 } elseif ($alias) {
-    errorPage('Alias is not enabled in the config file or password not matching.');
+    errorPage('Alias is not enabled in the config file or password not matching.', 403);
 }
 
 verbose("alias = $alias");
@@ -4548,14 +4771,7 @@ verbose("alias = $alias");
 
 
 /**
- * Get the cachepath from config.
- */
-$cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
-
-
-
-/**
- * Get the cachepath from config.
+ * Add cache control HTTP header.
  */
 $cacheControl = getConfig('cache_control', null);
 
@@ -4569,11 +4785,8 @@ if ($cacheControl) {
 /**
  * Prepare a dummy image and use it as source image.
  */
-$dummyDir = getConfig('dummy_dir', $cachePath. "/" . $dummyFilename);
-
 if ($dummyImage === true) {
-    is_writable($dummyDir)
-        or verbose("dummy dir not writable = $dummyDir");
+    $dummyDir = $cache->getPathToSubdir("dummy");
 
     $img->setSaveFolder($dummyDir)
         ->setSource($dummyFilename, $dummyDir)
@@ -4592,8 +4805,36 @@ if ($dummyImage === true) {
 
     $srcImage = $img->getTarget();
     $imagePath = null;
-    
+
     verbose("src (updated) = $srcImage");
+}
+
+
+
+/**
+ * Prepare a sRGB version of the image and use it as source image.
+ */
+$srgbDefault = getConfig('srgb_default', false);
+$srgbColorProfile = getConfig('srgb_colorprofile', __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc');
+$srgb = getDefined('srgb', true, null);
+
+if ($srgb || $srgbDefault) {
+
+    $filename = $img->convert2sRGBColorSpace(
+        $srcImage,
+        $imagePath,
+        $cache->getPathToSubdir("srgb"),
+        $srgbColorProfile,
+        $useCache
+    );
+
+    if ($filename) {
+        $srcImage = $img->getTarget();
+        $imagePath = null;
+        verbose("srgb conversion and saved to cache = $srcImage");
+    } else {
+        verbose("srgb not op");
+    }
 }
 
 
@@ -4606,8 +4847,19 @@ if ($status) {
     $text .= "PHP version = " . PHP_VERSION . "\n";
     $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
     $text .= "Allow remote images = $allowRemote\n";
-    $text .= "Cache writable = " . is_writable($cachePath) . "\n";
-    $text .= "Cache dummy writable = " . is_writable($dummyDir) . "\n";
+
+    $res = $cache->getStatusOfSubdir("");
+    $text .= "Cache $res\n";
+
+    $res = $cache->getStatusOfSubdir("remote");
+    $text .= "Cache remote $res\n";
+
+    $res = $cache->getStatusOfSubdir("dummy");
+    $text .= "Cache dummy $res\n";
+
+    $res = $cache->getStatusOfSubdir("srgb");
+    $text .= "Cache srgb $res\n";
+
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
 
     $no = extension_loaded('exif') ? null : 'NOT';
@@ -4615,6 +4867,9 @@ if ($status) {
 
     $no = extension_loaded('curl') ? null : 'NOT';
     $text .= "Extension curl is $no loaded.<br>";
+
+    $no = extension_loaded('imagick') ? null : 'NOT';
+    $text .= "Extension imagick is $no loaded.<br>";
 
     $no = extension_loaded('gd') ? null : 'NOT';
     $text .= "Extension gd is $no loaded.<br>";
@@ -4651,7 +4906,7 @@ $hookBeforeCImage = getConfig('hook_before_CImage', null);
 
 if (is_callable($hookBeforeCImage)) {
     verbose("hookBeforeCImage activated");
-    
+
     $allConfig = $hookBeforeCImage($img, array(
             // Options for calculate dimensions
             'newWidth'  => $newWidth,
@@ -4684,7 +4939,7 @@ if (is_callable($hookBeforeCImage)) {
             // Output format
             'outputFormat' => $outputFormat,
             'dpr'          => $dpr,
-            
+
             // Other
             'postProcessing' => $postProcessing,
     ));

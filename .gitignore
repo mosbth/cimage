@@ -1,14 +1,17 @@
 # Cache files
 cache/*
 
-# Test and build
+# Test & build
 build/
 coverage/
 coverage.clover
 
 # Composer
 composer.lock
-vendor/
+vendor
+
+# Build and test
+build/
 
 # Mac OS
 .DS_Store
