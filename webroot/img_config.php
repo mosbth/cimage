@@ -13,8 +13,9 @@ return array(
      * Default values:
      *  mode: 'production'
      */
-     //'mode' => 'production', // 'development', 'strict'
-     //'mode' => 'development', // 'development', 'strict'
+     //'mode' => 'production',
+     //'mode' => 'development',
+     //'mode' => 'strict',
 
 
 

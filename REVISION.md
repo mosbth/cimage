@@ -5,9 +5,10 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.8* (2015-12-07)
+v0.7.9 (2015-12-07)
 -------------------------------------
 
+* Strict mode only reporting 404 when failure, #127.
 * Added correct CImage version to remote agent string, #131.
 * Adding CCache to improve cache handling of caching for dummy, remote and srgb. #130.
 
