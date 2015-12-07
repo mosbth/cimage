@@ -75,7 +75,7 @@ class CCache
     {
         $path = realpath($this->path . "/" . $subdir);
 
-        $exists = is_dir($path); 
+        $exists = is_dir($path);
         $res  = $exists ? "exists" : "does not exist";
         
         if ($exists) {

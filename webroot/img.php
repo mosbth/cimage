@@ -30,10 +30,10 @@ function errorPage($msg, $type = 500)
     switch ($type) {
         case 403:
             $header = "403 Forbidden";
-        break;
+            break;
         case 404:
             $header = "404 Not Found";
-        break;
+            break;
         default:
             $header = "500 Internal Server Error";
     }
@@ -63,8 +63,9 @@ set_exception_handler(function ($exception) {
         . $exception->getMessage()
         . "</p><pre>"
         . $exception->getTraceAsString()
-        . "</pre>"
-    , 500);
+        . "</pre>",
+        500
+    );
 });
 
 
@@ -263,7 +264,7 @@ $pwd         = get(array('password', 'pwd'), null);
 // Check if passwords match, if configured to use passwords
 $passwordMatch = null;
 if ($pwd) {
-    switch($pwdType) {
+    switch ($pwdType) {
         case 'md5':
             $passwordMatch = ($pwdConfig === md5($pwd));
             break;
@@ -439,14 +440,16 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
     is_file($pathToImage)
         or errorPage(
             'Source image is not a valid file, check the filename and that a
-            matching file exists on the filesystem.'
-        , 404);
+            matching file exists on the filesystem.',
+            404
+        );
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
             'Security constraint: Source image is not below the directory "image_path"
-            as specified in the config file img_config.php.'
-        , 404);
+            as specified in the config file img_config.php.',
+            404
+        );
 }
 
 verbose("src = $srcImage");
