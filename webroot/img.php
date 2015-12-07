@@ -1011,11 +1011,7 @@ if ($srgb || $srgbDefault) {
     $filename = $img->convert2sRGBColorSpace(
         $srcImage,
         $imagePath,
-<<<<<<< HEAD
-        $srgbDir,
-=======
         $cache->getPathToSubdir("srgb"),
->>>>>>> master
         $srgbColorProfile,
         $useCache
     );
