@@ -2542,8 +2542,10 @@ class CImage
         $this->log("Output format is: $format");
 
         if (!$this->verbose && $format == 'json') {
-            header('Content-type: application/json');
-            echo $this->json($file);
+            #header('Content-type: application/json');
+            #echo $this->json($file);
+            return serialize(["hello", 1]);
+            #return;
             exit;
         } elseif ($format == 'ascii') {
             header('Content-type: text/plain');

@@ -5,5 +5,10 @@
  */
 require __DIR__ . "/../autoload.php";
 
-define('IMAGE_PATH', __DIR__ . '/../webroot/img/');
-define('CACHE_PATH', __DIR__ . '/../cache/');
+if (!defined("IMAGE_PATH")) {
+    define("IMAGE_PATH", __DIR__ . "/../webroot/img/");
+}
+
+if (!defined("CACHE_PATH")) {
+    define("CACHE_PATH", __DIR__ . "/../cache/");
+}

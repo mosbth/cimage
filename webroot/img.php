@@ -38,14 +38,14 @@ function errorPage($msg, $type = 500)
             $header = "500 Internal Server Error";
     }
 
+    if ($mode == "strict") {
+        $header = "404 Not Found";
+    }
+
     header("HTTP/1.0 $header");
 
     if ($mode == "development") {
         die("[img.php] $msg");
-    }
-
-    if ($mode == "strict") {
-        $header = "404 Not Found";
     }
 
     error_log("[img.php] $msg");
@@ -1177,7 +1177,7 @@ EOD;
 /**
  * Load, process and output the image
  */
-$img->log("Incoming arguments: " . print_r(verbose(), 1))
+$res = $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)
     ->setSource($srcImage, $imagePath)
@@ -1233,3 +1233,5 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
     ->save()
     ->linkToCacheFile($aliasTarget)
     ->output();
+
+return $res;
