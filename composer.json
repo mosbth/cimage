@@ -18,7 +18,11 @@
         "docs": "http://dbwebb.se/opensource/cimage"
     },
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.3",
+        "ext-gd": "*"
+    },
+    "suggest": {
+        "ext-exif": "*"
     },
     "autoload": {
         "classmap": [
