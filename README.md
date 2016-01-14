@@ -6,6 +6,7 @@ Image conversion on the fly using PHP
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/resize)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mosbth/cimage/badges/quality-score.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/?branch=resize)
 [![Code Coverage](https://scrutinizer-ci.com/g/mosbth/cimage/badges/coverage.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/?branch=resize)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/ebc10d27-449d-42ca-b380-ba5ecb7813ba/mini.png)](https://insight.sensiolabs.com/projects/ebc10d27-449d-42ca-b380-ba5ecb7813ba)
 
 
 

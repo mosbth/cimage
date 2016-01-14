@@ -4,7 +4,7 @@
 
 
 #
-# Update codebase
+# Build
 #
 .PHONY: build
 
