@@ -8,6 +8,7 @@ Revision history
 v0.7.9* (2015-12-07)
 -------------------------------------
 
+* Add require of ext-gd in composer.json, #133.
 * Fix strict mode only reporting 404 when failure, #127.
 
 
