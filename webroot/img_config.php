@@ -5,7 +5,7 @@
  * config-file imgtest_config.php.
  *
  */
-return array(
+return [
 
     /**
      * Set mode as 'strict', 'production' or 'development'.
@@ -416,4 +416,4 @@ return array(
             "customCharacterSet" => null,
         );
     },*/
-);
+];
