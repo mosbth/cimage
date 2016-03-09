@@ -36,10 +36,20 @@ return array(
      * Default values:
      *  image_path: __DIR__ . '/img/'
      *  cache_path: __DIR__ . '/../cache/'
-     *  alias_path: null
      */
     'image_path'   =>  __DIR__ . '/img/',
     'cache_path'   =>  __DIR__ . '/../cache/',
+
+
+
+    /**
+     * Path to aliases, useful when downloading external images and you
+     * want to create a local copy of the file, a alias file.
+     * End all paths with a slash.
+     *
+     * Default values:
+     *  alias_path: null
+     */
     //'alias_path'   =>  __DIR__ . '/img/alias/',
 
 
