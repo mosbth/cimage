@@ -4218,10 +4218,20 @@ if (isset($shortcut)
 $srcImage = urldecode(get('src'))
     or errorPage('Must set src-attribute.', 404);
 
+// Get settings for src-alt as backup image
+$srcAltImage = urldecode(get('src-alt', null));
+$srcAltConfig = getConfig('src_alt', null);
+if (empty($srcAltImage)) {
+    $srcAltImage = $srcAltConfig;
+}
+
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
+
+// Source is remote
+$remoteSource = false;
 
 // Dummy image feature
 $dummyEnabled  = getConfig('dummy_enabled', true);
@@ -4229,7 +4239,7 @@ $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
 
 preg_match($validFilename, $srcImage)
-    or errorPage('Filename contains invalid characters.', 404);
+    or errorPage('Source filename contains invalid characters.', 404);
 
 if ($dummyEnabled && $srcImage === $dummyFilename) {
 
@@ -4239,19 +4249,40 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
 } elseif ($allowRemote && $img->isRemoteSource($srcImage)) {
 
     // If source is a remote file, ignore local file checks.
+    $remoteSource = true;
 
-} elseif ($imagePathConstraint) {
+} else {
 
-    // Check that the image is a file below the directory 'image_path'.
+    // Check if file exists on disk or try using src-alt
     $pathToImage = realpath($imagePath . $srcImage);
-    $imageDir    = realpath($imagePath);
 
-    is_file($pathToImage)
-        or errorPage(
-            'Source image is not a valid file, check the filename and that a
-            matching file exists on the filesystem.',
-            404
-        );
+    if (!is_file($pathToImage) && !empty($srcAltImage)) {
+        // Try using the src-alt instead
+        $srcImage = $srcAltImage;
+        $pathToImage = realpath($imagePath . $srcImage);
+
+        preg_match($validFilename, $srcImage)
+            or errorPage('Source (alt) filename contains invalid characters.', 404);
+
+        if ($dummyEnabled && $srcImage === $dummyFilename) {
+            // Check if src-alt is the dummy image
+            $dummyImage = true;
+        }
+    }
+
+    if (!$dummyImage) {
+        is_file($pathToImage)
+            or errorPage(
+                'Source image is not a valid file, check the filename and that a
+                matching file exists on the filesystem.',
+                404
+            );
+    } 
+}
+
+if ($imagePathConstraint && !$dummyImage && !$remoteSource) {
+    // Check that the image is a file below the directory 'image_path'.
+    $imageDir = realpath($imagePath);
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
