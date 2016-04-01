@@ -5,9 +5,10 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.9* (2015-12-07)
+v0.7.10 (2016-04-01)
 -------------------------------------
 
+* Add backup option for images `src-alt`, #141.
 * Add require of ext-gd in composer.json, #133.
 * Fix strict mode only reporting 404 when failure, #127.
 

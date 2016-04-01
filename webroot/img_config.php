@@ -99,6 +99,20 @@ return array(
 
 
     /**
+     * Use backup image if src-image is not found on disk. The backup image
+     * is only available for local images and based on wether the original
+     * image is found on disk or not. The backup image must be a local image
+     * or the dummy image.
+     *
+     * Default value:
+     *  src_alt:  null //disabled by default
+     */
+     //'src_alt' => 'car.png',
+     //'src_alt' => 'dummy',
+
+
+
+    /**
      * A regexp for validating characters in the image or alias filename.
      *
      * Default value:
@@ -188,7 +202,8 @@ return array(
      /**
      * Check that the imagefile is a file below 'image_path' using realpath().
      * Security constraint to avoid reaching images outside image_path.
-     * This means that symbolic links to images outside the image_path will fail.
+     * This means that symbolic links to images outside the image_path will
+     * fail.
      *
      * Default value:
      *  image_path_constraint: true
