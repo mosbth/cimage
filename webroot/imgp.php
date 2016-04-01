@@ -3817,7 +3817,7 @@ class CCache
  *
  */
 
-$version = "v0.7.9* (2015-12-07)";
+$version = "v0.7.10 (2016-04-01)";
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/$version");
