@@ -3817,7 +3817,7 @@ class CCache
  *
  */
 
-$version = "v0.7.10 (2016-04-01)";
+$version = "v0.7.11 (2016-04-18)";
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/$version");
@@ -4508,8 +4508,8 @@ $useOriginal = getDefined(array('skip-original', 'so'), false, true);
 $useOriginalDefault = getConfig('skip_original', false);
 
 if ($useOriginalDefault === true) {
-    verbose("use original is default ON");
-    $useOriginal = true;
+    verbose("skip original is default ON");
+    $useOriginal = false;
 }
 
 verbose("use original = $useOriginal");
