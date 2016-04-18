@@ -10,6 +10,15 @@ return array(
     /**
      * Set mode as 'strict', 'production' or 'development'.
      *
+     * development: Development mode with verbose error reporting. Option
+     *              &verbose and &status enabled.
+     * production:  Production mode logs all errors to file, giving server
+     *              error 500 for bad usage. Option &verbose and &status
+     *              disabled.
+     * strict:      Strict mode logs few errors to file, giving server error
+     *              500 for bad usage. Stripped from comments and spaces.
+     *              Option &verbose and &status disabled.
+     *
      * Default values:
      *  mode: 'production'
      */
@@ -20,7 +29,7 @@ return array(
 
 
     /**
-     * Where are the sources for the classfiles.
+     * Where are the sources for the class files.
      *
      * Default values:
      *  autoloader:  null     // used from v0.6.2
@@ -150,6 +159,18 @@ return array(
        */
        //'srgb_default' => false,
        //'srgb_colorprofile' => __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc',
+
+
+
+       /**
+        * Set skip-original to true to always process the image and use
+        * the cached version. Default is false and to use the original
+        * image when its no processing needed.
+        *
+        * Default value:
+        *  skip_original: false
+        */
+        //'skip_original' => true,
 
 
 
@@ -394,7 +415,7 @@ return array(
 
 
     /**
-     * default options for ascii image.
+     * Default options for ascii image.
      *
      * Default values as specified below in the array.
      *  ascii-options:
