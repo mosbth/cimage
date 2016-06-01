@@ -1,0 +1,3 @@
+# Tests to be done
+
+Use resize fill-to-fit, crop-to-fit, stretch without width and height should result in image having original width and height.
