@@ -8,6 +8,7 @@ Revision history
 v0.7.12 (2016-05-31)
 -------------------------------------
 
+* Fixed to correctly display image when using a resize strategy without height or width.
 * Fixed background color for option `no-upscale`, #144.
 
 

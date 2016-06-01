@@ -1098,6 +1098,11 @@ class CImage
                 $this->newWidth = round($factor * $width);
                 $this->log("New height was set.");
 
+            } else {
+
+                // Use existing width and height as new width and height.
+                $this->newWidth = $width;
+                $this->newHeight = $height;
             }
             
 
