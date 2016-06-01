@@ -1,3 +1,7 @@
 # Tests to be done
 
 Use resize fill-to-fit, crop-to-fit, stretch without width and height should result in image having original width and height.
+
+## Integration tests
+
+Checkout a version using composer and execute all tests, prefarably on cimage.se.

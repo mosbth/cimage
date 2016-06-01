@@ -10,6 +10,15 @@ return [
     /**
      * Set mode as 'strict', 'production' or 'development'.
      *
+     * development: Development mode with verbose error reporting. Option
+     *              &verbose and &status enabled.
+     * production:  Production mode logs all errors to file, giving server
+     *              error 500 for bad usage. Option &verbose and &status
+     *              disabled.
+     * strict:      Strict mode logs few errors to file, giving server error
+     *              500 for bad usage. Stripped from comments and spaces.
+     *              Option &verbose and &status disabled.
+     *
      * Default values:
      *  mode: 'production'
      */
@@ -107,6 +116,20 @@ return [
 
 
     /**
+     * Use backup image if src-image is not found on disk. The backup image
+     * is only available for local images and based on wether the original
+     * image is found on disk or not. The backup image must be a local image
+     * or the dummy image.
+     *
+     * Default value:
+     *  src_alt:  null //disabled by default
+     */
+     //'src_alt' => 'car.png',
+     //'src_alt' => 'dummy',
+
+
+
+    /**
      * A regexp for validating characters in the image or alias filename.
      *
      * Default value:
@@ -123,18 +146,20 @@ return [
       * when saving images.
       *
       * Default value:
-      *  jpg_quality:     null, integer between 0-100
-      *  png_compression: null, integer between 0-9
+      *  jpg_quality:     null, integer between 0-100, 
+      *                         default is 60
+      *  png_compression: null, integer between 0-9,
+      *                         default is -1 (PHP GD decides)
       */
-      //'jpg_quality'  => 75,
-      //'png_compression' => 1,
+      //'jpg_quality'  => 60,
+      //'png_compression' => -1,
 
 
 
       /**
-       * Convert the image to srgb before processing. Saves the converted
+       * Convert the image to sRGB before processing. Saves the converted
        * image in a cache subdir 'srgb'. This option is default false but can
-       * be changed to default true to do this conversion for all images.
+       * be changed to default true to always do conversion for all images.
        * This option requires PHP extension imagick and will silently fail
        * if that is not installed.
        *
@@ -273,7 +298,7 @@ return [
      *  jpeg_optimize_cmd: '/usr/local/bin/jpegtran -copy none -optimize'
      */
     /*
-    'postprocessing' => array(
+    'postprocessing' => [
         'png_filter'        => false,
         'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 
@@ -282,7 +307,7 @@ return [
 
         'jpeg_optimize'     => false,
         'jpeg_optimize_cmd' => '/usr/local/bin/jpegtran -copy none -optimize',
-    ),
+    ],
     */
 
 
@@ -399,7 +424,7 @@ return [
 
 
     /**
-     * default options for ascii image.
+     * Default options for ascii image.
      *
      * Default values as specified below in the array.
      *  ascii-options:
