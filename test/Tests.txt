@@ -5,3 +5,9 @@ Use resize fill-to-fit, crop-to-fit, stretch without width and height should res
 ## Integration tests
 
 Checkout a version using composer and execute all tests, prefarably on cimage.se.
+
+
+
+## Reference images
+
+Create a bunch of reference images to compare between versions. Save together with how it was created. 

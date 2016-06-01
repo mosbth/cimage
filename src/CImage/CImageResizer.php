@@ -253,14 +253,17 @@ class CImageResizer
      * @param float &$current value to check and change.
      * @param float  $orig    value to check against.
      *
-     * @return float as the value respected by the upscale setting.
+     * @return boolean true if upscaled changed values, else false.
      */
     public function respectUpscale(&$current, $orig)
     {
         if (!$this->upscale && $current > $orig) {
-            $this->log("# Disallowed upscale of $orig to $current");
+            $this->log("# Disallowed upscale to $current ($orig)");
             $current = $orig;
+            return true;
         }
+
+        return false;
     }
 
 
@@ -553,24 +556,54 @@ class CImageResizer
         } elseif ($rs === CImageResizer::STRETCH && $both) {
 
             // Stretch to fit, leave as is
-            // Ignores respectUpscale by intention
-            $this->log("  Stretch, leave as is");
+            $this->log("  Stretch");
+
+            // respectUpscale
+            $dw = $tw;
+            $dh = $th;
+            $this->respectUpscale($dw, $sw);
+            $this->respectUpscale($dh, $sh);
+            $dx = ($tw - $dw) / 2;
+            $dy = ($th - $dh) / 2;
+
+            $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
 
         } elseif ($rs === CImageResizer::CROP_TO_FIT && $both) {
 
             // Crop to fit image in box
-            // Ignores respectUpscale by intention
             $this->log("  Crop to fit, ratio target=$ratio, source=$ar");
 
+            // Respect upscale
+            $dw = $tw;
+            $dh = $th;
+            $this->respectUpscale($dw, $sw);
+            $this->respectUpscale($dh, $sh);
+            $dx = ($tw - $dw) / 2;
+            $dy = ($th - $dh) / 2;
+
+            // Manage landscape/portrait
             if ($ratio > $ar) {
                 $ch = $sw / $ratio;
                 $cy = ($sh - $ch) / 2;
+                $this->log("   Crop by cy=$cy ch=$ch");
             } elseif ($ratio < $ar) {
                 $cw = $sh * $ratio;
                 $cx = ($sw - $cw) / 2;
+                $this->log("   Crop by cx=$cx cw=$cw");
+            }
+
+            // Update crop when no upscale
+            if (!$this->upscale && $dx) {
+                $cy = $th < $sh ? ($sh - $th) / 2 : 0;
+                $ch = $dh;
+            }
+            if (!$this->upscale && $dy) {
+                $cx = $tw < $sw ? ($sw - $tw) / 2 : 0;
+                $cw = $dw;
             }
 
             $this->log("   Parts cx=$cx, cy=$cy, cw=$cw, ch=$ch");
+            $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
 
         } elseif ($rs === CImageResizer::FILL_TO_FIT && $both) {
 
@@ -579,6 +612,7 @@ class CImageResizer
             $dw = $tw;
             $dh = $th;
 
+            // Manage landscape/portrait
             if ($ratio > $ar) {
                 $dw = $th * $ar;
                 $dh = $th;
@@ -586,14 +620,13 @@ class CImageResizer
                 $dw = $tw;
                 $dh = $tw / $ar;
             }
-            
+
             $this->respectUpscale($dw, $sw);
             $this->respectUpscale($dh, $sh);
             $dx = ($tw - $dw) / 2;
             $dy = ($th - $dh) / 2;
 
             $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
-
         }
 
         // All done, sum it up
