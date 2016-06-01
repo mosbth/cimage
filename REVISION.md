@@ -5,7 +5,7 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.12 (2016-05-31)
+v0.7.12 (2016-06-01)
 -------------------------------------
 
 * Fixed to correctly display image when using a resize strategy without height or width.
