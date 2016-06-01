@@ -1706,9 +1706,6 @@ class CImage
                 && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
 
-                //$cropX = round(($this->cropWidth/2) - ($this->width/2));
-                //$cropY = round(($this->cropHeight/2) - ($this->height/2));
-
                 $posX = 0;
                 $posY = 0;
                 $cropX = 0;
@@ -1739,7 +1736,6 @@ class CImage
                 $this->log(" cropY: $cropY");
 
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                //imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->width, $this->height);
                 imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->width, $this->height);
             } else {
                 $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
@@ -1822,7 +1818,6 @@ class CImage
                         $cropX = round(($this->width - $this->newWidth) / 2);
                     }
 
-                    //$this->log("posX=$posX, posY=$posY, cropX=$cropX, cropY=$cropY.");
                     $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
                     imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->width, $this->height);
                     $this->image = $imageResized;
