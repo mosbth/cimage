@@ -4,7 +4,7 @@
 # The example is set up as following.
 #
 #  img                 A directory where all images are stored
-#  img/me.jpg          Access a image as usually.
+#  img/me.jpg          Access a image as usual.
 #  image/me.jpg        Access a image though img.php using htaccess rewrite.
 #  image/me.jpg?w=300  Using options to img.php.
 # 
