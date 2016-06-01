@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.12 (2016-05-31)
+-------------------------------------
+
+* Fixed background color for option `no-upscale`, #144.
+
+
 v0.7.11 (2016-04-18)
 -------------------------------------
 
