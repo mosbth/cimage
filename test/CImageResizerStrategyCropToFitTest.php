@@ -73,16 +73,23 @@ class CImageResizerStrategyCropToFitTest extends \PHPUnit_Framework_TestCase
         return [
 
             // Square
-            [100, 100,   200, 200,   50,  50, 100, 100],
-            [100, 100,   400, 100,  150,   0, 100, 100],
-            [100, 100,   100, 400,    0, 150, 100, 100],
-            [100, 100,   400, 400,  150, 150, 100, 100],
-            [491, 323,   600, 400,   55,  39, 491, 323],
+            array(100,100,  200,200,  0,0,100,100,  50,50,100,100),
+            array(100,100,  200,100,  0,0,100,100,  50,0,100,100),
+            array(100,100,  100,200,  0,0,100,100,  0,50,100,100),
 
             // Landscape
+            array(200,100,  400,200,  0,0,200,100,  100,50,200,100),
+            array(200,100,  50,50,   50,0,100,100,  0,0,200,100),
+        /*
+            array(200, 100,   400,  100,    0, 25, 200,  50),
+            array(200, 100,   100,  400,   round(175/2),  0,  25, 100),
 
             // Portrait
-
+            array(100, 200,    50, 100,    0,  0, 100, 200),
+            array(100, 200,    50,  50,    0, 50, 100, 100),
+            array(100, 200,   200,  50,    0, round(175/2), 100,  25),
+            array(100, 200,   50, 200,    25,  0,  50, 200),
+/* */
         ];
     }
 
@@ -91,13 +98,13 @@ class CImageResizerStrategyCropToFitTest extends \PHPUnit_Framework_TestCase
      /**
       * Test
       *
-      * @dataProvider providerImages
+      * @dataProvider providerImages2
       *
       * @return void
       */
-    public function testResize2($sw, $sh, $tw, $th, $cx, $cy, $cw, $ch)
+    public function testResize2($sw, $sh, $tw, $th, $cx, $cy, $cw, $ch, $dx, $dy, $dw, $dh)
     {
-        $img = new CImageResizer(/*'logger'/**/);
+    $img = new CImageResizer(/*'logger'/**/);
 
         $img->setSource($sw, $sh)
             ->setBaseWidthHeight($tw, $th)
@@ -112,5 +119,10 @@ class CImageResizerStrategyCropToFitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($cy, $img->getCropY(), "CropY not correct.");
         $this->assertEquals($cw, $img->getCropWidth(), "CropWidth not correct.");
         $this->assertEquals($ch, $img->getCropHeight(), "CropHeight not correct.");
+
+        $this->assertEquals($dx, $img->getDestinationX(), "DestinationX not correct.");
+        $this->assertEquals($dy, $img->getDestinationY(), "DestinationY not correct.");
+        $this->assertEquals($dw, $img->getDestinationWidth(), "DestinationWidth not correct.");
+        $this->assertEquals($dh, $img->getDestinationHeight(), "DestinationHeight not correct.");
     }
 }

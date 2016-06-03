@@ -2,77 +2,113 @@
 #
 #
 
+# Colors
+NO_COLOR		= \033[0m
+TARGET_COLOR	= \033[32;01m
+OK_COLOR		= \033[32;01m
+ERROR_COLOR		= \033[31;01m
+WARN_COLOR		= \033[33;01m
+ACTION			= $(TARGET_COLOR)--> 
 
-#
-# Build
-#
-.PHONY: build
+# Add local bin path for test tools
+BIN 		= bin
+VENDORBIN 	= vendor/bin
+NPMBIN		= node_modules/.bin
 
-build:
-	[ -d build ] || mkdir build
+
+# target: help          - Displays help.
+.PHONY:  help
+help:
+	@echo "$(ACTION)Displaying help for this Makefile.$(NO_COLOR)"
+	@echo "Usage:"
+	@echo " make [target] ..."
+	@echo "target:"
+	@egrep "^# target:" Makefile | sed 's/# target: / /g'
+
+
+
+# target: clean         - Remove all generated files.
+.PHONY:  clean
+clean:
+	@echo "$(ACTION)Remove all generated files$(NO_COLOR)"
+	rm -rf build
+	rm -f npm-debug.log
+
+
+
+# target: clean-all     - Remove all installed files.
+.PHONY:  clean-all
+clean-all: clean
+	@echo "$(ACTION)Remove all installed files$(NO_COLOR)"
+	rm -rf bin
+	rm -rf node_modules
+	rm -rf vendor
+
+
+
+# target: build-prepare - Prepare the build directory.
+.PHONY: build-prepare
+build-prepare:
+	@echo "$(ACTION)Prepare the build directory$(NO_COLOR)"
+	install -d build
+	#install -d bin/pip
 	rm -rf build/*
 
 
 
-#
-# Various test to pass build
-#
+# target: test          - Various test to pass build.
 .PHONY: test
-
-test: build phpunit phpcs
-
+test: build-prepare phpunit behat phpcs
 
 
-#
-# phpcs
-#
+
+# target: phpcs         - Run phpcs for PHP code style.
 .PHONY: phpcs
+phpcs: build-prepare
+	@echo "$(ACTION)phpcs$(NO_COLOR)"
+	$(VENDORBIN)/phpcs --standard=.phpcs.xml | tee build/phpcs
 
-phpcs:
-	phpcs --standard=.phpcs.xml | tee build/phpcs
 
 
-
-#
-# phpcbf
-#
+# target: phpcbf        - Run phpcbf to fix PHP code style.
 .PHONY: phpcbf
-
 phpcbf:
-	phpcbf --standard=.phpcs.xml
+	@echo "$(ACTION)phpcbf$(NO_COLOR)"
+	$(VENDORBIN)/phpcbf --standard=.phpcs.xml
 
 
-#
-# phpunit
-#
+
+# target: phpunit       - Run phpunit for unit testing PHP.
 .PHONY: phpunit
+phpunit: build-prepare
+	@echo "$(ACTION)phpunit$(NO_COLOR)"
+	$(VENDORBIN)/phpunit --configuration .phpunit.xml
 
-phpunit:
-	phpunit --configuration .phpunit.xml
+
+
+# target: behat        - Run behat for feature tests.
+.PHONY: behat
+behat:
+	@echo "$(ACTION)behat$(NO_COLOR)"
+	$(VENDORBIN)/behat
 
 
 
-#
-# phpdoc
-#
+# target: phpdoc        - Run phpdoc to create API documentation.
 .PHONY: phpdoc
-
 phpdoc:
-	phpdoc --config=.phpdoc.xml
+	@echo "$(ACTION)phpdoc$(NO_COLOR)"
+	$(VENDORBIN)/phpdoc --config=.phpdoc.xml
+
+
+# target: tag-prepare   - Prepare to tag new version.
+.PHONY: tag-prepare
+tag-prepare:
+	@echo "$(ACTION)Prepare to tag new version, perform selfcheck$(NO_COLOR)"
+
 
 
 # ------------------------- OBSOLETE TO BE REMOVED?
-
-#
-# Build and development environment using make
-#
-COMPOSER_PACKAGES = 					\
-	"phpunit/phpunit=4.*" 				\
-	"sebastian/phpcpd=2.*"				\
-	"phploc/phploc=2.*"					\
-	"phpdocumentor/phpdocumentor=2.*"	\
-	"squizlabs/php_codesniffer=2.*"		\
-	"phpmd/phpmd=@stable"				\
 
 NPM_PACKAGES = 							\
 	htmlhint							\
@@ -118,19 +154,6 @@ tools-config: npm-config
 tools-install: composer-require npm-install apm-install
 
 tools-update: composer-update npm-update apm-update
-
-
-
-#
-# composer
-#
-.PHONY: composer-require composer-update
-
-composer-require: 
-	composer --sort-packages --update-no-dev global require $(COMPOSER_PACKAGES)
-
-composer-update:
-	composer --no-dev global update
 
 
 

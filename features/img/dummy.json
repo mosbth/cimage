@@ -1,0 +1,19 @@
+{
+    "src": "dummy_100_100_q60_co-1",
+    "srcGmdate": "Fri, 03 Jun 2016 07:38:56",
+    "cache": "_._dummy_100_100_q60_co-1_q60_co-1",
+    "cacheGmdate": "Fri, 03 Jun 2016 07:38:56",
+    "filename": "_._dummy_100_100_q60_co-1_q60_co-1",
+    "mimeType": "image/png",
+    "width": 100,
+    "height": 100,
+    "aspectRatio": 1,
+    "size": 334,
+    "colors": 1,
+    "includedFiles": 6,
+    "memoryPeek": "0.341 MB",
+    "memoryCurrent": "0.316 MB",
+    "memoryLimit": "128M",
+    "loadTime": "0.01s",
+    "pngType": "PNG is type 6, RGB with alpha channel (PNG 32-bit)"
+}
