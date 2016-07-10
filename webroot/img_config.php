@@ -23,7 +23,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production',
-     //'mode' => 'development',
+     'mode' => 'development',
      //'mode' => 'strict',
 
 
@@ -45,13 +45,39 @@ return array(
      * End all paths with a slash.
      *
      * Default values:
-     *  image_path: __DIR__ . '/img/'
-     *  cache_path: __DIR__ . '/../cache/'
-     *  alias_path: null
+     *  image_path:     __DIR__ . '/img/'
+     *  cache_path:     __DIR__ . '/../cache/'
+     *  alias_path:     null
      */
-    'image_path'   =>  __DIR__ . '/img/',
-    'cache_path'   =>  __DIR__ . '/../cache/',
+    'image_path'        =>  __DIR__ . '/img/',
+    'cache_path'        =>  __DIR__ . '/../cache/',
     //'alias_path'   =>  __DIR__ . '/img/alias/',
+
+
+
+    /**
+     * Fast track cache. Save a json representation of the image as a
+     * fast track to the cached version of the image. This avoids some
+     * processing and allows for quicker load times of cached images.
+     *
+     * Default values:
+     *  fast_track_allow: false
+     */
+    'fast_track_allow' => true,
+
+
+
+    /**
+     * Class names to use, to ease dependency injection.
+     *
+     * Default values:
+     *  CImage: CImage
+     *  CCache: CCache
+     *  CFastTrackCache: CFastTrackCache
+     */
+     //'CImage' => 'CImage',
+     //'CCache' => 'CCache',
+     //'CFastTrackCache' => 'CFastTrackCache',
 
 
 

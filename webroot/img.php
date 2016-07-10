@@ -14,6 +14,17 @@ $version = "v0.7.12 (2016-06-01)";
 define("CIMAGE_USER_AGENT", "CImage/$version");
 
 
+// Include debug functions
+function debug($msg)
+{
+    $file = "/tmp/cimage";
+    $msg .= ":" . count(get_included_files());
+    $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
+    $msg .= ":" . (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 6) . "ms";
+    file_put_contents($file, "$msg\n", FILE_APPEND);
+
+}
+
 
 /**
  * Display error message.
@@ -348,7 +359,8 @@ if ($autoloader) {
 /**
  * Create the class for the image.
  */
-$img = new CImage();
+$CImage = getConfig('CImage', 'CImage');
+$img = new $CImage();
 $img->setVerbose($verbose || $verboseFile);
 
 
@@ -356,10 +368,44 @@ $img->setVerbose($verbose || $verboseFile);
 /**
  * Get the cachepath from config.
  */
+$CCache = getConfig('CCache', 'CCache');
 $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
-$cache = new CCache();
+$cache = new $CCache();
 $cache->setDir($cachePath);
 
+
+
+/**
+ * no-cache, nc - skip the cached version and process and create a new version in cache.
+ */
+$useCache = getDefined(array('no-cache', 'nc'), false, true);
+
+verbose("use cache = $useCache");
+
+
+
+/**
+ * Prepare fast track cache for swriting cache items.
+ */
+$fastTrackCache = "fasttrack";
+$allowFastTrackCache = getConfig('fast_track_allow', false);
+
+$CFastTrackCache = getConfig('CFastTrackCache', 'CFastTrackCache');
+$ftc = new $CFastTrackCache();
+$ftc->setCacheDir($cache->getPathToSubdir($fastTrackCache))
+    ->enable($allowFastTrackCache)
+    ->setFilename(array('no-cache', 'nc'));
+$img->injectDependency("fastTrackCache", $ftc);
+
+
+
+/**
+ *  Load and output images from fast track cache, if items are available
+ * in cache.
+ */
+if ($useCache && $allowFastTrackCache) {
+    $ftc->output();
+}
 
 
 
@@ -704,15 +750,6 @@ if ($useOriginalDefault === true) {
 }
 
 verbose("use original = $useOriginal");
-
-
-
-/**
- * no-cache, nc - skip the cached version and process and create a new version in cache.
- */
-$useCache = getDefined(array('no-cache', 'nc'), false, true);
-
-verbose("use cache = $useCache");
 
 
 
@@ -1081,6 +1118,9 @@ if ($status) {
 
     $res = $cache->getStatusOfSubdir("srgb");
     $text .= "Cache srgb $res\n";
+
+    $res = $cache->getStatusOfSubdir($fasttrackCache);
+    $text .= "Cache fasttrack $res\n";
 
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
 

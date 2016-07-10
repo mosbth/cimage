@@ -379,6 +379,12 @@ class CImage
     private $useCache = true;
 
 
+    /**
+    * Disable the fasttrackCacke to start with, inject an object to enable it.
+    */
+    private $fastTrackCache = null;
+
+
 
     /*
      * Set whitelist for valid hostnames from where remote source can be
@@ -442,6 +448,25 @@ class CImage
     {
         $this->setSource($imageSrc, $imageFolder);
         $this->setTarget($saveFolder, $saveName);
+    }
+
+
+
+    /**
+     * Inject object and use it, must be available as member.
+     *
+     * @param string $property to set as object.
+     * @param object $object   to set to property.
+     *
+     * @return $this
+     */
+    public function injectDependency($property, $object)
+    {
+        if (!property_exists($this, $property)) {
+            $this->raiseError("Injecting unknown property.");
+        }
+        $this->$property = $object;
+        return $this;
     }
 
 
@@ -2520,7 +2545,7 @@ class CImage
 
 
     /**
-     * Add HTTP header for putputting together with image.
+     * Add HTTP header for output together with image.
      *
      * @param string $type  the header type such as "Cache-Control"
      * @param string $value the value to use
@@ -2571,14 +2596,20 @@ class CImage
         // Get image modification time
         clearstatcache();
         $lastModified = filemtime($file);
-        $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
+        $lastModifiedFormat = "D, d M Y H:i:s";
+        $gmdate = gmdate($lastModifiedFormat, $lastModified);
 
         if (!$this->verbose) {
-            header('Last-Modified: ' . $gmdate . " GMT");
+            $header = "Last-Modified: $gmdate GMT";
+            header($header);
+            $this->fastTrackCache->addHeader($header);
+            $this->fastTrackCache->setLastModified($lastModified);
         }
 
-        foreach($this->HTTPHeader as $key => $val) {
-            header("$key: $val");
+        foreach ($this->HTTPHeader as $key => $val) {
+            $header = "$key: $val";
+            header($header);
+            $this->fastTrackCache->addHeader($header);
         }
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
@@ -2590,6 +2621,7 @@ class CImage
             }
 
             header("HTTP/1.0 304 Not Modified");
+            debug("standard 304");
 
         } else {
 
@@ -2610,9 +2642,18 @@ class CImage
                 }
             }
 
-            header("Content-type: $mime");
-            header("Content-length: $size");
+            $header = "Content-type: $mime";
+            header($header);
+            $this->fastTrackCache->addHeaderOnOutput($header);
+
+            $header = "Content-length: $size";
+            header($header);
+            $this->fastTrackCache->addHeaderOnOutput($header);
+
+            $this->fastTrackCache->setSource($file);
+            $this->fastTrackCache->writeToCache();
             readfile($file);
+            debug("standard 200");
         }
 
         exit;
