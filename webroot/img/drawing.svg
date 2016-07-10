@@ -31,11 +31,11 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1063"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="919"
+     inkscape:window-height="416"
+     inkscape:window-x="167"
+     inkscape:window-y="177"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -58,12 +58,16 @@
        width="100"
        height="100"
        x="-7.4924429e-08"
-       y="952.36218" />
+       y="952.36218"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#009600;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 0,952.3622 0,20 20,0 0,-20 -20,0 z"
        id="rect4136"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4140"
@@ -83,61 +87,85 @@
        inkscape:connector-curvature="0"
        id="path4148"
        d="m 40,952.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#ffff00;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#ffff00;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 80,952.3622 0,20 20,0 0,-20 -20,0 z"
        id="path4150"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4152"
        d="m 20,972.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#00ffff;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#00ffff;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#000080;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 60,972.3622 0,20 20,0 0,-20 -20,0 z"
        id="path4154"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4156"
        d="m 0,992.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#009600;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#009600;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#ffff00;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 40,992.3622 0,20 20,0 0,-20 -20,0 z"
        id="path4158"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4160"
        d="m 80,992.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#00ffff;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 20,1012.3622 0,20 20,0 0,-20 -20,0 z"
        id="path4162"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4164"
        d="m 60,1012.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#000080;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#000080;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4166"
        d="m 0,1032.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#009600;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#009600;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        style="fill:#ffff00;fill-opacity:1;stroke:none;stroke-opacity:1"
        d="m 40,1032.3622 0,20 20,0 0,-20 -20,0 z"
        id="path4168"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        id="path4170"
        d="m 80,1032.3622 0,20 20,0 0,-20 -20,0 z"
-       style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-opacity:1" />
+       style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>

@@ -1,5 +1,5 @@
 Feature: dummy
-    Display an dummy image without using a existing image on file.
+    Display an dummy image without using an existing image on file.
 
     Scenario: Set source to be dummy
         Given Set src "dummy"
