@@ -18,6 +18,9 @@ define("CIMAGE_USER_AGENT", "CImage/$version");
 function debug($msg)
 {
     $file = "/tmp/cimage";
+    if (!is_writable($file)) {
+        return;
+    }
     $msg .= ":" . count(get_included_files());
     $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
     $msg .= ":" . (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 6) . "ms";
