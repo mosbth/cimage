@@ -4,7 +4,7 @@
  * the ordinary way.
  */
  // Include debug functions
-function debug($msg)
+function debug1($msg)
 {
     $file = "/tmp/cimage";
     if (!is_writable($file)) {
@@ -17,7 +17,7 @@ function debug($msg)
 }
 
 
-
+$cachePath = __DIR__ . "/../cache/fasttrack";
 $query = $_GET;
 
 // Remove parts from querystring that should not be part of filename
@@ -30,6 +30,7 @@ arsort($query);
 $queryAsString = http_build_query($query);
 
 $filename = md5($queryAsString);
+$filename = "$cachePath/$filename";
 if (is_readable($filename)) {
     $item = json_decode(file_get_contents($filename), true);
 
@@ -41,7 +42,7 @@ if (is_readable($filename)) {
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])
             && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) == $item["last-modified"]) {
             header("HTTP/1.0 304 Not Modified");
-            debug("really fast track 304");
+            debug1("really fast track 304");
             exit;
         }
 
@@ -50,7 +51,7 @@ if (is_readable($filename)) {
         }
 
         readfile($item["source"]);
-        debug("really fast track 200");
+        debug1("really fast track 200");
         exit;
     }
 }
