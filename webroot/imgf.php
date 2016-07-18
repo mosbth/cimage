@@ -16,6 +16,8 @@ function debug1($msg)
     file_put_contents($file, "$msg\n", FILE_APPEND);
 }
 
+//$useCache = getDefined(array('no-cache', 'nc'), false, true);
+
 
 $cachePath = __DIR__ . "/../cache/fasttrack";
 $query = $_GET;
@@ -50,8 +52,8 @@ if (is_readable($filename)) {
             header($value);
         }
 
-        readfile($item["source"]);
         debug1("really fast track 200");
+        readfile($item["source"]);
         exit;
     }
 }

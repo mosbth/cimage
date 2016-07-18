@@ -2652,8 +2652,8 @@ class CImage
 
             $this->fastTrackCache->setSource($file);
             $this->fastTrackCache->writeToCache();
-            readfile($file);
             debug("standard 200");
+            readfile($file);
         }
 
         exit;

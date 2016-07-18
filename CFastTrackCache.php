@@ -224,8 +224,8 @@ class CFastTrackCache
             header($value);
         }
 
-        readfile($item["source"]);
         debug("fast track 200");
+        readfile($item["source"]);
         exit;
     }
 }
