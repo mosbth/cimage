@@ -14,15 +14,15 @@
  */
 function trace($msg)
 {
-    $file = "/tmp/cimage";
+    $file = CIMAGE_DEBUG_FILE;
     if (!is_writable($file)) {
         die("Using trace without a writable logfile. Create the file '$file' and make it writable for the web server.");
     }
 
-    $msg .= ":" . count(get_included_files());
-    $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
-    $msg .= ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
-    file_put_contents($file, "$msg\n", FILE_APPEND);
+    $details  = ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
+    $details .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
+    $details .= ":" . count(get_included_files());
+    file_put_contents($file, "$details:$msg\n", FILE_APPEND);
 }
 
 

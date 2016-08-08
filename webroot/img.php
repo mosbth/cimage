@@ -247,6 +247,9 @@ $img->injectDependency("fastTrackCache", $ftc);
  * in cache.
  */
 if ($useCache && $allowFastTrackCache) {
+    if (CIMAGE_DEBUG) {
+        trace("img.php fast track cache enabled and used");
+    }
     $ftc->output();
 }
 

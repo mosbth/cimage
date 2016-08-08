@@ -43,6 +43,12 @@ define("CIMAGE_VERSION", "v0.7.13 (2016-08-08)");
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
 
+// Change to true to enable debug mode which logs additional information
+// to file. Only use for test and development.
+define("CIMAGE_DEBUG", true);
+define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
+//define("CIMAGE_DEBUG", false);
+
 
 
 /**
@@ -60,15 +66,15 @@ define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
  */
 function trace($msg)
 {
-    $file = "/tmp/cimage";
+    $file = CIMAGE_DEBUG_FILE;
     if (!is_writable($file)) {
         die("Using trace without a writable logfile. Create the file '$file' and make it writable for the web server.");
     }
 
-    $msg .= ":" . count(get_included_files());
-    $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
-    $msg .= ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
-    file_put_contents($file, "$msg\n", FILE_APPEND);
+    $details  = ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
+    $details .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
+    $details .= ":" . count(get_included_files());
+    file_put_contents($file, "$details:$msg\n", FILE_APPEND);
 }
 
 
@@ -3720,6 +3726,9 @@ class CImage
             }
 
             header("HTTP/1.0 304 Not Modified");
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 304");
+            }
 
         } else {
 
@@ -3750,6 +3759,9 @@ class CImage
 
             $this->fastTrackCache->setSource($file);
             $this->fastTrackCache->writeToCache();
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 200");
+            }
             readfile($file);
         }
 
@@ -4136,6 +4148,10 @@ class CFastTrackCache
 
         $this->filename = md5($queryAsString);
 
+        if (CIMAGE_DEBUG) {
+            $this->container["query-string"] = $queryAsString;
+        }
+
         return $this->filename;
     }
 
@@ -4259,6 +4275,9 @@ class CFastTrackCache
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])
             && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) == $item["last-modified"]) {
             header("HTTP/1.0 304 Not Modified");
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 304");
+            }
             exit;
         }
 
@@ -4266,6 +4285,9 @@ class CFastTrackCache
             header($value);
         }
 
+        if (CIMAGE_DEBUG) {
+            trace(__CLASS__ . " 200");
+        }
         readfile($item["source"]);
         exit;
     }
@@ -4521,6 +4543,9 @@ $img->injectDependency("fastTrackCache", $ftc);
  * in cache.
  */
 if ($useCache && $allowFastTrackCache) {
+    if (CIMAGE_DEBUG) {
+        trace("img.php fast track cache enabled and used");
+    }
     $ftc->output();
 }
 

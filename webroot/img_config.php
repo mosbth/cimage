@@ -66,7 +66,9 @@ return array(
 
 
     /**
-     * Class names to use, to ease dependency injection.
+     * Class names to use, to ease dependency injection. You can change Class
+     * name if you want to use your own class instead. This is a way to extend
+     * the codebase.
      *
      * Default values:
      *  CImage: CImage

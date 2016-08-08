@@ -14,6 +14,8 @@ v0.7.13 (2016-08-08)
 * Added `imgf.php` as shortcut to check for fast cache, before loading `img.php` as usual.
 * Created `defines.php` and moved definition av version there.
 * Fixed images in README, #148.
+* Initiated dependency injection to `CImage`, class names can be set in config file and will be injected to `CImage` from `img.php`. Not implemented for all classes. #151.
+* Enabled debug mode to make it easeier to trace what actually happens while processing the image, #150.
 
 
 v0.7.12 (2016-06-01)

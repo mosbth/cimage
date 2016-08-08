@@ -3,8 +3,8 @@
  * Autoloader for CImage and related class files.
  *
  */
-require __DIR__ . "/defines.php";
-require __DIR__ . "/functions.php";
+require_once __DIR__ . "/defines.php";
+require_once __DIR__ . "/functions.php";
 
 
 

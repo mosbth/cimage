@@ -35,7 +35,7 @@
             "CRemoteImage.php",
             "CWhitelist.php",
             "CAsciiArt.php",
-            "CCache.php"
+            "CCache.php",
             "CFastTrackCache.php"
         ]
     }

@@ -92,6 +92,10 @@ class CFastTrackCache
 
         $this->filename = md5($queryAsString);
 
+        if (CIMAGE_DEBUG) {
+            $this->container["query-string"] = $queryAsString;
+        }
+
         return $this->filename;
     }
 
@@ -215,6 +219,9 @@ class CFastTrackCache
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])
             && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) == $item["last-modified"]) {
             header("HTTP/1.0 304 Not Modified");
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 304");
+            }
             exit;
         }
 
@@ -222,6 +229,9 @@ class CFastTrackCache
             header($value);
         }
 
+        if (CIMAGE_DEBUG) {
+            trace(__CLASS__ . " 200");
+        }
         readfile($item["source"]);
         exit;
     }
