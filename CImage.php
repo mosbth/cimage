@@ -949,9 +949,7 @@ class CImage
                 $this->fileType = exif_imagetype($file);
                 if ($this->fileType === false) {
                     if (function_exists("imagecreatefromwebp")) {
-                        die("before create webp " . $file);
                         $webp = imagecreatefromwebp($file);
-                        die("after create webp " . $file);
                         if ($webp !== false) {
                             $this->width  = imagesx($webp);
                             $this->height = imagesy($webp);
