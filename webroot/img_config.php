@@ -16,8 +16,8 @@
  * CIMAGE_DEBUG will be false by default, if its not defined.
  */
 if (!defined("CIMAGE_DEBUG")) {
-    //define("CIMAGE_DEBUG", false);
-    define("CIMAGE_DEBUG", true);
+    define("CIMAGE_DEBUG", false);
+    //define("CIMAGE_DEBUG", true);
     define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
 }
 
@@ -41,7 +41,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production',
-     'mode' => 'development',
+     //'mode' => 'development',
      //'mode' => 'strict',
 
 
