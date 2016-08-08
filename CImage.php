@@ -640,7 +640,7 @@ class CImage
      */
     private function checkFileExtension($extension)
     {
-        $valid = array('jpg', 'jpeg', 'png', 'gif');
+        $valid = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 
         in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
@@ -663,7 +663,7 @@ class CImage
 
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
-            }
+        }
 
         return $extension;
     }
@@ -941,20 +941,76 @@ class CImage
         is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
-        // Get details on image
-        $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
+        return $this->getImageDetails();
+    }
+
+
+
+    /**
+     * Get image details.
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function getImageDetails()
+    {
+        $info = list($this->width, $this->height, $this->fileType) = getimagesize($this->pathToImage);
         if (empty($info)) {
-            throw new Exception("The file doesn't seem to be a valid image.");
+            // To support webp
+            $this->fileType = false;
+            if (function_exists("exif_imagetype")) {
+                var_dump("has exif");
+                $this->fileType = exif_imagetype($this->pathToImage);
+                var_dump($this->fileType);
+                if ($this->fileType === false) {
+                    if (function_exists("imagecreatefromwebp")) {
+                        var_dump("has imagecreatefromwebp");
+
+                        //die("before");
+                        $webp = imagecreatefromwebp($this->pathToImage);
+                        var_dump($webp);
+                        die();
+                        if ($webp !== false) {
+                            $this->width  = imagesx($webp);
+                            $this->height = imagesy($webp);
+                            $this->fileType = IMG_WEBP;
+                        }
+                        die();
+
+                    }
+                }
+            }
+        }
+
+        if (!$this->fileType) {
+            throw new Exception("Loading image details, the file doesn't seem to be a valid image.");
         }
 
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
             $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
-            $this->log(" Image filesize: " . filesize($file) . " bytes.");
-            $this->log(" Image mimetype: " . image_type_to_mime_type($this->fileType));
+            $this->log(" Image filesize: " . filesize($this->pathToImage) . " bytes.");
+            $this->log(" Image mimetype: " . $this->getMimeType());
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Get mime type for image type.
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function getMimeType()
+    {
+        if ($this->fileType === IMG_WEBP) {
+            return "image/webp";
+        }
+
+        return image_type_to_mime_type($this->fileType);
     }
 
 
@@ -1470,12 +1526,17 @@ class CImage
             $this->setSource($src, $dir);
         }
 
-        $this->loadImageDetails($this->pathToImage);
+        is_readable($this->pathToImage)
+            or $this->raiseError('Image file does not exist.');
 
-        $this->image = imagecreatefromstring(file_get_contents($this->pathToImage));
+        $imageAsString = file_get_contents($this->pathToImage);
+        $this->image = imagecreatefromstring($imageAsString);
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
+
+        $this->getImageDetails();
+
 
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
@@ -2391,6 +2452,11 @@ class CImage
                 imagegif($this->image, $this->cacheFileName);
                 break;
 
+            case 'webp':
+                $this->Log("Saving image as WEBP to cache using quality = {$this->quality}.");
+                imagewebp($this->image, $this->cacheFileName, $this->quality);
+                break;
+
             case 'png':
             default:
                 $this->Log("Saving image as PNG to cache using compression = {$this->compress}.");
@@ -2691,7 +2757,7 @@ class CImage
         $this->load($file);
 
         $details['filename']    = basename($file);
-        $details['mimeType']    = image_type_to_mime_type($this->fileType);
+        $details['mimeType']    = $this->getMimeType($this->fileType);
         $details['width']       = $this->width;
         $details['height']      = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);

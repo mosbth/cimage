@@ -5,10 +5,18 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.15 (2016-08-08)
+-------------------------------------
+
+* Added the [Lenna/Lena sample image](http://www.cs.cmu.edu/~chuck/lennapg/) as tif and created a png, jpeg and webp version using Imagick convert `convert lena.tif lena.{png,jpg,webp}`.
+* Support saving to imgp format through `sa=webp`, #132.
+
+
 v0.7.14 (2016-08-08)
 -------------------------------------
 
 * Re-add removed cache directory.
+* Make fast track cache disabled by default in the config file.
 
 
 v0.7.13 (2016-08-08)
