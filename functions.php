@@ -19,7 +19,8 @@ function trace($msg)
         return;
     }
 
-    $details  = ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
+    $timer = number_format((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6);
+    $details  = "{$timer}ms";
     $details .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
     $details .= ":" . count(get_included_files());
     file_put_contents($file, "$details:$msg\n", FILE_APPEND);

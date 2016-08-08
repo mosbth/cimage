@@ -5,6 +5,24 @@
  * config-file imgtest_config.php.
  *
  */
+
+
+
+/**
+ * Change to true to enable debug mode which logs additional information
+ * to file. Only use for test and development. You must create the logfile
+ * and make it writable by the webserver or log entries will silently fail.
+ *
+ * CIMAGE_DEBUG will be false by default, if its not defined.
+ */
+if (!defined("CIMAGE_DEBUG")) {
+    //define("CIMAGE_DEBUG", false);
+    define("CIMAGE_DEBUG", true);
+    define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
+}
+
+
+
 return array(
 
     /**
@@ -61,7 +79,7 @@ return array(
      * Default values:
      *  fast_track_allow: false
      */
-    //'fast_track_allow' => true,
+    'fast_track_allow' => true,
 
 
 

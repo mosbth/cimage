@@ -20,6 +20,11 @@ if (is_file($configFile)) {
     $config = array();
 }
 
+// Make CIMAGE_DEBUG false by default, if not already defined
+if (!defined("CIMAGE_DEBUG")) {
+    define("CIMAGE_DEBUG", false);
+}
+
 
 
 /**

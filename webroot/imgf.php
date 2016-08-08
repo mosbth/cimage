@@ -13,10 +13,15 @@ if (is_file($configFile) && is_readable($configFile)) {
     $config = require $configFile;
 } elseif (!isset($config)) {
     $config = array(
-        "debug"      =>  false,
+        "fast_track_allow" =>  true,
         "autoloader" =>  __DIR__ . "/../autoload.php",
         "cache_path" =>  __DIR__ . "/../cache/",
     );
+}
+
+// Make CIMAGE_DEBUG false by default, if not already defined
+if (!defined("CIMAGE_DEBUG")) {
+    define("CIMAGE_DEBUG", false);
 }
 
 // Debug mode needs additional functions
@@ -36,6 +41,9 @@ $query = $_GET;
 
 // Do not use cache when no-cache is active
 $useCache = !(array_key_exists("no-cache", $query) || array_key_exists("nc", $query));
+
+// Only use cache if enabled by configuration
+$useCache = $useCache && isset($config["fast_track_allow"]) && $config["fast_track_allow"] === true;
 
 // Remove parts from querystring that should not be part of filename
 $clear = array("nc", "no-cache");
