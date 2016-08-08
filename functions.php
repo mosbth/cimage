@@ -16,7 +16,7 @@ function trace($msg)
 {
     $file = CIMAGE_DEBUG_FILE;
     if (!is_writable($file)) {
-        die("Using trace without a writable logfile. Create the file '$file' and make it writable for the web server.");
+        return;
     }
 
     $details  = ":" . (string) round((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]), 6) . "ms";
