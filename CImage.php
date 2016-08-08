@@ -941,28 +941,17 @@ class CImage
         is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
-        return $this->getImageDetails();
-    }
-
-
-
-    /**
-     * Get image details.
-     *
-     * @return $this
-     * @throws Exception
-     */
-    protected function getImageDetails()
-    {
         $info = list($this->width, $this->height, $this->fileType) = getimagesize($this->pathToImage);
         if (empty($info)) {
             // To support webp
             $this->fileType = false;
             if (function_exists("exif_imagetype")) {
-                $this->fileType = exif_imagetype($this->pathToImage);
+                $this->fileType = exif_imagetype($file);
                 if ($this->fileType === false) {
                     if (function_exists("imagecreatefromwebp")) {
-                        $webp = imagecreatefromwebp($this->pathToImage);
+                        die("before create webp " . $file);
+                        $webp = imagecreatefromwebp($file);
+                        die("after create webp " . $file);
                         if ($webp !== false) {
                             $this->width  = imagesx($webp);
                             $this->height = imagesy($webp);
@@ -980,7 +969,7 @@ class CImage
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
             $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
-            $this->log(" Image filesize: " . filesize($this->pathToImage) . " bytes.");
+            $this->log(" Image filesize: " . filesize($file) . " bytes.");
             $this->log(" Image mimetype: " . $this->getMimeType());
         }
 
@@ -1517,17 +1506,13 @@ class CImage
             $this->setSource($src, $dir);
         }
 
-        is_readable($this->pathToImage)
-            or $this->raiseError('Image file does not exist.');
+        $this->loadImageDetails();
 
         $imageAsString = file_get_contents($this->pathToImage);
         $this->image = imagecreatefromstring($imageAsString);
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
-
-        $this->getImageDetails();
-
 
         /* Removed v0.7.7
         if (image_type_to_mime_type($this->fileType) == 'image/png') {
