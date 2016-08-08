@@ -8,165 +8,6 @@
  *
  */
 
-$version = "v0.7.12 (2016-06-01)";
-
-// For CRemoteImage
-define("CIMAGE_USER_AGENT", "CImage/$version");
-
-
-// Include debug functions
-function debug($msg)
-{
-    $file = "/tmp/cimage";
-    if (!is_writable($file)) {
-        return;
-    }
-    $msg .= ":" . count(get_included_files());
-    $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
-    $msg .= ":" . (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 6) . "ms";
-    file_put_contents($file, "$msg\n", FILE_APPEND);
-
-}
-
-
-/**
- * Display error message.
- *
- * @param string $msg to display.
- * @param int $type of HTTP error to display.
- *
- * @return void
- */
-function errorPage($msg, $type = 500)
-{
-    global $mode;
-
-    switch ($type) {
-        case 403:
-            $header = "403 Forbidden";
-            break;
-        case 404:
-            $header = "404 Not Found";
-            break;
-        default:
-            $header = "500 Internal Server Error";
-    }
-
-    if ($mode == "strict") {
-        $header = "404 Not Found";
-    }
-
-    header("HTTP/1.0 $header");
-
-    if ($mode == "development") {
-        die("[img.php] $msg");
-    }
-
-    error_log("[img.php] $msg");
-    die("HTTP/1.0 $header");
-}
-
-
-
-/**
- * Custom exception handler.
- */
-set_exception_handler(function ($exception) {
-    errorPage(
-        "<p><b>img.php: Uncaught exception:</b> <p>"
-        . $exception->getMessage()
-        . "</p><pre>"
-        . $exception->getTraceAsString()
-        . "</pre>",
-        500
-    );
-});
-
-
-
-/**
- * Get input from query string or return default value if not set.
- *
- * @param mixed $key     as string or array of string values to look for in $_GET.
- * @param mixed $default value to return when $key is not set in $_GET.
- *
- * @return mixed value from $_GET or default value.
- */
-function get($key, $default = null)
-{
-    if (is_array($key)) {
-        foreach ($key as $val) {
-            if (isset($_GET[$val])) {
-                return $_GET[$val];
-            }
-        }
-    } elseif (isset($_GET[$key])) {
-        return $_GET[$key];
-    }
-    return $default;
-}
-
-
-
-/**
- * Get input from query string and set to $defined if defined or else $undefined.
- *
- * @param mixed $key       as string or array of string values to look for in $_GET.
- * @param mixed $defined   value to return when $key is set in $_GET.
- * @param mixed $undefined value to return when $key is not set in $_GET.
- *
- * @return mixed value as $defined or $undefined.
- */
-function getDefined($key, $defined, $undefined)
-{
-    return get($key) === null ? $undefined : $defined;
-}
-
-
-
-/**
- * Get value from config array or default if key is not set in config array.
- *
- * @param string $key    the key in the config array.
- * @param mixed $default value to be default if $key is not set in config.
- *
- * @return mixed value as $config[$key] or $default.
- */
-function getConfig($key, $default)
-{
-    global $config;
-    return isset($config[$key])
-        ? $config[$key]
-        : $default;
-}
-
-
-
-/**
- * Log when verbose mode, when used without argument it returns the result.
- *
- * @param string $msg to log.
- *
- * @return void or array.
- */
-function verbose($msg = null)
-{
-    global $verbose, $verboseFile;
-    static $log = array();
-
-    if (!($verbose || $verboseFile)) {
-        return;
-    }
-
-    if (is_null($msg)) {
-        return $log;
-    }
-
-    $log[] = $msg;
-}
-
-
-
 /**
  * Get configuration options from file, if the file exists, else use $config
  * if its defined or create an empty $config.
@@ -182,12 +23,25 @@ if (is_file($configFile)) {
 
 
 /**
+ * Setup the autoloader, but not when using a bundle.
+ */
+if (!defined("CIMAGE_BUNDLE")) {
+    if (!isset($config["autoloader"])) {
+        die("CImage: Missing autoloader.");
+    }
+
+    require $config["autoloader"];
+}
+
+
+
+/**
 * verbose, v - do a verbose dump of what happens
 * vf - do verbose dump to file
 */
 $verbose = getDefined(array('verbose', 'v'), true, false);
 $verboseFile = getDefined('vf', true, false);
-verbose("img.php version = $version");
+verbose("img.php version = " . CIMAGE_VERSION);
 
 
 
@@ -342,20 +196,6 @@ if (!$allowHotlinking) {
 verbose("allow_hotlinking = $allowHotlinking");
 verbose("referer = $referer");
 verbose("referer host = $refererHost");
-
-
-
-/**
- * Get the source files.
- */
-$autoloader  = getConfig('autoloader', false);
-$cimageClass = getConfig('cimage_class', false);
-
-if ($autoloader) {
-    require $autoloader;
-} elseif ($cimageClass) {
-    require $cimageClass;
-}
 
 
 
@@ -1105,7 +945,7 @@ if ($srgb || $srgbDefault) {
  * Display status
  */
 if ($status) {
-    $text  = "img.php version = $version\n";
+    $text  = "img.php version = " . CIMAGE_VERSION . "\n";
     $text .= "PHP version = " . PHP_VERSION . "\n";
     $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
     $text .= "Allow remote images = $allowRemote\n";

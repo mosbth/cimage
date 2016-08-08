@@ -5,6 +5,17 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.13 (2016-08-08)
+-------------------------------------
+
+* Moved functions from img.php to `functions.php`.
+* Added function `trace()` to measure speed and memory consumption, only for development.
+* Added fast cache #149.
+* Added `imgf.php` as shortcut to check for fast cache, before loading `img.php` as usual.
+* Created `defines.php` and moved definition av version there.
+* Fixed images in README, #148.
+
+
 v0.7.12 (2016-06-01)
 -------------------------------------
 

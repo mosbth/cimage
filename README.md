@@ -8,7 +8,7 @@ Image conversion on the fly using PHP
 About
 -------------------------------------
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim07.png&w=200&c=140,140,520,340&sharpen"/>
+<img src="https://cimage.se/cimage/imgd.php?src=example/kodim07.png&w=200&c=140,140,520,340&sharpen"/>
 
 `CImage` is a PHP class enabling resizing of images through scaling, cropping and filtering effects -- using PHP GD. The script `img.php` uses `CImage` to enable server-side image processing utilizing caching and optimization of the processed images.
 
@@ -99,7 +99,7 @@ Lets take some use cases to let you know when and how `img.php` might be useful.
 
 ### Make a thumbnail 
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&w=80&h=80&cf">
+<img src="https://cimage.se/cimage/imgd.php?src=example/kodim04.png&w=80&h=80&cf">
 
 Lets say you have a larger image and you want to make a smaller thumbnail of it with a size of 80x80 pixels. You simply take the image and add constraints on `width`, `height` and you use the resize strategy `crop-to-fit` to crops out the parts of the image that does not fit.
 
@@ -113,7 +113,7 @@ To produce such a thumbnail, create a link like this:
 
 Perhaps you got an image from a friend. The image was taken with the iPhone and thus rotated. 
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=250">
+<img src="https://cimage.se/cimage/imgd.php?src=example/issue36/me-270.jpg&w=250">
 
 The original image is looking like this one, scaled down to a width of 250 pixels. 
 
@@ -126,7 +126,7 @@ Lets call this *the URL-Photoshopper*. This is how the magic looks like.
 > `img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro`
 > `&rb=-25&a=8,30,30,38&f=grayscale&convolve=sharpen-alt`
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale&convolve=sharpen-alt">
+<img src="https://cimage.se/cimage/imgd.php?src=example/issue36/me-270.jpg&w=100&h=100&cf&aro&rb=-25&a=8,30,30,38&f=grayscale&convolve=sharpen-alt">
 
 For myself, I use `img.php` to put up all images on my website, it gives me the power of affecting the resulting images - without opening up a photo-editing application.
 
@@ -145,7 +145,7 @@ Try it out by pointing your browser to the test file `webroot/test/test.php`. It
 
 ###Process your first image 
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim04.png&amp;w=w2&amp;a=40,0,50,0" alt=''>
+<img src="https://cimage.se/cimage/imgd.php?src=example/kodim04.png&amp;w=w2&amp;a=40,0,50,0" alt=''>
 
 Try it yourself by opening up an image in your browser. Start with 
 
@@ -199,7 +199,7 @@ Open an image through `img.php` by using its `src` attribute.
 
 It looks like this.
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=w1&save-as=jpg">
+<img src="https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=w1&save-as=jpg">
 
 All images are stored in a directory structure and you access them as:
 
@@ -213,7 +213,7 @@ Create a thumbnail of the image by applying constraints on width and height, or 
 
 | `&width=150`        | `&height=150`       | `&w=150&h=150`      |
 |---------------------|---------------------|---------------------|
-| <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=150 alt=''> | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&h=150 alt=''> | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=150&h=150 alt=''> |
+| <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=150 alt=''> | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&h=150 alt=''> | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=150&h=150 alt=''> |
 
 By setting `width`, `height` or both, the image gets resized to be *not larger* than the defined dimensions *and* keeping its original aspect ratio.
 
@@ -228,10 +228,10 @@ Creating a thumbnail with a certain dimension of width and height, usually invol
 
 | What                | The image           |
 |---------------------|---------------------|
-| **Original.** The original image resized with a max width and max height.<br>`?w=300&h=150` | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=300&h=150 alt=''> |
-| **Stretch.** Stretch the image so that the resulting image has the defined width and height.<br>`?w=300&h=150&stretch` | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=300&h=150&stretch alt=''> |
-| **Crop to fit.** Keep the aspect ratio and crop out the parts of the image that does not fit.<br>`?w=300&h=150&crop-to-fit` | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=300&h=150&crop-to-fit alt=''> |
-| **Fill to fit.** Keep the aspect ratio and fill then blank space with a background color.<br>`?w=300&h=150&fill-to-fit=006600` | <img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=300&h=150&fill-to-fit=006600 alt=''> |
+| **Original.** The original image resized with a max width and max height.<br>`?w=300&h=150` | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=300&h=150 alt=''> |
+| **Stretch.** Stretch the image so that the resulting image has the defined width and height.<br>`?w=300&h=150&stretch` | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=300&h=150&stretch alt=''> |
+| **Crop to fit.** Keep the aspect ratio and crop out the parts of the image that does not fit.<br>`?w=300&h=150&crop-to-fit` | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=300&h=150&crop-to-fit alt=''> |
+| **Fill to fit.** Keep the aspect ratio and fill then blank space with a background color.<br>`?w=300&h=150&fill-to-fit=006600` | <img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=300&h=150&fill-to-fit=006600 alt=''> |
 
 Learn to crop your images, creative cropping can make wonderful images from appearingly useless originals.
 
@@ -248,7 +248,7 @@ Fill to fit is useful when you have some image that must fit in a certain dimens
 > `img.php?src=kodim13.png&w=600&aspect-ratio=4`
 > `&crop-to-fit&sharpen&save-as=jpg&q=30`
 
-<img src=http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''>
+<img src=https://cimage.se/cimage/imgd.php?src=example/kodim13.png&w=600&aspect-ratio=4&crop-to-fit&sharpen&save-as=jpg&q=30 alt=''>
 
 Here is a list of all parameters that you can use together with `img.php`, grouped by its basic intent of usage. 
 
@@ -431,7 +431,7 @@ For example, the following image is created like this:
 
 > `&w=300&save-as=jpg`
 
-<img src="http://dbwebb.se/kod-exempel/cimage/webroot/img.php?src=kodim24.png&w=300&save-as=jpg" alt=''>
+<img src="https://cimage.se/cimage/imgd.php?src=example/kodim24.png&w=300&save-as=jpg" alt=''>
 
 Its JSON-representation is retrieved like this:
 

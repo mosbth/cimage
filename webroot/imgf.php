@@ -3,24 +3,27 @@
  * Fast track cache, read entries from the cache before processing image
  * the ordinary way.
  */
- // Include debug functions
-function debug1($msg)
-{
-    $file = "/tmp/cimage";
-    if (!is_writable($file)) {
-        return;
-    }
-    $msg .= ":" . count(get_included_files());
-    $msg .= ":" . round(memory_get_peak_usage()/1024/1024, 3) . "MB";
-    $msg .= ":" . (string) round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 6) . "ms";
-    file_put_contents($file, "$msg\n", FILE_APPEND);
+
+// Load the config file or use defaults
+$configFile = __DIR__
+    . "/"
+    . basename(__FILE__, ".php")
+    . "_config.php";
+
+if (is_file($configFile) && is_readable($configFile)) {
+    $config = require $configFile;
+} elseif (!isset($config)) {
+    $config = array(
+        "cache_path" =>  __DIR__ . "/../cache/",
+    );
 }
 
-//$useCache = getDefined(array('no-cache', 'nc'), false, true);
-
-
-$cachePath = __DIR__ . "/../cache/fasttrack";
+// Prepare to check if fast cache should be used
+$cachePath = $config["cache_path"] . "/fasttrack";
 $query = $_GET;
+
+// Do not use cache when no-cache is active
+$useCache = !(array_key_exists("no-cache", $query) || array_key_exists("nc", $query));
 
 // Remove parts from querystring that should not be part of filename
 $clear = array("nc", "no-cache");
@@ -28,12 +31,14 @@ foreach ($clear as $value) {
     unset($query[$value]);
 }
 
+// Create the cache filename
 arsort($query);
 $queryAsString = http_build_query($query);
-
 $filename = md5($queryAsString);
 $filename = "$cachePath/$filename";
-if (is_readable($filename)) {
+
+// Check cached item, if any
+if ($useCache && is_readable($filename)) {
     $item = json_decode(file_get_contents($filename), true);
 
     if (is_readable($item["source"])) {
@@ -44,7 +49,6 @@ if (is_readable($filename)) {
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])
             && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) == $item["last-modified"]) {
             header("HTTP/1.0 304 Not Modified");
-            debug1("really fast track 304");
             exit;
         }
 
@@ -52,12 +56,10 @@ if (is_readable($filename)) {
             header($value);
         }
 
-        debug1("really fast track 200");
         readfile($item["source"]);
         exit;
     }
 }
-
 
 // No fast track cache, proceed as usual
 include __DIR__ . "/img.php";

@@ -2621,7 +2621,6 @@ class CImage
             }
 
             header("HTTP/1.0 304 Not Modified");
-            debug("standard 304");
 
         } else {
 
@@ -2652,7 +2651,6 @@ class CImage
 
             $this->fastTrackCache->setSource($file);
             $this->fastTrackCache->writeToCache();
-            debug("standard 200");
             readfile($file);
         }
 

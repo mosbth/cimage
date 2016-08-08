@@ -29,14 +29,12 @@ return array(
 
 
     /**
-     * Where are the sources for the class files.
+     * Where to find the autoloader.
      *
      * Default values:
-     *  autoloader:  null     // used from v0.6.2
-     *  cimage_class: null    // used until v0.6.1
+     *  autoloader:  null
      */
     'autoloader'   =>  __DIR__ . '/../autoload.php',
-    //'cimage_class' =>  __DIR__ . '/../CImage.php',
 
 
 
@@ -63,7 +61,7 @@ return array(
      * Default values:
      *  fast_track_allow: false
      */
-    'fast_track_allow' => true,
+    //'fast_track_allow' => true,
 
 
 

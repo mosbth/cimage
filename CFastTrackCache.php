@@ -91,7 +91,6 @@ class CFastTrackCache
         $queryAsString = http_build_query($query);
 
         $this->filename = md5($queryAsString);
-        $this->container["query-string"] = $queryAsString;
 
         return $this->filename;
     }
@@ -216,7 +215,6 @@ class CFastTrackCache
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])
             && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) == $item["last-modified"]) {
             header("HTTP/1.0 304 Not Modified");
-            debug("fast track 304");
             exit;
         }
 
@@ -224,7 +222,6 @@ class CFastTrackCache
             header($value);
         }
 
-        debug("fast track 200");
         readfile($item["source"]);
         exit;
     }
