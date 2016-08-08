@@ -959,24 +959,15 @@ class CImage
             // To support webp
             $this->fileType = false;
             if (function_exists("exif_imagetype")) {
-                var_dump("has exif");
                 $this->fileType = exif_imagetype($this->pathToImage);
-                var_dump($this->fileType);
                 if ($this->fileType === false) {
                     if (function_exists("imagecreatefromwebp")) {
-                        var_dump("has imagecreatefromwebp");
-
-                        //die("before");
                         $webp = imagecreatefromwebp($this->pathToImage);
-                        var_dump($webp);
-                        die();
                         if ($webp !== false) {
                             $this->width  = imagesx($webp);
                             $this->height = imagesy($webp);
                             $this->fileType = IMG_WEBP;
                         }
-                        die();
-
                     }
                 }
             }
