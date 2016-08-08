@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.14 (2016-08-08)
+-------------------------------------
+
+* Re-add removed cache directory.
+
+
 v0.7.13 (2016-08-08)
 -------------------------------------
 
