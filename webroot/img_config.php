@@ -79,7 +79,7 @@ return array(
      * Default values:
      *  fast_track_allow: false
      */
-    'fast_track_allow' => true,
+    //'fast_track_allow' => true,
 
 
 
