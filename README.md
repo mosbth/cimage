@@ -49,7 +49,7 @@ There are several ways of installing. You either install the whole project which
 
 The [sourcode is available on GitHub](https://github.com/mosbth/cimage). Clone, fork or [download as zip](https://github.com/mosbth/cimage/archive/master.zip). 
 
-**Latest stable version is v0.7.15 released 2016-08-08.**
+**Latest stable version is v0.7.15 released 2016-08-09.**
 
 I prefer cloning like this. Do switch to the latest stable version.
 

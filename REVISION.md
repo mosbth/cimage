@@ -5,7 +5,7 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.15 (2016-08-08)
+v0.7.15 (2016-08-09)
 -------------------------------------
 
 * Added the [Lenna/Lena sample image](http://www.cs.cmu.edu/~chuck/lennapg/) as tif and created a png, jpeg and webp version using Imagick convert `convert lena.tif lena.{png,jpg,webp}`, #152.
