@@ -1365,6 +1365,7 @@ class CImage
             && !$this->autoRotate
             && !$this->bgColor
             && ($this->upscale === self::UPSCALE_DEFAULT)
+            && !$this->lossy
         ) {
             $this->log("Using original image.");
             $this->output($this->pathToImage);
