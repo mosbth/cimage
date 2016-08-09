@@ -8,8 +8,8 @@ Revision history
 v0.7.15 (2016-08-08)
 -------------------------------------
 
-* Added the [Lenna/Lena sample image](http://www.cs.cmu.edu/~chuck/lennapg/) as tif and created a png, jpeg and webp version using Imagick convert `convert lena.tif lena.{png,jpg,webp}`.
-* Support saving to imgp format through `sa=webp`, #132.
+* Added the [Lenna/Lena sample image](http://www.cs.cmu.edu/~chuck/lennapg/) as tif and created a png, jpeg and webp version using Imagick convert `convert lena.tif lena.{png,jpg,webp}`, #152.
+* Limited and basic support for WEBP format, se #132.
 
 
 v0.7.14 (2016-08-08)

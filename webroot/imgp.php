@@ -38,10 +38,15 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.7.13 (2016-08-08)");
+define("CIMAGE_VERSION", "v0.7.15 (2016-08-09)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
+
+// Image type IMG_WEBP is only defined from 5.6.25
+if (!defined("IMG_WEBP")) {
+    define("IMG_WEBP", -1);
+}
 
 
 
@@ -1740,7 +1745,7 @@ class CImage
      */
     private function checkFileExtension($extension)
     {
-        $valid = array('jpg', 'jpeg', 'png', 'gif');
+        $valid = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 
         in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
@@ -1763,7 +1768,7 @@ class CImage
 
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
-            }
+        }
 
         return $extension;
     }
@@ -2041,20 +2046,54 @@ class CImage
         is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
-        // Get details on image
-        $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
+        $info = list($this->width, $this->height, $this->fileType) = getimagesize($file);
         if (empty($info)) {
-            throw new Exception("The file doesn't seem to be a valid image.");
+            // To support webp
+            $this->fileType = false;
+            if (function_exists("exif_imagetype")) {
+                $this->fileType = exif_imagetype($file);
+                if ($this->fileType === false) {
+                    if (function_exists("imagecreatefromwebp")) {
+                        $webp = imagecreatefromwebp($file);
+                        if ($webp !== false) {
+                            $this->width  = imagesx($webp);
+                            $this->height = imagesy($webp);
+                            $this->fileType = IMG_WEBP;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!$this->fileType) {
+            throw new Exception("Loading image details, the file doesn't seem to be a valid image.");
         }
 
         if ($this->verbose) {
             $this->log("Loading image details for: {$file}");
             $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
             $this->log(" Image filesize: " . filesize($file) . " bytes.");
-            $this->log(" Image mimetype: " . image_type_to_mime_type($this->fileType));
+            $this->log(" Image mimetype: " . $this->getMimeType());
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Get mime type for image type.
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function getMimeType()
+    {
+        if ($this->fileType === IMG_WEBP) {
+            return "image/webp";
+        }
+
+        return image_type_to_mime_type($this->fileType);
     }
 
 
@@ -2570,9 +2609,14 @@ class CImage
             $this->setSource($src, $dir);
         }
 
-        $this->loadImageDetails($this->pathToImage);
+        $this->loadImageDetails();
 
-        $this->image = imagecreatefromstring(file_get_contents($this->pathToImage));
+        if ($this->fileType === IMG_WEBP) {
+            $this->image = imagecreatefromwebp($this->pathToImage);
+        } else {
+            $imageAsString = file_get_contents($this->pathToImage);
+            $this->image = imagecreatefromstring($imageAsString);
+        }
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
@@ -3433,9 +3477,11 @@ class CImage
         // switch on mimetype
         if (isset($this->extension)) {
             return strtolower($this->extension);
-        } else {
-            return substr(image_type_to_extension($this->fileType), 1);
+        } elseif ($this->fileType === IMG_WEBP) {
+            return "webp";
         }
+
+        return substr(image_type_to_extension($this->fileType), 1);
     }
 
 
@@ -3489,6 +3535,11 @@ class CImage
             case 'gif':
                 $this->Log("Saving image as GIF to cache.");
                 imagegif($this->image, $this->cacheFileName);
+                break;
+
+            case 'webp':
+                $this->Log("Saving image as WEBP to cache using quality = {$this->quality}.");
+                imagewebp($this->image, $this->cacheFileName, $this->quality);
                 break;
 
             case 'png':
@@ -3679,6 +3730,7 @@ class CImage
             $format = $this->outputFormat;
         }
 
+        $this->log("### Output");
         $this->log("Output format is: $format");
 
         if (!$this->verbose && $format == 'json') {
@@ -3712,7 +3764,8 @@ class CImage
             $this->fastTrackCache->addHeader($header);
         }
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+            && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
 
             if ($this->verbose) {
                 $this->log("304 not modified");
@@ -3727,10 +3780,8 @@ class CImage
 
         } else {
 
-            // Get details on image
-            $info = getimagesize($file);
-            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-            $mime = $info['mime'];
+            $this->loadImageDetails($file);
+            $mime = $this->getMimeType();
             $size = filesize($file);
 
             if ($this->verbose) {
@@ -3791,7 +3842,7 @@ class CImage
         $this->load($file);
 
         $details['filename']    = basename($file);
-        $details['mimeType']    = image_type_to_mime_type($this->fileType);
+        $details['mimeType']    = $this->getMimeType($this->fileType);
         $details['width']       = $this->width;
         $details['height']      = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
@@ -3893,6 +3944,7 @@ class CImage
     private function verboseOutput()
     {
         $log = null;
+        $this->log("### Summary of verbose log");
         $this->log("As JSON: \n" . $this->json());
         $this->log("Memory peak: " . round(memory_get_peak_usage() /1024/1024) . "M");
         $this->log("Memory limit: " . ini_get('memory_limit'));
