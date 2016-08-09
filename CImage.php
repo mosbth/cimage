@@ -941,7 +941,7 @@ class CImage
         is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
-        $info = list($this->width, $this->height, $this->fileType) = getimagesize($this->pathToImage);
+        $info = list($this->width, $this->height, $this->fileType) = getimagesize($file);
         if (empty($info)) {
             // To support webp
             $this->fileType = false;
@@ -1506,8 +1506,12 @@ class CImage
 
         $this->loadImageDetails();
 
-        $imageAsString = file_get_contents($this->pathToImage);
-        $this->image = imagecreatefromstring($imageAsString);
+        if ($this->fileType === IMG_WEBP) {
+            $this->image = imagecreatefromwebp($this->pathToImage);
+        } else {
+            $imageAsString = file_get_contents($this->pathToImage);
+            $this->image = imagecreatefromstring($imageAsString);
+        }
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
@@ -2368,9 +2372,11 @@ class CImage
         // switch on mimetype
         if (isset($this->extension)) {
             return strtolower($this->extension);
-        } else {
-            return substr(image_type_to_extension($this->fileType), 1);
+        } elseif ($this->fileType === IMG_WEBP) {
+            return "webp";
         }
+
+        return substr(image_type_to_extension($this->fileType), 1);
     }
 
 
@@ -2619,6 +2625,7 @@ class CImage
             $format = $this->outputFormat;
         }
 
+        $this->log("### Output");
         $this->log("Output format is: $format");
 
         if (!$this->verbose && $format == 'json') {
@@ -2652,7 +2659,8 @@ class CImage
             $this->fastTrackCache->addHeader($header);
         }
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+            && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
 
             if ($this->verbose) {
                 $this->log("304 not modified");
@@ -2667,10 +2675,8 @@ class CImage
 
         } else {
 
-            // Get details on image
-            $info = getimagesize($file);
-            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-            $mime = $info['mime'];
+            $this->loadImageDetails($file);
+            $mime = $this->getMimeType();
             $size = filesize($file);
 
             if ($this->verbose) {
@@ -2833,6 +2839,7 @@ class CImage
     private function verboseOutput()
     {
         $log = null;
+        $this->log("### Summary of verbose log");
         $this->log("As JSON: \n" . $this->json());
         $this->log("Memory peak: " . round(memory_get_peak_usage() /1024/1024) . "M");
         $this->log("Memory limit: " . ini_get('memory_limit'));
