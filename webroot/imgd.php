@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.7.17 (2016-08-09)");
+define("CIMAGE_VERSION", "v0.7.18 (2016-08-09)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
@@ -2491,6 +2491,7 @@ class CImage
             && !$this->autoRotate
             && !$this->bgColor
             && ($this->upscale === self::UPSCALE_DEFAULT)
+            && !$this->lossy
         ) {
             $this->log("Using original image.");
             $this->output($this->pathToImage);
