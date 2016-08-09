@@ -163,3 +163,24 @@ function verbose($msg = null)
 
     $log[] = $msg;
 }
+
+
+
+/**
+ * Log when verbose mode, when used without argument it returns the result.
+ *
+ * @param string $msg to log.
+ *
+ * @return void or array.
+ */
+function checkExternalCommand($what, $enabled, $commandString)
+{
+    $no = $enabled ? null : 'NOT';
+    $text = "Post processing $what is $no enabled.<br>";
+
+    list($command) = explode(" ", $commandString);
+    $no = is_executable($command) ? null : 'NOT';
+    $text .= "The command for $what is $no an executable.<br>";
+
+    return $text;
+}

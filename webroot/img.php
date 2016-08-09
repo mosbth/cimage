@@ -840,6 +840,9 @@ verbose("upscale = $upscale");
  * Get details for post processing
  */
 $postProcessing = getConfig('postprocessing', array(
+    'png_lossy'        => false,
+    'png_lossy_cmd'    => '/usr/local/bin/pngquant --force --output',
+
     'png_filter'        => false,
     'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 
@@ -849,6 +852,15 @@ $postProcessing = getConfig('postprocessing', array(
     'jpeg_optimize'     => false,
     'jpeg_optimize_cmd' => '/usr/local/bin/jpegtran -copy none -optimize',
 ));
+
+
+
+/**
+ * lossy - Do lossy postprocessing, if available.
+ */
+$lossy = getDefined(array('lossy'), true, null);
+
+verbose("lossy = $lossy");
 
 
 
@@ -970,7 +982,7 @@ if ($status) {
     $res = $cache->getStatusOfSubdir("srgb");
     $text .= "Cache srgb $res\n";
 
-    $res = $cache->getStatusOfSubdir($fasttrackCache);
+    $res = $cache->getStatusOfSubdir($fastTrackCache);
     $text .= "Cache fasttrack $res\n";
 
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
@@ -986,6 +998,11 @@ if ($status) {
 
     $no = extension_loaded('gd') ? null : 'NOT';
     $text .= "Extension gd is $no loaded.<br>";
+
+    $text .= checkExternalCommand("PNG LOSSY", $postProcessing["png_lossy"], $postProcessing["png_lossy_cmd"]);
+    $text .= checkExternalCommand("PNG FILTER", $postProcessing["png_filter"], $postProcessing["png_filter_cmd"]);
+    $text .= checkExternalCommand("PNG DEFLATE", $postProcessing["png_deflate"], $postProcessing["png_deflate_cmd"]);
+    $text .= checkExternalCommand("JPEG OPTIMIZE", $postProcessing["jpeg_optimize"], $postProcessing["jpeg_optimize_cmd"]);
 
     if (!$no) {
         $text .= print_r(gd_info(), 1);
@@ -1055,6 +1072,7 @@ if (is_callable($hookBeforeCImage)) {
 
             // Other
             'postProcessing' => $postProcessing,
+            'lossy' => $lossy,
     ));
     verbose(print_r($allConfig, 1));
     extract($allConfig);
@@ -1139,6 +1157,9 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             // Output format
             'outputFormat' => $outputFormat,
             'dpr'          => $dpr,
+
+            // Postprocessing using external tools
+            'lossy' => $lossy,
         )
     )
     ->loadImageDetails()

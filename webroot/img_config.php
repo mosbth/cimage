@@ -41,7 +41,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production',
-     'mode' => 'development',
+     //'mode' => 'development',
      //'mode' => 'strict',
 
 
@@ -321,7 +321,15 @@ return array(
      * Post processing of images using external tools, set to true or false
      * and set command to be executed.
      *
+     * The png_lossy can alos have a value of null which means that its
+     * enabled but not used as default. Each image having the option
+     * &lossy will be processed. This means one can individually choose
+     * when to use the lossy processing.
+     *
      * Default values.
+     *
+     *  png_lossy:        false
+     *  png_lossy_cmd:    '/usr/local/bin/pngquant --force --output'
      *
      *  png_filter:        false
      *  png_filter_cmd:    '/usr/local/bin/optipng -q'
@@ -334,6 +342,9 @@ return array(
      */
     /*
     'postprocessing' => array(
+        'png_lossy'       => false,
+        'png_lossy_cmd'   => '/usr/local/bin/pngquant --force --output',
+
         'png_filter'        => false,
         'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 

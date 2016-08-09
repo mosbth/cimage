@@ -21,6 +21,9 @@ if (!$no) {
 
 echo "<strong>Checking path for postprocessing tools</strong>";
 
+echo "<br>pngquant: ";
+system("which pngquant");
+
 echo "<br>optipng: ";
 system("which optipng");
 

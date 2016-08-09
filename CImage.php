@@ -156,6 +156,13 @@ class CImage
 
 
     /**
+     * Do lossy output using external postprocessing tools.
+     */
+    private $lossy = null;
+
+
+
+    /**
      * Verbose mode to print out a trace and display the created image
      */
     private $verbose = false;
@@ -190,7 +197,15 @@ class CImage
 
 
     /**
-     * Path to command for filter optimize, for example optipng or null.
+     * Path to command for lossy optimize, for example pngquant.
+     */
+    private $pngLossy;
+    private $pngLossyCmd;
+
+
+
+    /**
+     * Path to command for filter optimize, for example optipng.
      */
     private $pngFilter;
     private $pngFilterCmd;
@@ -198,7 +213,7 @@ class CImage
 
 
     /**
-     * Path to command for deflate optimize, for example pngout or null.
+     * Path to command for deflate optimize, for example pngout.
      */
     private $pngDeflate;
     private $pngDeflateCmd;
@@ -827,6 +842,9 @@ class CImage
             // Output format
             'outputFormat' => null,
             'dpr'          => 1,
+
+            // Postprocessing using external tools
+            'lossy' => null,
         );
 
         // Convert crop settings from string to array
@@ -2345,6 +2363,14 @@ class CImage
             $this->jpegOptimizeCmd = null;
         }
 
+        if (array_key_exists("png_lossy", $options) 
+            && $options['png_lossy'] !== false) {
+            $this->pngLossy = $options['png_lossy'];
+            $this->pngLossyCmd = $options['png_lossy_cmd'];
+        } else {
+            $this->pngLossyCmd = null;
+        }
+
         if (isset($options['png_filter']) && $options['png_filter']) {
             $this->pngFilterCmd = $options['png_filter_cmd'];
         } else {
@@ -2445,6 +2471,24 @@ class CImage
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
                 imagepng($this->image, $this->cacheFileName, $this->compress);
+
+                // Use external program to process lossy PNG, if defined
+                $lossyEnabled = $this->pngLossy === true;
+                $lossySoftEnabled = $this->pngLossy === null;
+                $lossyActiveEnabled = $this->lossy === true;
+                if ($lossyEnabled || ($lossySoftEnabled && $lossyActiveEnabled)) {
+                    if ($this->verbose) {
+                        clearstatcache();
+                        $this->log("Lossy enabled: $lossyEnabled");
+                        $this->log("Lossy soft enabled: $lossySoftEnabled");
+                        $this->Log("Filesize before lossy optimize: " . filesize($this->cacheFileName) . " bytes.");
+                    }
+                    $res = array();
+                    $cmd = $this->pngLossyCmd . " $this->cacheFileName $this->cacheFileName";
+                    exec($cmd, $res);
+                    $this->Log($cmd);
+                    $this->Log($res);
+                }
 
                 // Use external program to filter PNG, if defined
                 if ($this->pngFilterCmd) {

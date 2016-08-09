@@ -5,6 +5,14 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.16 (2016-08-09)
+-------------------------------------
+
+* Fix default mode to be production.
+* Added pngquant as extra postprocessing utility for PNG-images, #154.
+* Bug `&status` wrong variable name for fast track cache.
+
+
 v0.7.15 (2016-08-09)
 -------------------------------------
 
