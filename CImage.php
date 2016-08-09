@@ -1398,6 +1398,7 @@ class CImage
         $compress     = $this->compress     ? "_co{$this->compress}"     : null;
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
+        $lossy        = $this->lossy        ? "_l"                       : null;
 
         $saveAs = $this->normalizeFileExtension();
         $saveAs = $saveAs ? "_$saveAs" : null;
@@ -1464,7 +1465,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve . $copyStrat . $saveAs;
+            . $convolve . $copyStrat . $lossy . $saveAs;
 
         return $this->setTarget($file, $base);
     }

@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.17 (2016-08-09)
+-------------------------------------
+
+* Made `&lossless` part of the generated cache filename.
+
+
 v0.7.16 (2016-08-09)
 -------------------------------------
 

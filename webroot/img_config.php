@@ -342,7 +342,7 @@ return array(
      */
     /*
     'postprocessing' => array(
-        'png_lossy'       => false,
+        'png_lossy'       => null,
         'png_lossy_cmd'   => '/usr/local/bin/pngquant --force --output',
 
         'png_filter'        => false,
