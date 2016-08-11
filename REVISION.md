@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.19* (2016-08-11)
+-------------------------------------
+
+* Composer suggests ext-imagick and ext-curl.
+
+
 v0.7.18 (2016-08-09)
 -------------------------------------
 

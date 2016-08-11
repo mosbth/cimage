@@ -22,7 +22,9 @@
         "ext-gd": "*"
     },
     "suggest": {
-        "ext-exif": "*"
+        "ext-exif": "*",
+        "ext-curl": "*",
+        "ext-imagick": "*"
     },
     "autoload": {
        "files": [
