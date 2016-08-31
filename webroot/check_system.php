@@ -2,7 +2,7 @@
 
 echo 'Current PHP version: ' . phpversion() . '<br><br>';
 
-echo 'Running on: ' . $_SERVER['SERVER_SOFTWARE'] . '<br><br>';
+echo 'Running on: ' . htmlentities($_SERVER['SERVER_SOFTWARE']) . '<br><br>';
 
 $no = extension_loaded('exif') ? null : 'NOT';
 echo "Extension exif is $no loaded.<br>";

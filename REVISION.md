@@ -5,9 +5,10 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.19* (2016-08-11)
+v0.7.19* (2016-08-31)
 -------------------------------------
 
+* Correct XSS injection in `check_system.php`.
 * Composer suggests ext-imagick and ext-curl.
 
 
