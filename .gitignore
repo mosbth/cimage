@@ -11,6 +11,7 @@ coverage.clover
 
 # Build and test
 build/
+/.bin
 
 # Mac OS
 .DS_Store
