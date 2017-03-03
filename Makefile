@@ -89,6 +89,7 @@ check: check-tools-php
 .PHONY:  test
 test: phpunit phpcs phpmd phploc behat
 	@$(call HELPTEXT,$@)
+	composer validate
 
 
 
