@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * Create an ASCII version of an image.
  *

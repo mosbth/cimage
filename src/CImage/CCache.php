@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * Deal with the cache directory and cached items.
  *

@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * A testclass
  *
@@ -59,7 +62,7 @@ class CImageResizerTest extends \PHPUnit_Framework_TestCase
      */
     public function testLogger()
     {
-        $img = new CImageResizer('loggerDummy');
+        $img = new CImageResizer('Mos\CImage\loggerDummy');
 
         $img->setBaseWidthHeight(100, 100);
     }

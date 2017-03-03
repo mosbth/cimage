@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * Resize and crop images on the fly, store generated images in a cache.
  *
@@ -2561,7 +2564,7 @@ class CImage
             $this->log("# Converting image to sRGB colorspace.");
         }
 
-        if (!class_exists("Imagick")) {
+        if (!class_exists("\Imagick")) {
             $this->log(" Ignoring since Imagemagick is not installed.");
             return false;
         }
@@ -2585,7 +2588,7 @@ class CImage
         // Only convert if cachedir is writable
         if (is_writable($this->saveFolder)) {
             // Load file and check if conversion is needed
-            $image      = new Imagick($this->pathToImage);
+            $image      = new \Imagick($this->pathToImage);
             $colorspace = $image->getImageColorspace();
             $this->log(" Current colorspace: " . $colorspace);
 
@@ -2593,13 +2596,13 @@ class CImage
             $hasICCProfile = (array_search('icc', $profiles) !== false);
             $this->log(" Has ICC color profile: " . ($hasICCProfile ? "YES" : "NO"));
 
-            if ($colorspace != Imagick::COLORSPACE_SRGB || $hasICCProfile) {
+            if ($colorspace != \Imagick::COLORSPACE_SRGB || $hasICCProfile) {
                 $this->log(" Converting to sRGB.");
 
                 $sRGBicc = file_get_contents($iccFile);
                 $image->profileImage('icc', $sRGBicc);
 
-                $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+                $image->transformImageColorspace(\Imagick::COLORSPACE_SRGB);
                 $image->writeImage($this->cacheFileName);
                 return $this->cacheFileName;
             }

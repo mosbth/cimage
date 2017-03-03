@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * Get a image from a remote server using HTTP GET and If-Modified-Since.
  *

@@ -1,4 +1,7 @@
 <?php
+
+namespace Mos\CImage;
+
 /**
  * Enable a fast track cache with a json representation of the image delivery.
  *

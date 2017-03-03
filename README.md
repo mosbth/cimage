@@ -3,6 +3,7 @@ Image conversion on the fly using PHP
 
 [![Join the chat at https://gitter.im/mosbth/cimage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mosbth/cimage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=resize)](https://travis-ci.org/mosbth/cimage)
+[![CircleCI](https://circleci.com/gh/mosbth/cimage.svg?style=svg)](https://circleci.com/gh/mosbth/cimage)
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/resize)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mosbth/cimage/badges/quality-score.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/?branch=resize)
 [![Code Coverage](https://scrutinizer-ci.com/g/mosbth/cimage/badges/coverage.png?b=resize)](https://scrutinizer-ci.com/g/mosbth/cimage/?branch=resize)
