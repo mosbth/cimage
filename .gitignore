@@ -7,7 +7,7 @@ coverage/
 coverage.clover
 
 # Composer
-vendor/
+#vendor/
 
 # Build and test
 build/

@@ -1,185 +1,221 @@
-#!/usr/bin/make -f
+#
 #
 #
 
-# Colors
-NO_COLOR		= \033[0m
-TARGET_COLOR	= \033[32;01m
-OK_COLOR		= \033[32;01m
-ERROR_COLOR		= \033[31;01m
-WARN_COLOR		= \033[33;01m
-ACTION			= $(TARGET_COLOR)--> 
+# Detect OS
+OS = $(shell uname -s)
+
+# Defaults
+ECHO = echo
+
+# Make adjustments based on OS
+# http://stackoverflow.com/questions/3466166/how-to-check-if-running-in-cygwin-mac-or-linux/27776822#27776822
+ifneq (, $(findstring CYGWIN, $(OS)))
+	ECHO = /bin/echo -e
+endif
+
+# Colors and helptext
+NO_COLOR	= \033[0m
+ACTION		= \033[32;01m
+OK_COLOR	= \033[32;01m
+ERROR_COLOR	= \033[31;01m
+WARN_COLOR	= \033[33;01m
+
+# Which makefile am I in?
+WHERE-AM-I = $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+THIS_MAKEFILE := $(call WHERE-AM-I)
+
+# Echo some nice helptext based on the target comment
+HELPTEXT = $(ECHO) "$(ACTION)--->" `egrep "^\# target: $(1) " $(THIS_MAKEFILE) | sed "s/\# target: $(1)[ ]*-[ ]* / /g"` "$(NO_COLOR)"
 
 # Add local bin path for test tools
-BIN 		= bin
-VENDORBIN 	= vendor/bin
-NPMBIN		= node_modules/.bin
+#PATH_ORIG = $(PATH)
+PATH := "./.bin:./vendor/bin:./node_modules/.bin:$(PATH)"
+SHELL := env PATH=$(PATH) $(SHELL)
 
 
-# target: help          - Displays help.
+
+# target: help               - Displays help.
 .PHONY:  help
 help:
-	@echo "$(ACTION)Displaying help for this Makefile.$(NO_COLOR)"
-	@echo "Usage:"
-	@echo " make [target] ..."
-	@echo "target:"
-	@egrep "^# target:" Makefile | sed 's/# target: / /g'
+	echo $(SHELL)
+	@$(call HELPTEXT,$@)
+	@$(ECHO) "Usage:"
+	@$(ECHO) " make [target] ..."
+	@$(ECHO) "target:"
+	@egrep "^# target:" $(THIS_MAKEFILE) | sed 's/# target: / /g'
 
 
 
-# target: clean         - Remove all generated files.
-.PHONY:  clean
-clean:
-	@echo "$(ACTION)Remove all generated files$(NO_COLOR)"
-	rm -rf build
-	rm -f npm-debug.log
-
-
-
-# target: clean-all     - Remove all installed files.
-.PHONY:  clean-all
-clean-all: clean
-	@echo "$(ACTION)Remove all installed files$(NO_COLOR)"
-	rm -rf bin
-	rm -rf node_modules
-	rm -rf vendor
-
-
-
-# target: build-prepare - Prepare the build directory.
-.PHONY: build-prepare
-build-prepare:
-	@echo "$(ACTION)Prepare the build directory$(NO_COLOR)"
-	install -d build
-	#install -d bin/pip
+# target: prepare            - Prepare for tests and build
+.PHONY:  prepare
+prepare:
+	@$(call HELPTEXT,$@)
+	[ -d .bin ] || mkdir .bin
+	[ -d build ] || mkdir build
 	rm -rf build/*
 
 
 
-# target: test          - Various test to pass build.
-.PHONY: test
-test: build-prepare phpunit behat phpcs
+# target: clean              - Removes generated files and directories.
+.PHONY:  clean
+clean:
+	@$(call HELPTEXT,$@)
+	rm -rf build
 
 
 
-# target: phpcs         - Run phpcs for PHP code style.
-.PHONY: phpcs
-phpcs: build-prepare
-	@echo "$(ACTION)phpcs$(NO_COLOR)"
-	$(VENDORBIN)/phpcs --standard=.phpcs.xml | tee build/phpcs
+# target: clean-all          - Removes generated files and directories.
+.PHONY:  clean-all
+clean-all:
+	@$(call HELPTEXT,$@)
+	rm -rf .bin build vendor composer.lock
 
 
 
-# target: phpcbf        - Run phpcbf to fix PHP code style.
-.PHONY: phpcbf
-phpcbf:
-	@echo "$(ACTION)phpcbf$(NO_COLOR)"
-	$(VENDORBIN)/phpcbf --standard=.phpcs.xml
+# target: check              - Check version of installed tools.
+.PHONY:  check
+check: check-tools-php
+	@$(call HELPTEXT,$@)
 
 
 
-# target: phpunit       - Run phpunit for unit testing PHP.
-.PHONY: phpunit
-phpunit: build-prepare
-	@echo "$(ACTION)phpunit$(NO_COLOR)"
-	$(VENDORBIN)/phpunit --configuration .phpunit.xml
+# target: test               - Run all tests.
+.PHONY:  test
+test: phpunit phpcs phpmd phploc behat
+	@$(call HELPTEXT,$@)
 
 
 
-# target: behat        - Run behat for feature tests.
-.PHONY: behat
-behat:
-	@echo "$(ACTION)behat$(NO_COLOR)"
-	$(VENDORBIN)/behat
+# target: doc                - Generate documentation.
+.PHONY:  doc
+doc: phpdoc
+	@$(call HELPTEXT,$@)
 
 
 
-# target: phpdoc        - Run phpdoc to create API documentation.
-.PHONY: phpdoc
-phpdoc:
-	@echo "$(ACTION)phpdoc$(NO_COLOR)"
-	$(VENDORBIN)/phpdoc --config=.phpdoc.xml
+# target: build              - Do all build
+.PHONY:  build
+build: test doc #less-compile less-minify js-minify
+	@$(call HELPTEXT,$@)
 
 
-# target: tag-prepare   - Prepare to tag new version.
+
+# target: install            - Install all tools
+.PHONY:  install
+install: prepare install-tools-php
+	@$(call HELPTEXT,$@)
+
+
+
+# target: update             - Update the codebase and tools.
+.PHONY:  update
+update:
+	@$(call HELPTEXT,$@)
+	git pull
+	composer update
+
+
+
+# target: tag-prepare        - Prepare to tag new version.
 .PHONY: tag-prepare
 tag-prepare:
-	@echo "$(ACTION)Prepare to tag new version, perform selfcheck$(NO_COLOR)"
+	@$(call HELPTEXT,$@)
 
 
 
-# ------------------------- OBSOLETE TO BE REMOVED?
-
-NPM_PACKAGES = 							\
-	htmlhint							\
-	csslint								\
-	less								\
-
-APM_PACKAGES = 							\
-	linter 								\
-	linter-htmlhint 					\
-	linter-csslint 						\
-	linter-less 						\
-	linter-jscs 						\
-	linter-jshint 						\
-	linter-pep8 						\
-	linter-pylint 						\
-	linter-php 							\
-	linter-phpcs 						\
-	linter-phpmd 						\
-	linter-shellcheck 					\
-	linter-xmllint						\
-	block-travel 						\
-
-
-
+# ------------------------------------------------------------------------
 #
-# less
+# PHP
 #
-.PHONY: less
 
-less:
-	lessc --clean-css app/css/style.less htdocs/css/style.css
+# target: install-tools-php  - Install PHP development tools.
+.PHONY: install-tools-php
+install-tools-php:
+	@$(call HELPTEXT,$@)
+	curl -Lso bin/phpdoc https://www.phpdoc.org/phpDocumentor.phar && chmod 755 bin/phpdoc
 
+	curl -Lso bin/phpcs https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar && chmod 755 bin/phpcs
 
+	curl -Lso bin/phpcbf https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar && chmod 755 bin/phpcbf
 
+	curl -Lso bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod 755 bin/phpmd
 
-#
-# All developer tools
-#
-.PHONY: tools-config tools-install tools-update
+	curl -Lso bin/phpunit https://phar.phpunit.de/phpunit-5.7.9.phar && chmod 755 bin/phpunit
 
-tools-config: npm-config
-	
-tools-install: composer-require npm-install apm-install
+	curl -Lso bin/phploc https://phar.phpunit.de/phploc.phar && chmod 755 bin/phploc
 
-tools-update: composer-update npm-update apm-update
+	curl -Lso bin/behat https://github.com/Behat/Behat/releases/download/v3.3.0/behat.phar && chmod 755 bin/behat
 
-
-
-#
-# npm
-#
-.PHONY: npm-config npm-installl npm-update
-
-npm-config: 
-	npm config set prefix '~/.npm-packages'
-	
-npm-install: 
-	npm -g install $(NPM_PACKAGES)
-
-npm-update: 
-	npm -g update
+	composer install
 
 
 
-#
-# apm
-#
-.PHONY: apm-installl apm-update
 
-apm-install: 
-	apm install $(APM_PACKAGES)
+# target: check-tools-php    - Check versions of PHP tools.
+.PHONY: check-tools-php
+check-tools-php:
+	@$(call HELPTEXT,$@)
+	which phpunit && phpunit --version
+	which phploc && phploc --version
+	which phpcs && phpcs --version && echo
+	which phpmd && phpmd --version && echo
+	which phpcbf && phpcbf --version && echo
+	which phpdoc && phpdoc --version && echo
+	which behat && behat --version && echo
 
-apm-update:
-	apm update --confirm=false
+
+
+# target: phpunit            - Run unit tests for PHP.
+.PHONY: phpunit
+phpunit: prepare
+	@$(call HELPTEXT,$@)
+	phpunit --configuration .phpunit.xml
+
+
+
+# target: phpcs              - Codestyle for PHP.
+.PHONY: phpcs
+phpcs: prepare
+	@$(call HELPTEXT,$@)
+	phpcs --standard=.phpcs.xml | tee build/phpcs
+
+
+
+# target: phpcbf             - Fix codestyle for PHP.
+.PHONY: phpcbf
+phpcbf:
+	@$(call HELPTEXT,$@)
+	phpcbf --standard=.phpcs.xml
+
+
+
+# target: phpmd              - Mess detector for PHP.
+.PHONY: phpmd
+phpmd: prepare
+	@$(call HELPTEXT,$@)
+	- phpmd . text .phpmd.xml | tee build/phpmd
+
+
+
+# target: phploc             - Code statistics for PHP.
+.PHONY: phploc
+phploc: prepare
+	@$(call HELPTEXT,$@)
+	phploc src > build/phploc
+
+
+
+# target: phpdoc             - Create documentation for PHP.
+.PHONY: phpdoc
+phpdoc:
+	@$(call HELPTEXT,$@)
+	phpdoc --config=.phpdoc.xml
+
+
+
+# target: behat              - Run behat for feature tests.
+.PHONY: behat
+behat:
+	@$(call HELPTEXT,$@)
+	behat
