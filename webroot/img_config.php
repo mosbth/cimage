@@ -5,6 +5,24 @@
  * config-file imgtest_config.php.
  *
  */
+
+
+
+/**
+ * Change to true to enable debug mode which logs additional information
+ * to file. Only use for test and development. You must create the logfile
+ * and make it writable by the webserver or log entries will silently fail.
+ *
+ * CIMAGE_DEBUG will be false by default, if its not defined.
+ */
+if (!defined("CIMAGE_DEBUG")) {
+    define("CIMAGE_DEBUG", false);
+    //define("CIMAGE_DEBUG", true);
+    define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
+}
+
+
+
 return [
 
     /**
@@ -29,25 +47,13 @@ return [
 
 
     /**
-     * Where are the sources for the classfiles.
+     * Where to find the autoloader.
      *
      * Default values:
      *  autoloader:  null
      */
-    'autoloader'   =>  __DIR__ . '/../autoload.php',
-
-
-
-    /**
-     * Paths, where are the images stored and where is the cache.
-     * End all paths with a slash.
-     *
-     * Default values:
-     *  image_path: __DIR__ . '/img/'
-     *  cache_path: __DIR__ . '/../cache/'
-     */
-    'image_path'   =>  __DIR__ . '/img/',
-    'cache_path'   =>  __DIR__ . '/../cache/',
+    //'autoloader'   =>  __DIR__ . '/../autoload.php',
+    'autoloader'   =>  __DIR__ . '/../vendor/autoload.php',
 
 
 
@@ -57,9 +63,41 @@ return [
      * End all paths with a slash.
      *
      * Default values:
-     *  alias_path: null
+     *  image_path:     __DIR__ . '/img/'
+     *  cache_path:     __DIR__ . '/../cache/'
+     *  alias_path:     null
      */
+    'image_path'        =>  __DIR__ . '/img/',
+    'cache_path'        =>  __DIR__ . '/../cache/',
     //'alias_path'   =>  __DIR__ . '/img/alias/',
+
+
+
+    /**
+     * Fast track cache. Save a json representation of the image as a
+     * fast track to the cached version of the image. This avoids some
+     * processing and allows for quicker load times of cached images.
+     *
+     * Default values:
+     *  fast_track_allow: false
+     */
+    //'fast_track_allow' => true,
+
+
+
+    /**
+     * Class names to use, to ease dependency injection. You can change Class
+     * name if you want to use your own class instead. This is a way to extend
+     * the codebase.
+     *
+     * Default values:
+     *  CImage: CImage
+     *  CCache: CCache
+     *  CFastTrackCache: CFastTrackCache
+     */
+     //'CImage' => 'CImage',
+     //'CCache' => 'CCache',
+     //'CFastTrackCache' => 'CFastTrackCache',
 
 
 
@@ -105,13 +143,14 @@ return [
      *  remote_whitelist: null  // use default values from CImage which is to
      *                          // allow download from any hosts.
      */
-    //'remote_allow'     => true,
-    //'remote_pattern'   => '#^https?://#',
-    //'remote_whitelist' => array(
-    //    '\.facebook\.com$',
-    //    '^(?:images|photos-[a-z])\.ak\.instagram\.com$',
-    //    '\.google\.com$'
-    //),
+    /*
+    'remote_allow'     => true,
+    'remote_pattern'   => '#^https?://#',
+    'remote_whitelist' => [
+        '\.facebook\.com$',
+        '^(?:images|photos-[a-z])\.ak\.instagram\.com$',
+        '\.google\.com$'
+    ], */
 
 
 
@@ -146,7 +185,7 @@ return [
       * when saving images.
       *
       * Default value:
-      *  jpg_quality:     null, integer between 0-100, 
+      *  jpg_quality:     null, integer between 0-100,
       *                         default is 60
       *  png_compression: null, integer between 0-9,
       *                         default is -1 (PHP GD decides)
@@ -180,7 +219,7 @@ return [
         * Default value:
         *  skip_original: false
         */
-        //'skip_original' => false,
+        //'skip_original' => true,
 
 
 
@@ -233,7 +272,8 @@ return [
      /**
      * Check that the imagefile is a file below 'image_path' using realpath().
      * Security constraint to avoid reaching images outside image_path.
-     * This means that symbolic links to images outside the image_path will fail.
+     * This means that symbolic links to images outside the image_path will
+     * fail.
      *
      * Default value:
      *  image_path_constraint: true
@@ -286,7 +326,15 @@ return [
      * Post processing of images using external tools, set to true or false
      * and set command to be executed.
      *
+     * The png_lossy can alos have a value of null which means that its
+     * enabled but not used as default. Each image having the option
+     * &lossy will be processed. This means one can individually choose
+     * when to use the lossy processing.
+     *
      * Default values.
+     *
+     *  png_lossy:        false
+     *  png_lossy_cmd:    '/usr/local/bin/pngquant --force --output'
      *
      *  png_filter:        false
      *  png_filter_cmd:    '/usr/local/bin/optipng -q'
@@ -299,6 +347,9 @@ return [
      */
     /*
     'postprocessing' => [
+        'png_lossy'       => null,
+        'png_lossy_cmd'   => '/usr/local/bin/pngquant --force --output',
+
         'png_filter'        => false,
         'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 
@@ -317,13 +368,13 @@ return [
      * offset.
      *
      * Default values.
-     *  convolution_constant: array()
+     *  convolution_constant: []
      */
     /*
-    'convolution_constant' => array(
+    'convolution_constant' => [
         //'sharpen'       => '-1,-1,-1, -1,16,-1, -1,-1,-1, 8, 0',
         //'sharpen-alt'   => '0,-1,0, -1,5,-1, 0,-1,0, 1, 0',
-    ),
+    ],
     */
 
 
@@ -340,13 +391,13 @@ return [
      *
      * Default values.
      *  allow_hotlinking:     true
-     *  hotlinking_whitelist: array()
+     *  hotlinking_whitelist: []
      */
      /*
     'allow_hotlinking' => false,
-    'hotlinking_whitelist' => array(
+    'hotlinking_whitelist' => [
         '^dbwebb\.se$',
-    ),
+    ],
     */
 
 
@@ -384,10 +435,10 @@ return [
     'size_constant' => function () {
 
         // Set sizes to map constant to value, easier to use with width or height
-        $sizes = array(
-          'w1' => 613,
-          'w2' => 630,
-        );
+        $sizes = [
+            'w1' => 613,
+            'w2' => 630,
+        ];
 
         // Add grid column width, useful for use as predefined size for width (or height).
         $gridColumnWidth = 30;
@@ -410,7 +461,7 @@ return [
      *  aspect_ratio_constant: As the function below.
      */
     /*'aspect_ratio_constant' => function () {
-        return array(
+        return [
             '3:1'   => 3/1,
             '3:2'   => 3/2,
             '4:3'   => 4/3,
@@ -418,7 +469,7 @@ return [
             '16:10' => 16/10,
             '16:9'  => 16/9,
             'golden' => 1.618,
-        );
+        ];
     },*/
 
 
@@ -434,11 +485,11 @@ return [
      *   luminanceStrategy:  Choose any strategy available in CAsciiArt.
      *   customCharacterSet: Define your own character set.
      */
-    /*'ascii-options' => array(
+    /*'ascii-options' => [
             "characterSet" => 'two',
             "scale" => 14,
             "luminanceStrategy" => 3,
             "customCharacterSet" => null,
         );
-    },*/
+    ],*/
 ];

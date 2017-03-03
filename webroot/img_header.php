@@ -10,6 +10,7 @@
  * @link    https://github.com/mosbth/cimage
  *
  */
+define("CIMAGE_BUNDLE", true);
 
 
 /**

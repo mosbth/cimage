@@ -8,151 +8,6 @@
  *
  */
 
-$version = "v0.8.0dev (2015-12-05)";
-
-// For CRemoteImage
-define("CIMAGE_USER_AGENT", "CImage/$version");
-
-
-
-/**
- * Display error message.
- *
- * @param string $msg to display.
- * @param int $type of HTTP error to display.
- *
- * @return void
- */
-function errorPage($msg, $type = 500)
-{
-    global $mode;
-
-    switch ($type) {
-        case 403:
-            $header = "403 Forbidden";
-            break;
-        case 404:
-            $header = "404 Not Found";
-            break;
-        default:
-            $header = "500 Internal Server Error";
-    }
-
-    if ($mode == "strict") {
-        $header = "404 Not Found";
-    }
-
-    header("HTTP/1.0 $header");
-
-    if ($mode == "development") {
-        die("[img.php] $msg");
-    }
-
-    error_log("[img.php] $msg");
-    die("HTTP/1.0 $header");
-}
-
-
-
-/**
- * Custom exception handler.
- */
-set_exception_handler(function ($exception) {
-    errorPage(
-        "<p><b>img.php: Uncaught exception:</b> <p>"
-        . $exception->getMessage()
-        . "</p><pre>"
-        . $exception->getTraceAsString()
-        . "</pre>",
-        500
-    );
-});
-
-
-
-/**
- * Get input from query string or return default value if not set.
- *
- * @param mixed $key     as string or array of string values to look for in $_GET.
- * @param mixed $default value to return when $key is not set in $_GET.
- *
- * @return mixed value from $_GET or default value.
- */
-function get($key, $default = null)
-{
-    if (is_array($key)) {
-        foreach ($key as $val) {
-            if (isset($_GET[$val])) {
-                return $_GET[$val];
-            }
-        }
-    } elseif (isset($_GET[$key])) {
-        return $_GET[$key];
-    }
-    return $default;
-}
-
-
-
-/**
- * Get input from query string and set to $defined if defined or else $undefined.
- *
- * @param mixed $key       as string or array of string values to look for in $_GET.
- * @param mixed $defined   value to return when $key is set in $_GET.
- * @param mixed $undefined value to return when $key is not set in $_GET.
- *
- * @return mixed value as $defined or $undefined.
- */
-function getDefined($key, $defined, $undefined)
-{
-    return get($key) === null ? $undefined : $defined;
-}
-
-
-
-/**
- * Get value from config array or default if key is not set in config array.
- *
- * @param string $key    the key in the config array.
- * @param mixed $default value to be default if $key is not set in config.
- *
- * @return mixed value as $config[$key] or $default.
- */
-function getConfig($key, $default)
-{
-    global $config;
-    return isset($config[$key])
-        ? $config[$key]
-        : $default;
-}
-
-
-
-/**
- * Log when verbose mode, when used without argument it returns the result.
- *
- * @param string $msg to log.
- *
- * @return void or array.
- */
-function verbose($msg = null)
-{
-    global $verbose, $verboseFile;
-    static $log = array();
-
-    if (!($verbose || $verboseFile)) {
-        return;
-    }
-
-    if (is_null($msg)) {
-        return $log;
-    }
-
-    $log[] = $msg;
-}
-
-
-
 /**
  * Get configuration options from file, if the file exists, else use $config
  * if its defined or create an empty $config.
@@ -165,6 +20,24 @@ if (is_file($configFile)) {
     $config = array();
 }
 
+// Make CIMAGE_DEBUG false by default, if not already defined
+if (!defined("CIMAGE_DEBUG")) {
+    define("CIMAGE_DEBUG", false);
+}
+
+
+
+/**
+ * Setup the autoloader, but not when using a bundle.
+ */
+if (!defined("CIMAGE_BUNDLE")) {
+    if (!isset($config["autoloader"])) {
+        die("CImage: Missing autoloader.");
+    }
+
+    require $config["autoloader"];
+}
+
 
 
 /**
@@ -173,7 +46,7 @@ if (is_file($configFile)) {
 */
 $verbose = getDefined(array('verbose', 'v'), true, false);
 $verboseFile = getDefined('vf', true, false);
-verbose("img.php version = $version");
+verbose("img.php version = " . CIMAGE_VERSION);
 
 
 
@@ -200,36 +73,28 @@ if (!extension_loaded('gd')) {
 
 // Specific settings for each mode
 if ($mode == 'strict') {
-
     error_reporting(0);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
     $status = false;
     $verboseFile = false;
-
 } elseif ($mode == 'production') {
-
     error_reporting(-1);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     $verbose = false;
     $status = false;
     $verboseFile = false;
-
 } elseif ($mode == 'development') {
-
     error_reporting(-1);
     ini_set('display_errors', 1);
     ini_set('log_errors', 0);
     $verboseFile = false;
-
 } elseif ($mode == 'test') {
-
     error_reporting(-1);
     ini_set('display_errors', 1);
     ini_set('log_errors', 0);
-
 } else {
     errorPage("Unknown mode: $mode", 500);
 }
@@ -319,7 +184,6 @@ if (!$allowHotlinking) {
         } else {
             errorPage("Hotlinking/leeching not allowed by whitelist. Referer: $referer.", 403);
         }
-
     } else {
         errorPage("Hotlinking/leeching not allowed.", 403);
     }
@@ -332,20 +196,10 @@ verbose("referer host = $refererHost");
 
 
 /**
- * Get the source files.
- */
-$autoloader  = getConfig('autoloader', false);
-
-if ($autoloader) {
-    require $autoloader;
-}
-
-
-
-/**
  * Create the class for the image.
  */
-$img = new CImage();
+$CImage = getConfig('CImage', 'CImage');
+$img = new $CImage();
 $img->setVerbose($verbose || $verboseFile);
 
 
@@ -353,10 +207,47 @@ $img->setVerbose($verbose || $verboseFile);
 /**
  * Get the cachepath from config.
  */
+$CCache = getConfig('CCache', 'CCache');
 $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
-$cache = new CCache();
+$cache = new $CCache();
 $cache->setDir($cachePath);
 
+
+
+/**
+ * no-cache, nc - skip the cached version and process and create a new version in cache.
+ */
+$useCache = getDefined(array('no-cache', 'nc'), false, true);
+
+verbose("use cache = $useCache");
+
+
+
+/**
+ * Prepare fast track cache for swriting cache items.
+ */
+$fastTrackCache = "fasttrack";
+$allowFastTrackCache = getConfig('fast_track_allow', false);
+
+$CFastTrackCache = getConfig('CFastTrackCache', 'CFastTrackCache');
+$ftc = new $CFastTrackCache();
+$ftc->setCacheDir($cache->getPathToSubdir($fastTrackCache))
+    ->enable($allowFastTrackCache)
+    ->setFilename(array('no-cache', 'nc'));
+$img->injectDependency("fastTrackCache", $ftc);
+
+
+
+/**
+ *  Load and output images from fast track cache, if items are available
+ * in cache.
+ */
+if ($useCache && $allowFastTrackCache) {
+    if (CIMAGE_DEBUG) {
+        trace("img.php fast track cache enabled and used");
+    }
+    $ftc->output();
+}
 
 
 
@@ -391,8 +282,8 @@ $shortcutConfig = getConfig('shortcut', array(
 verbose("shortcut = $shortcut");
 
 if (isset($shortcut)
-    && isset($shortcutConfig[$shortcut])) {
-
+    && isset($shortcutConfig[$shortcut])
+) {
     parse_str($shortcutConfig[$shortcut], $get);
     verbose("shortcut-constant = {$shortcutConfig[$shortcut]}");
     $_GET = array_merge($_GET, $get);
@@ -406,10 +297,20 @@ if (isset($shortcut)
 $srcImage = urldecode(get('src'))
     or errorPage('Must set src-attribute.', 404);
 
+// Get settings for src-alt as backup image
+$srcAltImage = urldecode(get('src-alt', null));
+$srcAltConfig = getConfig('src_alt', null);
+if (empty($srcAltImage)) {
+    $srcAltImage = $srcAltConfig;
+}
+
 // Check for valid/invalid characters
 $imagePath           = getConfig('image_path', __DIR__ . '/img/');
 $imagePathConstraint = getConfig('image_path_constraint', true);
 $validFilename       = getConfig('valid_filename', '#^[a-z0-9A-Z-/_ \.:]+$#');
+
+// Source is remote
+$remoteSource = false;
 
 // Dummy image feature
 $dummyEnabled  = getConfig('dummy_enabled', true);
@@ -417,29 +318,45 @@ $dummyFilename = getConfig('dummy_filename', 'dummy');
 $dummyImage = false;
 
 preg_match($validFilename, $srcImage)
-    or errorPage('Filename contains invalid characters.', 404);
+    or errorPage('Source filename contains invalid characters.', 404);
 
 if ($dummyEnabled && $srcImage === $dummyFilename) {
-
     // Prepare to create a dummy image and use it as the source image.
     $dummyImage = true;
-
 } elseif ($allowRemote && $img->isRemoteSource($srcImage)) {
-
     // If source is a remote file, ignore local file checks.
-
-} elseif ($imagePathConstraint) {
-
-    // Check that the image is a file below the directory 'image_path'.
+    $remoteSource = true;
+} else {
+    // Check if file exists on disk or try using src-alt
     $pathToImage = realpath($imagePath . $srcImage);
-    $imageDir    = realpath($imagePath);
 
-    is_file($pathToImage)
-        or errorPage(
-            'Source image is not a valid file, check the filename and that a
-            matching file exists on the filesystem.',
-            404
-        );
+    if (!is_file($pathToImage) && !empty($srcAltImage)) {
+        // Try using the src-alt instead
+        $srcImage = $srcAltImage;
+        $pathToImage = realpath($imagePath . $srcImage);
+
+        preg_match($validFilename, $srcImage)
+            or errorPage('Source (alt) filename contains invalid characters.', 404);
+
+        if ($dummyEnabled && $srcImage === $dummyFilename) {
+            // Check if src-alt is the dummy image
+            $dummyImage = true;
+        }
+    }
+
+    if (!$dummyImage) {
+        is_file($pathToImage)
+            or errorPage(
+                'Source image is not a valid file, check the filename and that a
+                matching file exists on the filesystem.',
+                404
+            );
+    }
+}
+
+if ($imagePathConstraint && !$dummyImage && !$remoteSource) {
+    // Check that the image is a file below the directory 'image_path'.
+    $imageDir = realpath($imagePath);
 
     substr_compare($imageDir, $pathToImage, 0, strlen($imageDir)) == 0
         or errorPage(
@@ -665,20 +582,11 @@ $useOriginal = getDefined(array('skip-original', 'so'), false, true);
 $useOriginalDefault = getConfig('skip_original', false);
 
 if ($useOriginalDefault === true) {
-    verbose("use original is default ON");
-    $useOriginal = true;
+    verbose("skip original is default ON");
+    $useOriginal = false;
 }
 
 verbose("use original = $useOriginal");
-
-
-
-/**
- * no-cache, nc - skip the cached version and process and create a new version in cache.
- */
-$useCache = getDefined(array('no-cache', 'nc'), false, true);
-
-verbose("use cache = $useCache");
 
 
 
@@ -918,6 +826,9 @@ verbose("upscale = $upscale");
  * Get details for post processing
  */
 $postProcessing = getConfig('postprocessing', array(
+    'png_lossy'        => false,
+    'png_lossy_cmd'    => '/usr/local/bin/pngquant --force --output',
+
     'png_filter'        => false,
     'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 
@@ -927,6 +838,15 @@ $postProcessing = getConfig('postprocessing', array(
     'jpeg_optimize'     => false,
     'jpeg_optimize_cmd' => '/usr/local/bin/jpegtran -copy none -optimize',
 ));
+
+
+
+/**
+ * lossy - Do lossy postprocessing, if available.
+ */
+$lossy = getDefined(array('lossy'), true, null);
+
+verbose("lossy = $lossy");
 
 
 
@@ -1031,7 +951,7 @@ if ($srgb || $srgbDefault) {
  * Display status
  */
 if ($status) {
-    $text  = "img.php version = $version\n";
+    $text  = "img.php version = " . CIMAGE_VERSION . "\n";
     $text .= "PHP version = " . PHP_VERSION . "\n";
     $text .= "Running on: " . $_SERVER['SERVER_SOFTWARE'] . "\n";
     $text .= "Allow remote images = $allowRemote\n";
@@ -1048,6 +968,9 @@ if ($status) {
     $res = $cache->getStatusOfSubdir("srgb");
     $text .= "Cache srgb $res\n";
 
+    $res = $cache->getStatusOfSubdir($fastTrackCache);
+    $text .= "Cache fasttrack $res\n";
+
     $text .= "Alias path writable = " . is_writable($aliasPath) . "\n";
 
     $no = extension_loaded('exif') ? null : 'NOT';
@@ -1061,6 +984,11 @@ if ($status) {
 
     $no = extension_loaded('gd') ? null : 'NOT';
     $text .= "Extension gd is $no loaded.<br>";
+
+    $text .= checkExternalCommand("PNG LOSSY", $postProcessing["png_lossy"], $postProcessing["png_lossy_cmd"]);
+    $text .= checkExternalCommand("PNG FILTER", $postProcessing["png_filter"], $postProcessing["png_filter_cmd"]);
+    $text .= checkExternalCommand("PNG DEFLATE", $postProcessing["png_deflate"], $postProcessing["png_deflate_cmd"]);
+    $text .= checkExternalCommand("JPEG OPTIMIZE", $postProcessing["jpeg_optimize"], $postProcessing["jpeg_optimize_cmd"]);
 
     if (!$no) {
         $text .= print_r(gd_info(), 1);
@@ -1130,6 +1058,7 @@ if (is_callable($hookBeforeCImage)) {
 
             // Other
             'postProcessing' => $postProcessing,
+            'lossy' => $lossy,
     ));
     verbose(print_r($allConfig, 1));
     extract($allConfig);
@@ -1214,6 +1143,9 @@ $res = $img->log("Incoming arguments: " . print_r(verbose(), 1))
             // Output format
             'outputFormat' => $outputFormat,
             'dpr'          => $dpr,
+
+            // Postprocessing using external tools
+            'lossy' => $lossy,
         )
     )
     ->loadImageDetails()

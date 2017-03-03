@@ -156,6 +156,13 @@ class CImage
 
 
     /**
+     * Do lossy output using external postprocessing tools.
+     */
+    private $lossy = null;
+
+
+
+    /**
      * Verbose mode to print out a trace and display the created image
      */
     private $verbose = false;
@@ -190,7 +197,15 @@ class CImage
 
 
     /**
-     * Path to command for filter optimize, for example optipng or null.
+     * Path to command for lossy optimize, for example pngquant.
+     */
+    private $pngLossy;
+    private $pngLossyCmd;
+
+
+
+    /**
+     * Path to command for filter optimize, for example optipng.
      */
     private $pngFilter;
     private $pngFilterCmd;
@@ -198,7 +213,7 @@ class CImage
 
 
     /**
-     * Path to command for deflate optimize, for example pngout or null.
+     * Path to command for deflate optimize, for example pngout.
      */
     private $pngDeflate;
     private $pngDeflateCmd;
@@ -380,6 +395,12 @@ class CImage
     private $useCache = true;
 
 
+    /**
+    * Disable the fasttrackCacke to start with, inject an object to enable it.
+    */
+    private $fastTrackCache = null;
+
+
 
     /*
      * Set whitelist for valid hostnames from where remote source can be
@@ -451,6 +472,25 @@ class CImage
         $this->imageResizer = new CImageResizer(array($this, 'log'));
     }
 
+
+
+
+    /**
+     * Inject object and use it, must be available as member.
+     *
+     * @param string $property to set as object.
+     * @param object $object   to set to property.
+     *
+     * @return $this
+     */
+    public function injectDependency($property, $object)
+    {
+        if (!property_exists($this, $property)) {
+            $this->raiseError("Injecting unknown property.");
+        }
+        $this->$property = $object;
+        return $this;
+    }
 
 
 
@@ -623,7 +663,7 @@ class CImage
      */
     private function checkFileExtension($extension)
     {
-        $valid = array('jpg', 'jpeg', 'png', 'gif');
+        $valid = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 
         in_array(strtolower($extension), $valid)
             or $this->raiseError('Not a valid file extension.');
@@ -810,6 +850,9 @@ class CImage
             // Output format
             'outputFormat' => null,
             'dpr'          => 1,
+
+            // Postprocessing using external tools
+            'lossy' => null,
         );
 
         // Convert crop settings from string to array
@@ -924,10 +967,27 @@ class CImage
         is_readable($file)
             or $this->raiseError('Image file does not exist.');
 
-        // Get details on image
-        $info = list($this->width, $this->height, $this->fileType, $this->attr) = getimagesize($file);
+        $info = list($this->width, $this->height, $this->fileType) = getimagesize($file);
         if (empty($info)) {
-            throw new Exception("The file doesn't seem to be a valid image.");
+            // To support webp
+            $this->fileType = false;
+            if (function_exists("exif_imagetype")) {
+                $this->fileType = exif_imagetype($file);
+                if ($this->fileType === false) {
+                    if (function_exists("imagecreatefromwebp")) {
+                        $webp = imagecreatefromwebp($file);
+                        if ($webp !== false) {
+                            $this->width  = imagesx($webp);
+                            $this->height = imagesy($webp);
+                            $this->fileType = IMG_WEBP;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!$this->fileType) {
+            throw new Exception("Loading image details, the file doesn't seem to be a valid image.");
         }
         
         $this->imageResizer->setSource($this->width, $this->height);
@@ -936,7 +996,7 @@ class CImage
             $this->log("#Loading image details for: {$file}");
             $this->log(" Image width x height (type): {$this->width} x {$this->height} ({$this->fileType}).");
             $this->log(" Image filesize: " . filesize($file) . " bytes.");
-            $this->log(" Image mimetype: " . image_type_to_mime_type($this->fileType));
+            $this->log(" Image mimetype: " . $this->getMimeType());
         }
 
         return $this;
@@ -945,8 +1005,25 @@ class CImage
 
 
     /**
+     * Get mime type for image type.
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function getMimeType()
+    {
+        if ($this->fileType === IMG_WEBP) {
+            return "image/webp";
+        }
+
+        return image_type_to_mime_type($this->fileType);
+    }
+
+
+
+    /**
      * Init new width and height and do some sanity checks on constraints,
-     * before any processing can be done.
+     * before anyprocessing can be done.
      *
      * @return $this
      * @throws Exception
@@ -1077,7 +1154,13 @@ class CImage
                 $this->newWidth = round($factor * $width);
                 $this->log("New height was set.");
 
+            } else {
+
+                // Use existing width and height as new width and height.
+                $this->newWidth = $width;
+                $this->newHeight = $height;
             }
+            
 
             // Get image dimensions for pre-resize image.
             if ($this->cropToFit || $this->fillToFit) {
@@ -1255,6 +1338,7 @@ class CImage
             && !$this->autoRotate
             && !$this->bgColor
             && ($this->upscale === self::UPSCALE_DEFAULT)
+            && !$this->lossy
         ) {
             $this->log("Using original image.");
             $this->output($this->pathToImage);
@@ -1289,6 +1373,7 @@ class CImage
         $compress     = $this->compress     ? "_co{$this->compress}"     : null;
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
+        $lossy        = $this->lossy        ? "_l"                       : null;
 
         $saveAs = $this->normalizeFileExtension();
         $saveAs = $saveAs ? "_$saveAs" : null;
@@ -1355,7 +1440,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve . $copyStrat . $saveAs;
+            . $convolve . $copyStrat . $lossy . $saveAs;
 
         return $this->setTarget($file, $base);
     }
@@ -1412,9 +1497,14 @@ class CImage
             $this->setSource($src, $dir);
         }
 
-        $this->loadImageDetails($this->pathToImage);
+        $this->loadImageDetails();
 
-        $this->image = imagecreatefromstring(file_get_contents($this->pathToImage));
+        if ($this->fileType === IMG_WEBP) {
+            $this->image = imagecreatefromwebp($this->pathToImage);
+        } else {
+            $imageAsString = file_get_contents($this->pathToImage);
+            $this->image = imagecreatefromstring($imageAsString);
+        }
         if ($this->image === false) {
             throw new Exception("Could not load image.");
         }
@@ -1692,25 +1782,41 @@ class CImage
             // Resize by crop to fit
             $this->log("Resizing using strategy - Crop to fit");
 
-            if (!$this->upscale && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
+            if (!$this->upscale 
+                && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
-
-                $cropX = round(($this->cropWidth/2) - ($this->newWidth/2));
-                $cropY = round(($this->cropHeight/2) - ($this->newHeight/2));
 
                 $posX = 0;
                 $posY = 0;
+                $cropX = 0;
+                $cropY = 0;
 
                 if ($this->newWidth > $this->width) {
                     $posX = round(($this->newWidth - $this->width) / 2);
+                }
+                if ($this->newWidth < $this->width) {
+                    $cropX = round(($this->width/2) - ($this->newWidth/2));
                 }
 
                 if ($this->newHeight > $this->height) {
                     $posY = round(($this->newHeight - $this->height) / 2);
                 }
+                if ($this->newHeight < $this->height) {
+                    $cropY = round(($this->height/2) - ($this->newHeight/2));
+                }
+                $this->log(" cwidth: $this->cropWidth");
+                $this->log(" cheight: $this->cropHeight");
+                $this->log(" nwidth: $this->newWidth");
+                $this->log(" nheight: $this->newHeight");
+                $this->log(" width: $this->width");
+                $this->log(" height: $this->height");
+                $this->log(" posX: $posX");
+                $this->log(" posY: $posY");
+                $this->log(" cropX: $cropX");
+                $this->log(" cropY: $cropY");
 
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->newWidth, $this->newHeight);
+                imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->width, $this->height);
             } else {
                 $cropX      = $imgres->getCropX();
                 $cropY      = $imgres->getCropY();
@@ -1753,14 +1859,14 @@ class CImage
             }
 
             if (!$this->upscale
-                && ($this->width < $this->newWidth || $this->height < $this->newHeight)
+                && ($this->width < $this->newWidth && $this->height < $this->newHeight)
             ) {
 
                 $this->log("Resizing - smaller image, do not upscale.");
-                $posX = round(($this->fillWidth - $this->width) / 2);
-                $posY = round(($this->fillHeight - $this->height) / 2);
+                $posX = round(($this->newWidth - $this->width) / 2);
+                $posY = round(($this->newHeight - $this->height) / 2);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->fillWidth, $this->fillHeight);
+                imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->width, $this->height);
 
             } else {
                 $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
@@ -1802,9 +1908,8 @@ class CImage
                         $cropX = round(($this->width - $this->newWidth) / 2);
                     }
 
-                    //$this->log("posX=$posX, posY=$posY, cropX=$cropX, cropY=$cropY.");
                     $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
-                    imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->newWidth, $this->newHeight);
+                    imagecopy($imageResized, $this->image, $posX, $posY, $cropX, $cropY, $this->width, $this->height);
                     $this->image = $imageResized;
                     $this->width = $this->newWidth;
                     $this->height = $this->newHeight;
@@ -2266,6 +2371,14 @@ class CImage
             $this->jpegOptimizeCmd = null;
         }
 
+        if (array_key_exists("png_lossy", $options) 
+            && $options['png_lossy'] !== false) {
+            $this->pngLossy = $options['png_lossy'];
+            $this->pngLossyCmd = $options['png_lossy_cmd'];
+        } else {
+            $this->pngLossyCmd = null;
+        }
+
         if (isset($options['png_filter']) && $options['png_filter']) {
             $this->pngFilterCmd = $options['png_filter_cmd'];
         } else {
@@ -2293,9 +2406,11 @@ class CImage
         // switch on mimetype
         if (isset($this->extension)) {
             return strtolower($this->extension);
-        } else {
-            return substr(image_type_to_extension($this->fileType), 1);
+        } elseif ($this->fileType === IMG_WEBP) {
+            return "webp";
         }
+
+        return substr(image_type_to_extension($this->fileType), 1);
     }
 
 
@@ -2351,6 +2466,11 @@ class CImage
                 imagegif($this->image, $this->cacheFileName);
                 break;
 
+            case 'webp':
+                $this->Log("Saving image as WEBP to cache using quality = {$this->quality}.");
+                imagewebp($this->image, $this->cacheFileName, $this->quality);
+                break;
+
             case 'png':
             default:
                 $this->Log("Saving image as PNG to cache using compression = {$this->compress}.");
@@ -2359,6 +2479,24 @@ class CImage
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
                 imagepng($this->image, $this->cacheFileName, $this->compress);
+
+                // Use external program to process lossy PNG, if defined
+                $lossyEnabled = $this->pngLossy === true;
+                $lossySoftEnabled = $this->pngLossy === null;
+                $lossyActiveEnabled = $this->lossy === true;
+                if ($lossyEnabled || ($lossySoftEnabled && $lossyActiveEnabled)) {
+                    if ($this->verbose) {
+                        clearstatcache();
+                        $this->log("Lossy enabled: $lossyEnabled");
+                        $this->log("Lossy soft enabled: $lossySoftEnabled");
+                        $this->Log("Filesize before lossy optimize: " . filesize($this->cacheFileName) . " bytes.");
+                    }
+                    $res = array();
+                    $cmd = $this->pngLossyCmd . " $this->cacheFileName $this->cacheFileName";
+                    exec($cmd, $res);
+                    $this->Log($cmd);
+                    $this->Log($res);
+                }
 
                 // Use external program to filter PNG, if defined
                 if ($this->pngFilterCmd) {
@@ -2505,7 +2643,7 @@ class CImage
 
 
     /**
-     * Add HTTP header for outputting together with image.
+     * Add HTTP header for output together with image.
      *
      * @param string $type  the header type such as "Cache-Control"
      * @param string $value the value to use
@@ -2539,6 +2677,7 @@ class CImage
             $format = $this->outputFormat;
         }
 
+        $this->log("### Output");
         $this->log("Output format is: $format");
 
         if (!$this->verbose && $format == 'json') {
@@ -2556,17 +2695,24 @@ class CImage
         // Get image modification time
         clearstatcache();
         $lastModified = filemtime($file);
-        $gmdate = gmdate("D, d M Y H:i:s", $lastModified);
+        $lastModifiedFormat = "D, d M Y H:i:s";
+        $gmdate = gmdate($lastModifiedFormat, $lastModified);
 
         if (!$this->verbose) {
-            header('Last-Modified: ' . $gmdate . " GMT");
+            $header = "Last-Modified: $gmdate GMT";
+            header($header);
+            $this->fastTrackCache->addHeader($header);
+            $this->fastTrackCache->setLastModified($lastModified);
         }
 
         foreach ($this->HTTPHeader as $key => $val) {
-            header("$key: $val");
+            $header = "$key: $val";
+            header($header);
+            $this->fastTrackCache->addHeader($header);
         }
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+            && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
 
             if ($this->verbose) {
                 $this->log("304 not modified");
@@ -2575,13 +2721,14 @@ class CImage
             }
 
             header("HTTP/1.0 304 Not Modified");
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 304");
+            }
 
         } else {
 
-            // Get details on image
-            $info = getimagesize($file);
-            !empty($info) or $this->raiseError("The file doesn't seem to be an image.");
-            $mime = $info['mime'];
+            $this->loadImageDetails($file);
+            $mime = $this->getMimeType();
             $size = filesize($file);
 
             if ($this->verbose) {
@@ -2595,8 +2742,19 @@ class CImage
                 }
             }
 
-            header("Content-type: $mime");
-            header("Content-length: $size");
+            $header = "Content-type: $mime";
+            header($header);
+            $this->fastTrackCache->addHeaderOnOutput($header);
+
+            $header = "Content-length: $size";
+            header($header);
+            $this->fastTrackCache->addHeaderOnOutput($header);
+
+            $this->fastTrackCache->setSource($file);
+            $this->fastTrackCache->writeToCache();
+            if (CIMAGE_DEBUG) {
+                trace(__CLASS__ . " 200");
+            }
             readfile($file);
         }
 
@@ -2631,7 +2789,7 @@ class CImage
         $this->load($file);
 
         $details['filename']    = basename($file);
-        $details['mimeType']    = image_type_to_mime_type($this->fileType);
+        $details['mimeType']    = $this->getMimeType($this->fileType);
         $details['width']       = $this->width;
         $details['height']      = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
@@ -2733,6 +2891,7 @@ class CImage
     private function verboseOutput()
     {
         $log = null;
+        $this->log("### Summary of verbose log");
         $this->log("As JSON: \n" . $this->json());
         $this->log("Memory peak: " . round(memory_get_peak_usage() /1024/1024) . "M");
         $this->log("Memory limit: " . ini_get('memory_limit'));
