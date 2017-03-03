@@ -1220,7 +1220,10 @@ class CImage
      */
     public function reCalculateDimensions()
     {
-        $this->log("Re-calculate image dimensions, newWidth x newHeigh was: " . $this->newWidth . " x " . $this->newHeight);
+        $this->log("Re-calculate image dimensions, newWidth x newHeigh was: "
+            . $this->newWidth
+            . " x "
+            . $this->newHeight);
 
         $this->newWidth  = $this->newWidthOrig;
         $this->newHeight = $this->newHeightOrig;
@@ -1586,7 +1589,6 @@ class CImage
         }
 
         switch ($pngType) {
-
             case self::PNG_GREYSCALE:
                 $text = "PNG is type 0, Greyscale$transparent";
                 break;
@@ -1754,7 +1756,6 @@ class CImage
 
         // Only use a specified area of the image, $this->offset is defining the area to use
         if (isset($this->offset)) {
-
             $this->log("Offset for area to use, cropping it width={$this->offset['width']}, height={$this->offset['height']}, start_x={$this->offset['left']}, start_y={$this->offset['top']}");
             $img = $this->CreateImageKeepTransparency($this->offset['width'], $this->offset['height']);
             imagecopy($img, $this->image, 0, 0, $this->offset['left'], $this->offset['top'], $this->offset['width'], $this->offset['height']);
@@ -1764,7 +1765,6 @@ class CImage
         }
 
         if ($this->crop) {
-
             // Do as crop, take only part of image
             $this->log("Cropping area width={$this->crop['width']}, height={$this->crop['height']}, start_x={$this->crop['start_x']}, start_y={$this->crop['start_y']}");
             $img = $this->CreateImageKeepTransparency($this->crop['width'], $this->crop['height']);
@@ -1781,11 +1781,10 @@ class CImage
         }
 
         if ($this->cropToFit) {
-
             // Resize by crop to fit
             $this->log("Resizing using strategy - Crop to fit");
 
-            if (!$this->upscale 
+            if (!$this->upscale
                 && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
 
@@ -1842,9 +1841,7 @@ class CImage
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
-
         } elseif ($this->fillToFit) {
-
             // Resize by fill to fit
             $this->log("Resizing using strategy - Fill to fit");
 
@@ -1864,13 +1861,11 @@ class CImage
             if (!$this->upscale
                 && ($this->width < $this->newWidth && $this->height < $this->newHeight)
             ) {
-
                 $this->log("Resizing - smaller image, do not upscale.");
                 $posX = round(($this->newWidth - $this->width) / 2);
                 $posY = round(($this->newHeight - $this->height) / 2);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
                 imagecopy($imageResized, $this->image, $posX, $posY, 0, 0, $this->width, $this->height);
-
             } else {
                 $imgPreFill   = $this->CreateImageKeepTransparency($this->fillWidth, $this->fillHeight);
                 $imageResized = $this->CreateImageKeepTransparency($this->newWidth, $this->newHeight);
@@ -1881,9 +1876,7 @@ class CImage
             $this->image = $imageResized;
             $this->width = $this->newWidth;
             $this->height = $this->newHeight;
-
         } elseif (!($this->newWidth == $this->width && $this->newHeight == $this->height)) {
-
             // Resize it
             $this->log("Resizing, new height and/or width");
 
@@ -1948,12 +1941,10 @@ class CImage
 
         // Apply filters
         if (isset($this->filters) && is_array($this->filters)) {
-
             foreach ($this->filters as $filter) {
                 $this->log("Applying filter {$filter['type']}.");
 
                 switch ($filter['argc']) {
-
                     case 0:
                         imagefilter($this->image, $filter['type']);
                         break;
@@ -2298,7 +2289,6 @@ class CImage
         $img = isset($img) ? $img : $this->image;
 
         if ($this->bgColorDefault) {
-
             $red   = $this->bgColorDefault['red'];
             $green = $this->bgColorDefault['green'];
             $blue  = $this->bgColorDefault['blue'];
@@ -2311,7 +2301,6 @@ class CImage
             }
 
             return $color;
-
         } else {
             return 0;
         }
@@ -2339,16 +2328,13 @@ class CImage
             : -1;
 
         if ($index != -1) {
-
             imagealphablending($img, true);
             $transparent = imagecolorsforindex($this->image, $index);
             $color = imagecolorallocatealpha($img, $transparent['red'], $transparent['green'], $transparent['blue'], $transparent['alpha']);
             imagefill($img, 0, 0, $color);
             $index = imagecolortransparent($img, $color);
             $this->Log("Detected transparent color = " . implode(", ", $transparent) . " at index = $index");
-
         } elseif ($this->bgColorDefault) {
-
             $color = $this->getBackgroundColor($img);
             imagefill($img, 0, 0, $color);
             $this->Log("Filling image with background color.");
@@ -2374,7 +2360,7 @@ class CImage
             $this->jpegOptimizeCmd = null;
         }
 
-        if (array_key_exists("png_lossy", $options) 
+        if (array_key_exists("png_lossy", $options)
             && $options['png_lossy'] !== false) {
             $this->pngLossy = $options['png_lossy'];
             $this->pngLossyCmd = $options['png_lossy_cmd'];
@@ -2444,7 +2430,6 @@ class CImage
         $type = $this->getTargetImageExtension();
         $this->Log("Saving image as " . $type);
         switch ($type) {
-
             case 'jpeg':
             case 'jpg':
                 $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");
@@ -2716,7 +2701,6 @@ class CImage
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
             && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $lastModified) {
-
             if ($this->verbose) {
                 $this->log("304 not modified");
                 $this->verboseOutput();
@@ -2727,9 +2711,7 @@ class CImage
             if (CIMAGE_DEBUG) {
                 trace(__CLASS__ . " 304");
             }
-
         } else {
-
             $this->loadImageDetails($file);
             $mime = $this->getMimeType();
             $size = filesize($file);

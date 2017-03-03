@@ -68,22 +68,6 @@ function errorPage($msg, $type = 500)
 
 
 /**
- * Custom exception handler.
- */
-set_exception_handler(function ($exception) {
-    errorPage(
-        "<p><b>img.php: Uncaught exception:</b> <p>"
-        . $exception->getMessage()
-        . "</p><pre>"
-        . $exception->getTraceAsString()
-        . "</pre>",
-        500
-    );
-});
-
-
-
-/**
  * Get input from query string or return default value if not set.
  *
  * @param mixed $key     as string or array of string values to look for in $_GET.

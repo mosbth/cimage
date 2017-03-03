@@ -6,6 +6,8 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 
+require __DIR__ . "/assert.php";
+
 /**
  * Defines application features from the specific context.
  */
@@ -76,7 +78,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     {
         //echo $this->url;
         $res = file_get_contents($this->url);
-        PHPUnit_Framework_Assert::assertNotEquals(false, $res);
+        assertNotEquals(false, $res);
 
         $this->imageString = $res;
         $this->headers = $http_response_header;
@@ -94,10 +96,10 @@ class FeatureContext implements Context, SnippetAcceptingContext
     public function getImageAsJson()
     {
         $res = file_get_contents($this->url . "&json");
-        PHPUnit_Framework_Assert::assertNotEquals(false, $res);
+        assertNotEquals(false, $res);
 
         $res = json_decode($res, true);
-        PHPUnit_Framework_Assert::assertNotEquals(null, $res);
+        assertNotEquals(null, $res);
 
         $this->imageJSON = $res;
     }
@@ -111,7 +113,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     {
         //echo $this->url;
         $res = get_headers($this->url);
-        PHPUnit_Framework_Assert::assertNotEquals(false, $res);
+        assertNotEquals(false, $res);
 
         $this->headers = $http_response_header;
     }
@@ -123,7 +125,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
      */
     public function returnsStatusCode($arg1)
     {
-        PHPUnit_Framework_Assert::assertNotEquals(
+        assertNotEquals(
             false,
             strpos($this->headers[0], $arg1)
         );
@@ -136,19 +138,19 @@ class FeatureContext implements Context, SnippetAcceptingContext
     private function compareImageJsonToHeaders()
     {
         $contentLength = "Content-Length: " . $this->imageJSON["size"];
-        PHPUnit_Framework_Assert::assertContains(
+        assertContains(
             $contentLength,
             $this->headers
         );
 
         $contentType = "Content-Type: " . $this->imageJSON["mimeType"];
-        PHPUnit_Framework_Assert::assertContains(
+        assertContains(
             $contentType,
             $this->headers
         );
 
         $lastModified = "Last-Modified: " . $this->imageJSON["cacheGmdate"] . " GMT";
-        PHPUnit_Framework_Assert::assertContains(
+        assertContains(
             $lastModified,
             $this->headers
         );
@@ -162,10 +164,10 @@ class FeatureContext implements Context, SnippetAcceptingContext
     private function compareImageJsonToSavedJson($file)
     {
         $res = file_get_contents("$file.json");
-        PHPUnit_Framework_Assert::assertNotEquals(false, $res);
+        assertNotEquals(false, $res);
 
         $res = json_decode($res, true);
-        PHPUnit_Framework_Assert::assertNotEquals(null, $res);
+        assertNotEquals(null, $res);
 
         $keys = [
             "mimeType",
@@ -179,7 +181,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
             if (array_key_exists($key, $res)
                 && array_key_exists($key, $this->imageJSON)
             ) {
-                PHPUnit_Framework_Assert::assertEquals(
+                assertEquals(
                     $res[$key],
                     $this->imageJSON[$key]
                 );
@@ -196,9 +198,9 @@ class FeatureContext implements Context, SnippetAcceptingContext
     {
         $base = __DIR__ . "/../img";
         $res = file_get_contents("$base/$arg1");
-        PHPUnit_Framework_Assert::assertNotEquals(false, $res);
+        assertNotEquals(false, $res);
 
-        PHPUnit_Framework_Assert::assertEquals($this->imageString, $res);
+        assertEquals($this->imageString, $res);
 
         $this->compareImageJsonToHeaders();
         $this->compareImageJsonToSavedJson("$base/$arg1");

@@ -9,6 +9,22 @@
  */
 
 /**
+ * Custom exception handler.
+ */
+set_exception_handler(function ($exception) {
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>",
+        500
+    );
+});
+
+
+
+/**
  * Get configuration options from file, if the file exists, else use $config
  * if its defined or create an empty $config.
  */
@@ -198,7 +214,7 @@ verbose("referer host = $refererHost");
 /**
  * Create the class for the image.
  */
-$CImage = getConfig('CImage', 'CImage');
+$CImage = getConfig('CImage', '\Mos\CImage\CImage');
 $img = new $CImage();
 $img->setVerbose($verbose || $verboseFile);
 
@@ -207,7 +223,7 @@ $img->setVerbose($verbose || $verboseFile);
 /**
  * Get the cachepath from config.
  */
-$CCache = getConfig('CCache', 'CCache');
+$CCache = getConfig('CCache', '\Mos\CImage\CCache');
 $cachePath = getConfig('cache_path', __DIR__ . '/../cache/');
 $cache = new $CCache();
 $cache->setDir($cachePath);
@@ -229,7 +245,7 @@ verbose("use cache = $useCache");
 $fastTrackCache = "fasttrack";
 $allowFastTrackCache = getConfig('fast_track_allow', false);
 
-$CFastTrackCache = getConfig('CFastTrackCache', 'CFastTrackCache');
+$CFastTrackCache = getConfig('CFastTrackCache', '\Mos\CImage\CFastTrackCache');
 $ftc = new $CFastTrackCache();
 $ftc->setCacheDir($cache->getPathToSubdir($fastTrackCache))
     ->enable($allowFastTrackCache)

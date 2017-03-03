@@ -91,13 +91,13 @@ return [
      * the codebase.
      *
      * Default values:
-     *  CImage: CImage
-     *  CCache: CCache
-     *  CFastTrackCache: CFastTrackCache
+     *  CImage: \Mos\CImage\CImage
+     *  CCache: \Mos\CImage\CCache
+     *  CFastTrackCache: \Mos\CImage\CFastTrackCache
      */
-     //'CImage' => 'CImage',
-     //'CCache' => 'CCache',
-     //'CFastTrackCache' => 'CFastTrackCache',
+     //'CImage' => '\Mos\CImage\CImage',
+     //'CCache' => '\Mos\CImage\CCache',
+     //'CFastTrackCache' => '\Mos\CImage\CFastTrackCache',
 
 
 

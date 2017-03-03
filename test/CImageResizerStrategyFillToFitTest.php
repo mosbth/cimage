@@ -62,7 +62,6 @@ class CImageResizerStrategyFillToFitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($dy, $img->getDestinationY(), "DestinationY not correct.");
         $this->assertEquals($dw, $img->getDestinationWidth(), "DestinationWidth not correct.");
         $this->assertEquals($dh, $img->getDestinationHeight(), "DestinationHeight not correct.");
-
     }
 
 
@@ -116,6 +115,5 @@ class CImageResizerStrategyFillToFitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($dy, $img->getDestinationY(), "DestinationY not correct.");
         $this->assertEquals($dw, $img->getDestinationWidth(), "DestinationWidth not correct.");
         $this->assertEquals($dh, $img->getDestinationHeight(), "DestinationHeight not correct.");
-
     }
 }

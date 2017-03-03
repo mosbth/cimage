@@ -385,7 +385,6 @@ class CImageResizer
 
         // Both null, use source as base for target
         if (is_null($this->targetWidth) && is_null($this->targetHeight)) {
-
             $this->targetWidth = ($this->aspectRatio >= 1)
                 ? $this->srcWidth
                 : null;
@@ -395,12 +394,10 @@ class CImageResizer
                 : $this->srcHeight;
 
             $this->log("  Using source as base {$this->targetWidth}x{$this->targetHeight}");
-
         }
 
         // Both or either set, calculate the other
         if (isset($this->targetWidth) && isset($this->targetHeight)) {
-
             $this->targetWidth = ($this->aspectRatio >= 1)
                 ? $this->targetWidth
                 : $this->targetHeight * $this->aspectRatio;
@@ -410,17 +407,12 @@ class CImageResizer
                 : $this->targetHeight;
 
             $this->log("  New target width height {$this->targetWidth}x{$this->targetHeight}");
-
         } elseif (isset($this->targetWidth)) {
-
             $this->targetHeight = $this->targetWidth / $this->aspectRatio;
             $this->log("  New target height x{$this->targetHeight}");
-
         } elseif (isset($this->targetHeight)) {
-
             $this->targetWidth = $this->targetHeight * $this->aspectRatio;
             $this->log("  New target width {$this->targetWidth}x");
-
         }
 
         return $this;
@@ -518,28 +510,21 @@ class CImageResizer
         $ratio = $both ? $tw / $th : null;
 
         if (is_null($tw) && is_null($th)) {
-
             // No tw/th use sw/sh
             $tw = $sw;
             $th = $sh;
             $this->log("  New tw x th {$tw}x{$th}");
-
         } elseif (isset($tw) && is_null($th)) {
-
             // Keep aspect ratio, make th based on tw
             $this->respectUpscale($tw, $sw);
             $th = $tw / $ar;
             $this->log("  New th x{$th}");
-
         } elseif (is_null($tw) && isset($th)) {
-
             // Keep aspect ratio, make tw based on th
             $this->respectUpscale($th, $sh);
             $tw = $th * $ar;
             $this->log("  New tw {$tw}x");
-
         } elseif ($rs === CImageResizer::KEEP_RATIO && $both) {
-
             // Keep aspect ratio, make fit in box not larger than tw/th
             $this->log("  Keep ratio, ratio target=$ratio, source=$ar");
             
@@ -555,9 +540,7 @@ class CImageResizer
                 $this->respectUpscale($tw, $sw);
                 $this->respectUpscale($th, $sh);
             }
-
         } elseif ($rs === CImageResizer::STRETCH && $both) {
-
             // Stretch to fit, leave as is
             $this->log("  Stretch");
 
@@ -570,9 +553,7 @@ class CImageResizer
             $dy = ($th - $dh) / 2;
 
             $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
-
         } elseif ($rs === CImageResizer::CROP_TO_FIT && $both) {
-
             // Crop to fit image in box
             $this->log("  Crop to fit, ratio target=$ratio, source=$ar");
 
@@ -607,9 +588,7 @@ class CImageResizer
 
             $this->log("   Parts cx=$cx, cy=$cy, cw=$cw, ch=$ch");
             $this->log("   Destination area dx=$dx, dy=$dy, dw=$dw, dh=$dh");
-
         } elseif ($rs === CImageResizer::FILL_TO_FIT && $both) {
-
             // Fill to fit image in box
             $this->log("  Fill to fit, ratio target=$ratio, source=$ar");
             $dw = $tw;
@@ -647,10 +626,12 @@ class CImageResizer
         $this->cropWidth         = round($cw);
         $this->cropHeight        = round($ch);
 
-        $this->log(" Target dimension (after) {$this->targetWidth}x{$this->targetHeight}.");
-        $this->log("  Crop area {$this->cropX}x{$this->cropY} by {$this->cropWidth}x{$this->cropHeight}.");
-        $this->log("  Destination area {$this->destinationX}x{$this->destinationY} by {$this->destinationWidth}x{$this->destinationHeight}.");
-
+        $str = <<<EOD
+ Target dimension (after) {$this->targetWidth}x{$this->targetHeight}.
+  Crop area {$this->cropX}x{$this->cropY} by {$this->cropWidth}x{$this->cropHeight}.
+  Destination area {$this->destinationX}x{$this->destinationY} by {$this->destinationWidth}x{$this->destinationHeight}.
+EOD;
+        $this->log($str);
 
 /*
 

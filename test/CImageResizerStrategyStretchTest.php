@@ -53,6 +53,5 @@ class CImageResizerStrategyStretchTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($tw, $img->getTargetWidth(), "Target width not correct.");
         $this->assertEquals($th, $img->getTargetHeight(), "Target height not correct.");
-
     }
 }

@@ -50,8 +50,15 @@ class CImageResizerByDevicePixelRatioTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testResize1($dpr, $srcWidth, $srcHeight, $targetWidth, $targetHeight, $expectedWidth, $expectedHeight)
-    {
+    public function testResize1(
+        $dpr,
+        $srcWidth,
+        $srcHeight,
+        $targetWidth,
+        $targetHeight,
+        $expectedWidth,
+        $expectedHeight
+    ) {
         $img = new CImageResizer(/*'logger'*/);
         //$img = new CImageResizer('logger');
 

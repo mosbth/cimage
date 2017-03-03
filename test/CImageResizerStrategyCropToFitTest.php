@@ -107,7 +107,7 @@ class CImageResizerStrategyCropToFitTest extends \PHPUnit_Framework_TestCase
       */
     public function testResize2($sw, $sh, $tw, $th, $cx, $cy, $cw, $ch, $dx, $dy, $dw, $dh)
     {
-    $img = new CImageResizer(/*'logger'/**/);
+        $img = new CImageResizer(/*'logger'/**/);
 
         $img->setSource($sw, $sh)
             ->setBaseWidthHeight($tw, $th)
