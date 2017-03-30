@@ -9,6 +9,22 @@
  */
 
 /**
+ * Custom exception handler.
+ */
+set_exception_handler(function ($exception) {
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>",
+        500
+    );
+});
+
+
+
+/**
  * Get configuration options from file, if the file exists, else use $config
  * if its defined or create an empty $config.
  */
