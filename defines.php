@@ -1,6 +1,6 @@
 <?php
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.7.19* (2016-08-11)");
+define("CIMAGE_VERSION", "v0.7.19 (2017-03-31)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);

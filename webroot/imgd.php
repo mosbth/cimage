@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.7.18 (2016-08-09)");
+define("CIMAGE_VERSION", "v0.7.19 (2017-03-31)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
@@ -115,22 +115,6 @@ function errorPage($msg, $type = 500)
     error_log("[img.php] $msg");
     die("HTTP/1.0 $header");
 }
-
-
-
-/**
- * Custom exception handler.
- */
-set_exception_handler(function ($exception) {
-    errorPage(
-        "<p><b>img.php: Uncaught exception:</b> <p>"
-        . $exception->getMessage()
-        . "</p><pre>"
-        . $exception->getTraceAsString()
-        . "</pre>",
-        500
-    );
-});
 
 
 
@@ -4417,6 +4401,22 @@ class CFastTrackCache
  * @link    https://github.com/mosbth/cimage
  *
  */
+
+/**
+ * Custom exception handler.
+ */
+set_exception_handler(function ($exception) {
+    errorPage(
+        "<p><b>img.php: Uncaught exception:</b> <p>"
+        . $exception->getMessage()
+        . "</p><pre>"
+        . $exception->getTraceAsString()
+        . "</pre>",
+        500
+    );
+});
+
+
 
 /**
  * Get configuration options from file, if the file exists, else use $config
