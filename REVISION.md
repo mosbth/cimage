@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.* (2017-06-26)
+-------------------------------------
+
+* Adding docker-compose.yml #169.
+
+
 v0.7.19 (2017-03-31)
 -------------------------------------
 
