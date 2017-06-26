@@ -1,0 +1,23 @@
+version: "3"
+services:
+    php71:
+        image: cimage/php71-apache:latest
+        #build: .
+        ports:
+            - "8071:80"
+        volumes:
+            - ./:/var/www/html/
+    php70:
+        image: cimage/php70-apache:latest
+        #build: .
+        ports:
+            - "8070:80"
+        volumes:
+            - .:/var/www/html
+    php56:
+        image: cimage/php56-apache:latest
+        #build: .
+        ports:
+            - "8056:80"
+        volumes:
+            - .:/var/www/html
