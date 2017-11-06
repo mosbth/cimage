@@ -5,9 +5,10 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.* (2017-06-26)
+v0.7.20 (2017-11-06)
 -------------------------------------
 
+* Remove webroot/img/{round8.PNG,wider.JPEG,wider.JPG} to avoid unzip warning message when installing with composer. 
 * Adding docker-compose.yml #169.
 
 
