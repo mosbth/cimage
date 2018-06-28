@@ -5,9 +5,85 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
-v0.7.9* (2015-12-07)
+v0.7.20 (2017-11-06)
 -------------------------------------
 
+* Remove webroot/img/{round8.PNG,wider.JPEG,wider.JPG} to avoid unzip warning message when installing with composer. 
+* Adding docker-compose.yml #169.
+
+
+v0.7.19 (2017-03-31)
+-------------------------------------
+
+* Move exception handler from functions.php to img.php #166.
+* Correct XSS injection in `check_system.php`.
+* Composer suggests ext-imagick and ext-curl.
+
+
+v0.7.18 (2016-08-09)
+-------------------------------------
+
+* Made `&lossless` a requirement to not use the original image.
+
+
+v0.7.17 (2016-08-09)
+-------------------------------------
+
+* Made `&lossless` part of the generated cache filename.
+
+
+v0.7.16 (2016-08-09)
+-------------------------------------
+
+* Fix default mode to be production.
+* Added pngquant as extra postprocessing utility for PNG-images, #154.
+* Bug `&status` wrong variable name for fast track cache.
+
+
+v0.7.15 (2016-08-09)
+-------------------------------------
+
+* Added the [Lenna/Lena sample image](http://www.cs.cmu.edu/~chuck/lennapg/) as tif and created a png, jpeg and webp version using Imagick convert `convert lena.tif lena.{png,jpg,webp}`, #152.
+* Limited and basic support for WEBP format, se #132.
+
+
+v0.7.14 (2016-08-08)
+-------------------------------------
+
+* Re-add removed cache directory.
+* Make fast track cache disabled by default in the config file.
+
+
+v0.7.13 (2016-08-08)
+-------------------------------------
+
+* Moved functions from img.php to `functions.php`.
+* Added function `trace()` to measure speed and memory consumption, only for development.
+* Added fast cache #149.
+* Added `imgf.php` as shortcut to check for fast cache, before loading `img.php` as usual, adding `imgf_config.php` as symlink to `img_config.php`.
+* Created `defines.php` and moved definition av version there.
+* Fixed images in README, #148.
+* Initiated dependency injection to `CImage`, class names can be set in config file and will be injected to `CImage` from `img.php`. Not implemented for all classes. #151.
+* Enabled debug mode to make it easier to trace what actually happens while processing the image, #150.
+
+
+v0.7.12 (2016-06-01)
+-------------------------------------
+
+* Fixed to correctly display image when using a resize strategy without height or width.
+* Fixed background color for option `no-upscale`, #144.
+
+
+v0.7.11 (2016-04-18)
+-------------------------------------
+
+* Add option for `skip_original` to config file to always skip original, #118.
+
+
+v0.7.10 (2016-04-01)
+-------------------------------------
+
+* Add backup option for images `src-alt`, #141.
 * Add require of ext-gd in composer.json, #133.
 * Fix strict mode only reporting 404 when failure, #127.
 

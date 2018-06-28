@@ -5,10 +5,37 @@
  * config-file imgtest_config.php.
  *
  */
+
+
+
+/**
+ * Change to true to enable debug mode which logs additional information
+ * to file. Only use for test and development. You must create the logfile
+ * and make it writable by the webserver or log entries will silently fail.
+ *
+ * CIMAGE_DEBUG will be false by default, if its not defined.
+ */
+if (!defined("CIMAGE_DEBUG")) {
+    define("CIMAGE_DEBUG", false);
+    //define("CIMAGE_DEBUG", true);
+    define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
+}
+
+
+
 return array(
 
     /**
      * Set mode as 'strict', 'production' or 'development'.
+     *
+     * development: Development mode with verbose error reporting. Option
+     *              &verbose and &status enabled.
+     * production:  Production mode logs all errors to file, giving server
+     *              error 500 for bad usage. Option &verbose and &status
+     *              disabled.
+     * strict:      Strict mode logs few errors to file, giving server error
+     *              500 for bad usage. Stripped from comments and spaces.
+     *              Option &verbose and &status disabled.
      *
      * Default values:
      *  mode: 'production'
@@ -20,14 +47,12 @@ return array(
 
 
     /**
-     * Where are the sources for the classfiles.
+     * Where to find the autoloader.
      *
      * Default values:
-     *  autoloader:  null     // used from v0.6.2
-     *  cimage_class: null    // used until v0.6.1
+     *  autoloader:  null
      */
     'autoloader'   =>  __DIR__ . '/../autoload.php',
-    //'cimage_class' =>  __DIR__ . '/../CImage.php',
 
 
 
@@ -36,13 +61,41 @@ return array(
      * End all paths with a slash.
      *
      * Default values:
-     *  image_path: __DIR__ . '/img/'
-     *  cache_path: __DIR__ . '/../cache/'
-     *  alias_path: null
+     *  image_path:     __DIR__ . '/img/'
+     *  cache_path:     __DIR__ . '/../cache/'
+     *  alias_path:     null
      */
-    'image_path'   =>  __DIR__ . '/img/',
-    'cache_path'   =>  __DIR__ . '/../cache/',
+    'image_path'        =>  __DIR__ . '/img/',
+    'cache_path'        =>  __DIR__ . '/../cache/',
     //'alias_path'   =>  __DIR__ . '/img/alias/',
+
+
+
+    /**
+     * Fast track cache. Save a json representation of the image as a
+     * fast track to the cached version of the image. This avoids some
+     * processing and allows for quicker load times of cached images.
+     *
+     * Default values:
+     *  fast_track_allow: false
+     */
+    //'fast_track_allow' => true,
+
+
+
+    /**
+     * Class names to use, to ease dependency injection. You can change Class
+     * name if you want to use your own class instead. This is a way to extend
+     * the codebase.
+     *
+     * Default values:
+     *  CImage: CImage
+     *  CCache: CCache
+     *  CFastTrackCache: CFastTrackCache
+     */
+     //'CImage' => 'CImage',
+     //'CCache' => 'CCache',
+     //'CFastTrackCache' => 'CFastTrackCache',
 
 
 
@@ -99,6 +152,20 @@ return array(
 
 
     /**
+     * Use backup image if src-image is not found on disk. The backup image
+     * is only available for local images and based on wether the original
+     * image is found on disk or not. The backup image must be a local image
+     * or the dummy image.
+     *
+     * Default value:
+     *  src_alt:  null //disabled by default
+     */
+     //'src_alt' => 'car.png',
+     //'src_alt' => 'dummy',
+
+
+
+    /**
      * A regexp for validating characters in the image or alias filename.
      *
      * Default value:
@@ -136,6 +203,18 @@ return array(
        */
        //'srgb_default' => false,
        //'srgb_colorprofile' => __DIR__ . '/../icc/sRGB_IEC61966-2-1_black_scaled.icc',
+
+
+
+       /**
+        * Set skip-original to true to always process the image and use
+        * the cached version. Default is false and to use the original
+        * image when its no processing needed.
+        *
+        * Default value:
+        *  skip_original: false
+        */
+        //'skip_original' => true,
 
 
 
@@ -188,7 +267,8 @@ return array(
      /**
      * Check that the imagefile is a file below 'image_path' using realpath().
      * Security constraint to avoid reaching images outside image_path.
-     * This means that symbolic links to images outside the image_path will fail.
+     * This means that symbolic links to images outside the image_path will
+     * fail.
      *
      * Default value:
      *  image_path_constraint: true
@@ -241,7 +321,15 @@ return array(
      * Post processing of images using external tools, set to true or false
      * and set command to be executed.
      *
+     * The png_lossy can alos have a value of null which means that its
+     * enabled but not used as default. Each image having the option
+     * &lossy will be processed. This means one can individually choose
+     * when to use the lossy processing.
+     *
      * Default values.
+     *
+     *  png_lossy:        false
+     *  png_lossy_cmd:    '/usr/local/bin/pngquant --force --output'
      *
      *  png_filter:        false
      *  png_filter_cmd:    '/usr/local/bin/optipng -q'
@@ -254,6 +342,9 @@ return array(
      */
     /*
     'postprocessing' => array(
+        'png_lossy'       => null,
+        'png_lossy_cmd'   => '/usr/local/bin/pngquant --force --output',
+
         'png_filter'        => false,
         'png_filter_cmd'    => '/usr/local/bin/optipng -q',
 
@@ -379,7 +470,7 @@ return array(
 
 
     /**
-     * default options for ascii image.
+     * Default options for ascii image.
      *
      * Default values as specified below in the array.
      *  ascii-options:

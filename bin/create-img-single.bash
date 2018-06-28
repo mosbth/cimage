@@ -34,12 +34,15 @@ fi
 $ECHO "Creating '$TARGET_D', '$TARGET_P' and '$TARGET_S' by combining the following files:"
 $ECHO "\n"
 $ECHO "\n webroot/img_header.php"
+$ECHO "\n defines.php"
+$ECHO "\n functions.php"
 $ECHO "\n CHttpGet.php"
 $ECHO "\n CRemoteImage.php"
 $ECHO "\n CWhitelist.php"
 $ECHO "\n CAsciiArt.php"
 $ECHO "\n CImage.php"
 $ECHO "\n CCache.php"
+$ECHO "\n CFastTrackCache.php"
 $ECHO "\n webroot/img.php"
 $ECHO "\n"
 $ECHO "\n'$TARGET_D' is for development mode."
@@ -60,6 +63,12 @@ cat webroot/img_header.php | sed "s|//'mode'         => 'production',|'mode'    
 
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
+tail -n +2 defines.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+tail -n +2 functions.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
 tail -n +2 CHttpGet.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
@@ -76,6 +85,9 @@ tail -n +2 CImage.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 CCache.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+$ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
+
+tail -n +2 CFastTrackCache.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 $ECHO "$NEWLINES" | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null
 
 tail -n +2 webroot/img.php | tee -a $TARGET_D $TARGET_P $TARGET_S > /dev/null

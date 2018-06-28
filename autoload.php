@@ -3,9 +3,10 @@
  * Autoloader for CImage and related class files.
  *
  */
-//include __DIR__ . "/../CHttpGet.php";
-//include __DIR__ . "/../CRemoteImage.php";
-//include __DIR__ . "/../CImage.php";
+require_once __DIR__ . "/defines.php";
+require_once __DIR__ . "/functions.php";
+
+
 
 /**
  * Autoloader for classes.

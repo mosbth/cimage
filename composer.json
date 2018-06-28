@@ -22,16 +22,23 @@
         "ext-gd": "*"
     },
     "suggest": {
-        "ext-exif": "*"
+        "ext-exif": "*",
+        "ext-curl": "*",
+        "ext-imagick": "*"
     },
     "autoload": {
-        "classmap": [
+       "files": [
+           "defines.php",
+           "functions.php"
+       ],
+       "classmap": [
             "CImage.php",
             "CHttpGet.php",
             "CRemoteImage.php",
             "CWhitelist.php",
             "CAsciiArt.php",
-            "CCache.php"
+            "CCache.php",
+            "CFastTrackCache.php"
         ]
     }
 }
