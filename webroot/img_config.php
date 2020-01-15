@@ -41,7 +41,7 @@ return array(
      *  mode: 'production'
      */
      //'mode' => 'production',
-     //'mode' => 'development',
+     'mode' => 'development',
      //'mode' => 'strict',
 
 
@@ -67,7 +67,7 @@ return array(
      */
     'image_path'        =>  __DIR__ . '/img/',
     'cache_path'        =>  __DIR__ . '/../cache/',
-    //'alias_path'   =>  __DIR__ . '/img/alias/',
+    'alias_path'   =>  __DIR__ . '/img/alias/',
 
 
 
@@ -116,7 +116,7 @@ return array(
      *  password_type:   'text' // use plain password, not encoded,
      */
     //'password_always' => false, // always require password,
-    //'password'        => false, // "secret-password",
+    'password'        => "moped", // "secret-password",
     //'password_type'   => 'text', // supports 'text', 'md5', 'hash',
 
 

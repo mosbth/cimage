@@ -5,6 +5,12 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.21 (2020-01-15)
+-------------------------------------
+
+* Support PHP 7.4, some minor fixes with notices.
+
+
 v0.7.20 (2017-11-06)
 -------------------------------------
 

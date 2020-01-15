@@ -1023,13 +1023,15 @@ class CImage
         $this->log("Init dimension (before) newWidth x newHeight is {$this->newWidth} x {$this->newHeight}.");
 
         // width as %
-        if ($this->newWidth[strlen($this->newWidth)-1] == '%') {
+        if ($this->newWidth
+            && $this->newWidth[strlen($this->newWidth)-1] == '%') {
             $this->newWidth = $this->width * substr($this->newWidth, 0, -1) / 100;
             $this->log("Setting new width based on % to {$this->newWidth}");
         }
 
         // height as %
-        if ($this->newHeight[strlen($this->newHeight)-1] == '%') {
+        if ($this->newHeight
+            && $this->newHeight[strlen($this->newHeight)-1] == '%') {
             $this->newHeight = $this->height * substr($this->newHeight, 0, -1) / 100;
             $this->log("Setting new height based on % to {$this->newHeight}");
         }

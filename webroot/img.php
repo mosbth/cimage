@@ -440,7 +440,7 @@ if (isset($sizes[$newWidth])) {
 }
 
 // Support width as % of original width
-if ($newWidth[strlen($newWidth)-1] == '%') {
+if ($newWidth && $newWidth[strlen($newWidth)-1] == '%') {
     is_numeric(substr($newWidth, 0, -1))
         or errorPage('Width % not numeric.', 404);
 } else {
@@ -465,7 +465,7 @@ if (isset($sizes[$newHeight])) {
 }
 
 // height
-if ($newHeight[strlen($newHeight)-1] == '%') {
+if ($newHeight && $newHeight[strlen($newHeight)-1] == '%') {
     is_numeric(substr($newHeight, 0, -1))
         or errorPage('Height % out of range.', 404);
 } else {
@@ -496,7 +496,7 @@ $aspectRatioConstant = getConfig('aspect_ratio_constant', function () {
 
 // Check to replace predefined aspect ratio
 $aspectRatios = call_user_func($aspectRatioConstant);
-$negateAspectRatio = ($aspectRatio[0] == '!') ? true : false;
+$negateAspectRatio = ($aspectRatio && $aspectRatio[0] == '!') ? true : false;
 $aspectRatio = $negateAspectRatio ? substr($aspectRatio, 1) : $aspectRatio;
 
 if (isset($aspectRatios[$aspectRatio])) {

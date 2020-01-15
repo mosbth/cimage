@@ -1,5 +1,12 @@
 version: "3"
 services:
+    php74:
+        image: anax/dev:php74-apache
+        ports:
+            - "8074:80"
+        volumes:
+            - .:/home/anax/repo
+
     php71:
         image: cimage/php71-apache:latest
         #build: .
