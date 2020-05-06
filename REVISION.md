@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.22 (2020-05-06)
+-------------------------------------
+
+* Update composer.json and move ext-gd from required to suggested to ease installation where cli does not have all extensions installed.
+
+
+
 v0.7.21 (2020-01-15)
 -------------------------------------
 
@@ -14,7 +21,7 @@ v0.7.21 (2020-01-15)
 v0.7.20 (2017-11-06)
 -------------------------------------
 
-* Remove webroot/img/{round8.PNG,wider.JPEG,wider.JPG} to avoid unzip warning message when installing with composer. 
+* Remove webroot/img/{round8.PNG,wider.JPEG,wider.JPG} to avoid unzip warning message when installing with composer.
 * Adding docker-compose.yml #169.
 
 
@@ -107,7 +114,7 @@ v0.7.8 (2015-12-06)
 
 * HTTP error messages now 403, 404 and 500 as in #128 and #127.
 * More examples on dealing with cache through bash `bin/cache.bash`, #129.
-* Added conversion to sRGB using option `?srgb`. #120. 
+* Added conversion to sRGB using option `?srgb`. #120.
 * Added Gitter badge to README, #126.
 * Fix proper download url in README, #125.
 * Change path in `webroot/htaccess` to make it work in current environment.
@@ -118,11 +125,11 @@ v0.7.7 (2015-10-21)
 
 * One can now add a HTTP header for Cache-Control in the config file, #109.
 * Added hook in img,php before CImage is called, #123.
-* Added configuration for default jpeg quality and png compression in the config file, #107. 
+* Added configuration for default jpeg quality and png compression in the config file, #107.
 * Strip comments and whitespace in imgs.php, #115.
 * Bundle imgs.php did not have the correct mode.
 * Adding option &status to get an overview of the installed on configured utilities, #116.
-* Bug, all files saved as png-files, when not saving as specific file. 
+* Bug, all files saved as png-files, when not saving as specific file.
 * Removed saving filename extension for alias images.
 * Added option to decide if resample or resize when copying images internally. `&no-resample` makes resize, instead of resample as is default.
 * Verbose now correctly states if transparent color is detected.
@@ -177,14 +184,14 @@ v0.7.1 (2015-07-25)
 * Using `CWhitelist` for checking hotlinking to images, fix #88.
 * Added mode for `test` which enables logging verbose mode to file, fix #97.
 * Improved codestyle and added `phpcs.xml` to start using phpcs to check code style, fix #95.
-* Adding `composer.json` for publishing on packagist. 
+* Adding `composer.json` for publishing on packagist.
 * Add permalink to setup for comparing images with `webroot/compare/compare.php`, fix #92.
 * Allow space in filename by using `urlencode()` and allow space as valid filenam character. fix #91.
-* Support redirections for remote images, fix #87, fix #90. 
+* Support redirections for remote images, fix #87, fix #90.
 * Improving usage of Travis and Scrutinizer.
 * Naming cache-file using md5 for remote images, fix #86.
 * Loading images without depending on filename extension, fix #85.
-* Adding unittest with phpunit #84, fix #13 
+* Adding unittest with phpunit #84, fix #13
 * Adding support for whitelist of remote hostnames, #84
 * Adding phpdoc, fix #48.
 * Adding travis, fix #15.

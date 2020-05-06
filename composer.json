@@ -1,5 +1,5 @@
 {
-    "name": "mos/cimage",    
+    "name": "mos/cimage",
     "type": "library",
     "description": "Process, scale, resize, crop and filter images.",
     "keywords": ["image", "imageprocessing", "gd"],
@@ -19,11 +19,11 @@
     },
     "require": {
         "php": ">=5.3",
-        "ext-gd": "*"
     },
     "suggest": {
-        "ext-exif": "*",
         "ext-curl": "*",
+        "ext-exif": "*",
+        "ext-gd": "*",
         "ext-imagick": "*"
     },
     "autoload": {
