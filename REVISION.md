@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.7.23 (2020-05-06)
+-------------------------------------
+
+* Fix error in composer.json 
+
+
+
 v0.7.22 (2020-05-06)
 -------------------------------------
 
