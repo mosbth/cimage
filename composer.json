@@ -18,7 +18,7 @@
         "docs": "http://dbwebb.se/opensource/cimage"
     },
     "require": {
-        "php": ">=5.3"
+        "php": ">=7.0"
     },
     "suggest": {
         "ext-curl": "*",
