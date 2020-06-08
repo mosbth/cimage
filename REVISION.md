@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.8.1 (2020-06-08)
+-------------------------------------
+
+* Updated version number in define.php.
+
+
+
 v0.8.0 (2020-06-08)
 -------------------------------------
 

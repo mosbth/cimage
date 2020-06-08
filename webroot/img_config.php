@@ -490,9 +490,10 @@ return array(
 
 
     /**
-     * Default options using interlaced progressive JPEG images. Set to true to
-     * always render jpeg images as interlaced. This setting can be overridden
-     * by using `?interlace=true` or `?interlace=false`.
+     * Default options  for creating interlaced progressive JPEG images. Set
+     * to true to always render jpeg images as interlaced. This setting can
+     * be overridden by using `?interlace`, `?interlace=true` or
+     * `?interlace=false`.
      *
      * Default values are:
      *  interlace:  false

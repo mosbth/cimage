@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.7.23 (2020-05-06)");
+define("CIMAGE_VERSION", "v0.8.1 (2020-06-08)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
