@@ -108,6 +108,25 @@ function getDefined($key, $defined, $undefined)
 
 
 /**
+ * Get value of input from query string or else $undefined.
+ *
+ * @param mixed $key       as string or array of string values to look for in $_GET.
+ * @param mixed $undefined value to return when $key has no, or empty value in $_GET.
+ *
+ * @return mixed value as or $undefined.
+ */
+function getValue($key, $undefined)
+{
+    $val = get($key);
+    if (is_null($val) || $val === "") {
+        return $undefined;
+    }
+    return $val;
+}
+
+
+
+/**
  * Get value from config array or default if key is not set in config array.
  *
  * @param string $key    the key in the config array.
@@ -132,7 +151,7 @@ function getConfig($key, $default)
  *
  * @return void or array.
  */
-function verbose($msg = null)
+function verbose($msg = null, $arg = "")
 {
     global $verbose, $verboseFile;
     static $log = array();
@@ -145,7 +164,15 @@ function verbose($msg = null)
         return $log;
     }
 
-    $log[] = $msg;
+    if (is_null($arg)) {
+        $arg = "null";
+    } elseif ($arg === false) {
+        $arg = "false";
+    } elseif ($arg === true) {
+        $arg = "true";
+    }
+
+    $log[] = $msg . $arg;
 }
 
 
