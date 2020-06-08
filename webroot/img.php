@@ -285,7 +285,7 @@ $allowRemote = getConfig('remote_allow', false);
 
 if ($allowRemote && $passwordMatch !== false) {
     $cacheRemote = $cache->getPathToSubdir("remote");
-    
+
     $pattern = getConfig('remote_pattern', null);
     $img->setRemoteDownload($allowRemote, $cacheRemote, $pattern);
 
@@ -381,7 +381,7 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
                 matching file exists on the filesystem.',
                 404
             );
-    } 
+    }
 }
 
 if ($imagePathConstraint && !$dummyImage && !$remoteSource) {
@@ -921,6 +921,18 @@ if ($cacheControl) {
 
 
 /**
+ * interlace - Enable configuration for interlaced progressive JPEG images.
+ */
+$interlaceConfig  = getConfig('interlace', null);
+$interlaceValue   = getValue('interlace', null);
+$interlaceDefined = getDefined('interlace', true, null);
+$interlace = $interlaceValue ?? $interlaceDefined ?? $interlaceConfig;
+verbose("interlace (configfile) = ", $interlaceConfig);
+verbose("interlace = ", $interlace);
+
+
+
+/**
  * Prepare a dummy image and use it as source image.
  */
 if ($dummyImage === true) {
@@ -1081,6 +1093,7 @@ if (is_callable($hookBeforeCImage)) {
             'blur'      => $blur,
             'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
+            'interlace' => $interlace,
 
             // Output format
             'outputFormat' => $outputFormat,
@@ -1169,6 +1182,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             'blur'      => $blur,
             'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
+            'interlace' => $interlace,
 
             // Output format
             'outputFormat' => $outputFormat,

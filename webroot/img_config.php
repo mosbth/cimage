@@ -485,6 +485,17 @@ return array(
             "scale" => 14,
             "luminanceStrategy" => 3,
             "customCharacterSet" => null,
-        );
-    },*/
+        ), */
+
+
+
+    /**
+     * Default options using interlaced progressive JPEG images. Set to true to
+     * always render jpeg images as interlaced. This setting can be overridden
+     * by using `?interlace=true` or `?interlace=false`.
+     *
+     * Default values are:
+     *  interlace:  false
+     */
+     /*'interlace' => false,*/
 );

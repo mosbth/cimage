@@ -5,10 +5,19 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.8.0 (2020-06-08)
+-------------------------------------
+
+* Enable to set JPEG image as interlaced, implement feature #177.
+* Add function getValue() to read from querystring.
+* Set PHP 7.0 as precondition (to prepare to update the codebase).
+
+
+
 v0.7.23 (2020-05-06)
 -------------------------------------
 
-* Fix error in composer.json 
+* Fix error in composer.json
 
 
 

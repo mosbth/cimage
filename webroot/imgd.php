@@ -159,6 +159,25 @@ function getDefined($key, $defined, $undefined)
 
 
 /**
+ * Get value of input from query string or else $undefined.
+ *
+ * @param mixed $key       as string or array of string values to look for in $_GET.
+ * @param mixed $undefined value to return when $key has no, or empty value in $_GET.
+ *
+ * @return mixed value as or $undefined.
+ */
+function getValue($key, $undefined)
+{
+    $val = get($key);
+    if (is_null($val) || $val === "") {
+        return $undefined;
+    }
+    return $val;
+}
+
+
+
+/**
  * Get value from config array or default if key is not set in config array.
  *
  * @param string $key    the key in the config array.
@@ -183,7 +202,7 @@ function getConfig($key, $default)
  *
  * @return void or array.
  */
-function verbose($msg = null)
+function verbose($msg = null, $arg = "")
 {
     global $verbose, $verboseFile;
     static $log = array();
@@ -196,7 +215,15 @@ function verbose($msg = null)
         return $log;
     }
 
-    $log[] = $msg;
+    if (is_null($arg)) {
+        $arg = "null";
+    } elseif ($arg === false) {
+        $arg = "false";
+    } elseif ($arg === true) {
+        $arg = "true";
+    }
+
+    $log[] = $msg . $arg;
 }
 
 
@@ -1534,6 +1561,13 @@ class CImage
 
 
     /*
+     * Use interlaced progressive mode for JPEG images.
+     */
+    private $interlace = false;
+
+
+
+    /*
      * Image copy strategy, defaults to RESAMPLE.
      */
      const RESIZE = 1;
@@ -1948,6 +1982,7 @@ class CImage
             'blur'        => null,
             'convolve'       => null,
             'rotateAfter' => null,
+            'interlace' => null,
 
             // Output format
             'outputFormat' => null,
@@ -2293,7 +2328,7 @@ class CImage
                 $this->newWidth = $width;
                 $this->newHeight = $height;
             }
-            
+
 
             // Get image dimensions for pre-resize image.
             if ($this->cropToFit || $this->fillToFit) {
@@ -2512,6 +2547,7 @@ class CImage
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
         $lossy        = $this->lossy        ? "_l"                       : null;
+        $interlace    = $this->interlace    ? "_i"                       : null;
 
         $saveAs = $this->normalizeFileExtension();
         $saveAs = $saveAs ? "_$saveAs" : null;
@@ -2578,7 +2614,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve . $copyStrat . $lossy . $saveAs;
+            . $convolve . $copyStrat . $lossy . $interlace . $saveAs;
 
         return $this->setTarget($file, $base);
     }
@@ -2898,7 +2934,7 @@ class CImage
             // Resize by crop to fit
             $this->log("Resizing using strategy - Crop to fit");
 
-            if (!$this->upscale 
+            if (!$this->upscale
                 && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
 
@@ -3477,7 +3513,7 @@ class CImage
             $this->jpegOptimizeCmd = null;
         }
 
-        if (array_key_exists("png_lossy", $options) 
+        if (array_key_exists("png_lossy", $options)
             && $options['png_lossy'] !== false) {
             $this->pngLossy = $options['png_lossy'];
             $this->pngLossyCmd = $options['png_lossy_cmd'];
@@ -3550,6 +3586,12 @@ class CImage
 
             case 'jpeg':
             case 'jpg':
+                // Set as interlaced progressive JPEG
+                if ($this->interlace) {
+                    $this->Log("Set JPEG image to be interlaced.");
+                    $res = imageinterlace($this->image, true);
+                }
+
                 $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");
                 imagejpeg($this->image, $this->cacheFileName, $this->quality);
 
@@ -4681,7 +4723,7 @@ $allowRemote = getConfig('remote_allow', false);
 
 if ($allowRemote && $passwordMatch !== false) {
     $cacheRemote = $cache->getPathToSubdir("remote");
-    
+
     $pattern = getConfig('remote_pattern', null);
     $img->setRemoteDownload($allowRemote, $cacheRemote, $pattern);
 
@@ -4777,7 +4819,7 @@ if ($dummyEnabled && $srcImage === $dummyFilename) {
                 matching file exists on the filesystem.',
                 404
             );
-    } 
+    }
 }
 
 if ($imagePathConstraint && !$dummyImage && !$remoteSource) {
@@ -5317,6 +5359,18 @@ if ($cacheControl) {
 
 
 /**
+ * interlace - Enable configuration for interlaced progressive JPEG images.
+ */
+$interlaceConfig  = getConfig('interlace', null);
+$interlaceValue   = getValue('interlace', null);
+$interlaceDefined = getDefined('interlace', true, null);
+$interlace = $interlaceValue ?? $interlaceDefined ?? $interlaceConfig;
+verbose("interlace (configfile) = ", $interlaceConfig);
+verbose("interlace = ", $interlace);
+
+
+
+/**
  * Prepare a dummy image and use it as source image.
  */
 if ($dummyImage === true) {
@@ -5477,6 +5531,7 @@ if (is_callable($hookBeforeCImage)) {
             'blur'      => $blur,
             'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
+            'interlace' => $interlace,
 
             // Output format
             'outputFormat' => $outputFormat,
@@ -5565,6 +5620,7 @@ $img->log("Incoming arguments: " . print_r(verbose(), 1))
             'blur'      => $blur,
             'convolve'  => $convolve,
             'rotateAfter' => $rotateAfter,
+            'interlace' => $interlace,
 
             // Output format
             'outputFormat' => $outputFormat,

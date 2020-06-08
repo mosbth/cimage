@@ -424,6 +424,13 @@ class CImage
 
 
     /*
+     * Use interlaced progressive mode for JPEG images.
+     */
+    private $interlace = false;
+
+
+
+    /*
      * Image copy strategy, defaults to RESAMPLE.
      */
      const RESIZE = 1;
@@ -838,6 +845,7 @@ class CImage
             'blur'        => null,
             'convolve'       => null,
             'rotateAfter' => null,
+            'interlace' => null,
 
             // Output format
             'outputFormat' => null,
@@ -1183,7 +1191,7 @@ class CImage
                 $this->newWidth = $width;
                 $this->newHeight = $height;
             }
-            
+
 
             // Get image dimensions for pre-resize image.
             if ($this->cropToFit || $this->fillToFit) {
@@ -1402,6 +1410,7 @@ class CImage
         $rotateBefore = $this->rotateBefore ? "_rb{$this->rotateBefore}" : null;
         $rotateAfter  = $this->rotateAfter  ? "_ra{$this->rotateAfter}"  : null;
         $lossy        = $this->lossy        ? "_l"                       : null;
+        $interlace    = $this->interlace    ? "_i"                       : null;
 
         $saveAs = $this->normalizeFileExtension();
         $saveAs = $saveAs ? "_$saveAs" : null;
@@ -1468,7 +1477,7 @@ class CImage
             . $quality . $filters . $sharpen . $emboss . $blur . $palette
             . $optimize . $compress
             . $scale . $rotateBefore . $rotateAfter . $autoRotate . $bgColor
-            . $convolve . $copyStrat . $lossy . $saveAs;
+            . $convolve . $copyStrat . $lossy . $interlace . $saveAs;
 
         return $this->setTarget($file, $base);
     }
@@ -1788,7 +1797,7 @@ class CImage
             // Resize by crop to fit
             $this->log("Resizing using strategy - Crop to fit");
 
-            if (!$this->upscale 
+            if (!$this->upscale
                 && ($this->width < $this->newWidth || $this->height < $this->newHeight)) {
                 $this->log("Resizing - smaller image, do not upscale.");
 
@@ -2367,7 +2376,7 @@ class CImage
             $this->jpegOptimizeCmd = null;
         }
 
-        if (array_key_exists("png_lossy", $options) 
+        if (array_key_exists("png_lossy", $options)
             && $options['png_lossy'] !== false) {
             $this->pngLossy = $options['png_lossy'];
             $this->pngLossyCmd = $options['png_lossy_cmd'];
@@ -2440,6 +2449,12 @@ class CImage
 
             case 'jpeg':
             case 'jpg':
+                // Set as interlaced progressive JPEG
+                if ($this->interlace) {
+                    $this->Log("Set JPEG image to be interlaced.");
+                    $res = imageinterlace($this->image, true);
+                }
+
                 $this->Log("Saving image as JPEG to cache using quality = {$this->quality}.");
                 imagejpeg($this->image, $this->cacheFileName, $this->quality);
 
