@@ -2340,7 +2340,7 @@ class CImage
             ? imagecolortransparent($this->image)
             : -1;
 
-        if ($index != -1) {
+	    if ($index >= 0 && $index < imagecolorstotal($this->image)) {
 
             imagealphablending($img, true);
             $transparent = imagecolorsforindex($this->image, $index);
