@@ -3,6 +3,12 @@
 <head>
 <style>
 
+<?php
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
+?>
+
 body {
 }
 
@@ -128,15 +134,15 @@ if (isset($_GET['input1'])) {
     // Use incoming from querystring as defaults
 ?>
     CImage.compare({
-        "input1": "<?=$_GET['input1']?>",
-        "input2": "<?=$_GET['input2']?>",
-        "input3": "<?=$_GET['input3']?>",
-        "input4": "<?=$_GET['input4']?>",
-        "input5": "<?=$_GET['input5']?>",
-        "input6": "<?=$_GET['input6']?>",
-        "json": <?=$_GET['json']?>,
-        "stack": <?=$_GET['stack']?>,
-        "bg": <?=$_GET['bg']?>
+        "input1": "<?=e($_GET['input1'])?>",
+        "input2": "<?=e($_GET['input2'])?>",
+        "input3": "<?=e($_GET['input3'])?>",
+        "input4": "<?=e($_GET['input4'])?>",
+        "input5": "<?=e($_GET['input5'])?>",
+        "input6": "<?=e($_GET['input6'])?>",
+        "json": <?=e($_GET['json'])?>,
+        "stack": <?=e($_GET['stack'])?>,
+        "bg": <?=e($_GET['bg'])?>
     });
 <?php
 } elseif (isset($script)) {
