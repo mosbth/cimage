@@ -1149,7 +1149,8 @@ EOD;
 /**
  * Load, process and output the image
  */
-$img->log("Incoming arguments: " . print_r(verbose(), 1))
+$img->log("PHP version: " . phpversion())
+    ->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)
     ->setSource($srcImage, $imagePath)
