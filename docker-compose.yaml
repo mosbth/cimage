@@ -15,6 +15,15 @@ services:
             - "8090:80"
         volumes: [ ".:/home/anax/repo" ]
 
+    php81:
+        image: anax/dev:php81
+        volumes: [ ".:/home/anax/repo" ]
+
+    php81-apache:
+        image: anax/dev:php81-apache
+        ports: [ "11081:80" ]
+        volumes: [ ".:/home/anax/repo" ]
+
     php80:
         image: anax/dev:php80
         volumes: [ ".:/home/anax/repo" ]
