@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.8.2 (2021-10-27)");
+define("CIMAGE_VERSION", "v0.8.3 (2022-05-24)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
@@ -3930,18 +3930,18 @@ class CImage
         $lastModified         = filemtime($this->pathToImage);
         $details['srcGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
-        $details['cache']       = basename($this->cacheFileName);
-        $lastModified           = filemtime($this->cacheFileName);
+        $details['cache']       = basename($this->cacheFileName ?? "");
+        $lastModified           = filemtime($this->cacheFileName ?? "");
         $details['cacheGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
         $this->load($file);
 
-        $details['filename']    = basename($file);
+        $details['filename']    = basename($file ?? "");
         $details['mimeType']    = $this->getMimeType($this->fileType);
         $details['width']       = $this->width;
         $details['height']      = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
-        $details['size']        = filesize($file);
+        $details['size']        = filesize($file ?? "");
         $details['colors'] = $this->colorsTotal($this->image);
         $details['includedFiles'] = count(get_included_files());
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
@@ -4624,7 +4624,7 @@ $hotlinkingWhitelist = getConfig('hotlinking_whitelist', array());
 
 $serverName  = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : null;
 $referer     = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-$refererHost = parse_url($referer, PHP_URL_HOST);
+$refererHost = parse_url($referer ?? "", PHP_URL_HOST);
 
 if (!$allowHotlinking) {
     if ($passwordMatch) {
@@ -4761,7 +4761,7 @@ $srcImage = urldecode(get('src'))
     or errorPage('Must set src-attribute.', 404);
 
 // Get settings for src-alt as backup image
-$srcAltImage = urldecode(get('src-alt', null));
+$srcAltImage = urldecode(get('src-alt', ""));
 $srcAltConfig = getConfig('src_alt', null);
 if (empty($srcAltImage)) {
     $srcAltImage = $srcAltConfig;
@@ -5587,7 +5587,8 @@ EOD;
 /**
  * Load, process and output the image
  */
-$img->log("Incoming arguments: " . print_r(verbose(), 1))
+$img->log("PHP version: " . phpversion())
+    ->log("Incoming arguments: " . print_r(verbose(), 1))
     ->setSaveFolder($cachePath)
     ->useCache($useCache)
     ->setSource($srcImage, $imagePath)
