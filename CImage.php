@@ -2793,18 +2793,18 @@ class CImage
         $lastModified         = filemtime($this->pathToImage);
         $details['srcGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
-        $details['cache']       = basename($this->cacheFileName);
-        $lastModified           = filemtime($this->cacheFileName);
+        $details['cache']       = basename($this->cacheFileName ?? "");
+        $lastModified           = filemtime($this->cacheFileName ?? "");
         $details['cacheGmdate'] = gmdate("D, d M Y H:i:s", $lastModified);
 
         $this->load($file);
 
-        $details['filename']    = basename($file);
+        $details['filename']    = basename($file ?? "");
         $details['mimeType']    = $this->getMimeType($this->fileType);
         $details['width']       = $this->width;
         $details['height']      = $this->height;
         $details['aspectRatio'] = round($this->width / $this->height, 3);
-        $details['size']        = filesize($file);
+        $details['size']        = filesize($file ?? "");
         $details['colors'] = $this->colorsTotal($this->image);
         $details['includedFiles'] = count(get_included_files());
         $details['memoryPeek'] = round(memory_get_peak_usage()/1024/1024, 3) . " MB" ;
