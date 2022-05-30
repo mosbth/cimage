@@ -5,6 +5,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 
 
+v0.8.4 (2022-05-30)
+-------------------------------------
+
+* Support PHP 8.1 and remove (more) deprecated messages when run in in development mode.
+
+
+
 v0.8.3 (2022-05-24)
 -------------------------------------
 

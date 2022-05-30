@@ -679,9 +679,9 @@ class CImage
      *
      * @return string $extension as a normalized file extension.
      */
-    private function normalizeFileExtension($extension = null)
+    private function normalizeFileExtension($extension = "")
     {
-        $extension = strtolower($extension ? $extension : $this->extension);
+        $extension = strtolower($extension ? $extension : $this->extension ?? "");
 
         if ($extension == 'jpeg') {
                 $extension = 'jpg';

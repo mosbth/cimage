@@ -319,7 +319,7 @@ if (isset($shortcut)
 /**
  * src - the source image file.
  */
-$srcImage = urldecode(get('src'))
+$srcImage = urldecode(get('src', ""))
     or errorPage('Must set src-attribute.', 404);
 
 // Get settings for src-alt as backup image

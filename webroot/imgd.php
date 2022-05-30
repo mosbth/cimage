@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.8.3 (2022-05-24)");
+define("CIMAGE_VERSION", "v0.8.4 (2022-05-30)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
@@ -1816,9 +1816,9 @@ class CImage
      *
      * @return string $extension as a normalized file extension.
      */
-    private function normalizeFileExtension($extension = null)
+    private function normalizeFileExtension($extension = "")
     {
-        $extension = strtolower($extension ? $extension : $this->extension);
+        $extension = strtolower($extension ? $extension : $this->extension ?? "");
 
         if ($extension == 'jpeg') {
                 $extension = 'jpg';
@@ -4757,7 +4757,7 @@ if (isset($shortcut)
 /**
  * src - the source image file.
  */
-$srcImage = urldecode(get('src'))
+$srcImage = urldecode(get('src', ""))
     or errorPage('Must set src-attribute.', 404);
 
 // Get settings for src-alt as backup image
