@@ -215,7 +215,7 @@ class CHttpGet
     {
         $type = isset($this->response['header']['Content-Type'])
             ? $this->response['header']['Content-Type']
-            : null;
+            : '';
 
         return preg_match('#[a-z]+/[a-z]+#', $type)
             ? $type
