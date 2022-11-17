@@ -21,6 +21,15 @@ if (!defined("CIMAGE_DEBUG")) {
     define("CIMAGE_DEBUG_FILE", "/tmp/cimage");
 }
 
+/**
+ * Set this if you work with a webserver in Windows and try to access files
+ * within WSL2.
+ * The issue seems to be with functions like `is_writable()` and
+ * `is_readable()`.
+ * When WINDOWS2WSL is defined (to any value) it ignores these functions.
+ */
+#define('WINDOWS2WSL', 1);
+
 
 
 return array(

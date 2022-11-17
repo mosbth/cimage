@@ -964,8 +964,11 @@ class CImage
     {
         $file = $file ? $file : $this->pathToImage;
 
-        is_readable($file)
-            or $this->raiseError('Image file does not exist.');
+        // Special case to solve Windows 2 WSL integration
+        if (!defined('WINDOWS2WSL')) {
+            is_readable($file)
+                or $this->raiseError('Image file does not exist.');
+        }
 
         $info = list($this->width, $this->height, $this->fileType) = getimagesize($file);
         if (empty($info)) {

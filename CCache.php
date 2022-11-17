@@ -51,6 +51,15 @@ class CCache
             return $path;
         }
 
+        if ($create && defined('WINDOWS2WSL')) {
+            // Special case to solve Windows 2 WSL integration
+            $path = $this->path . "/" . $subdir;
+
+            if (mkdir($path)) {
+                return realpath($path);
+            }
+        }
+
         if ($create && is_writable($this->path)) {
             $path = $this->path . "/" . $subdir;
 
