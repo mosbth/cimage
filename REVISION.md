@@ -1,15 +1,17 @@
 Revision history
 =====================================
 
+<!--
 [![Build Status](https://travis-ci.org/mosbth/cimage.svg?branch=master)](https://travis-ci.org/mosbth/cimage)
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
-
+--->
 
 v0.8.5 (2022-11-17)
 -------------------------------------
 
-* Enable configuration fix for solving Windows 2 WSL2 issue with is_readable/is_writable #189.
+* "Enable configuration fix for solving Windows 2 WSL2 issue with is_readable/is_writable #189."
 * Update CHttpGet.php for php 8.1 deprecated notice #188.
+* Remove build status from README (since it is not up to date).
 
 
 
