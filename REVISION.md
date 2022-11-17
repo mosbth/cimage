@@ -9,7 +9,7 @@ Revision history
 v0.8.5 (2022-11-17)
 -------------------------------------
 
-* "Enable configuration fix for solving Windows 2 WSL2 issue with is_readable/is_writable #189."
+* Enable configuration fix for solving Windows 2 WSL2 issue with is_readable/is_writable #189.
 * Update CHttpGet.php for php 8.1 deprecated notice #188.
 * Remove build status from README (since it is not up to date).
 
