@@ -2443,8 +2443,10 @@ class CImage
             return;
         }
 
-        is_writable($this->saveFolder)
+        if (!defined("WINDOWS2WSL")) {
+            is_writable($this->saveFolder)
             or $this->raiseError('Target directory is not writable.');
+        }
 
         $type = $this->getTargetImageExtension();
         $this->Log("Saving image as " . $type);
