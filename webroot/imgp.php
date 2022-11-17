@@ -38,7 +38,7 @@ $config = array(
 
 
 // Version of cimage and img.php
-define("CIMAGE_VERSION", "v0.8.4 (2022-05-30)");
+define("CIMAGE_VERSION", "v0.8.5 (2022-11-17)");
 
 // For CRemoteImage
 define("CIMAGE_USER_AGENT", "CImage/" . CIMAGE_VERSION);
@@ -465,7 +465,7 @@ class CHttpGet
     {
         $type = isset($this->response['header']['Content-Type'])
             ? $this->response['header']['Content-Type']
-            : null;
+            : '';
 
         return preg_match('#[a-z]+/[a-z]+#', $type)
             ? $type
@@ -2101,8 +2101,11 @@ class CImage
     {
         $file = $file ? $file : $this->pathToImage;
 
-        is_readable($file)
-            or $this->raiseError('Image file does not exist.');
+        // Special case to solve Windows 2 WSL integration
+        if (!defined('WINDOWS2WSL')) {
+            is_readable($file)
+                or $this->raiseError('Image file does not exist.');
+        }
 
         $info = list($this->width, $this->height, $this->fileType) = getimagesize($file);
         if (empty($info)) {
@@ -3577,8 +3580,10 @@ class CImage
             return;
         }
 
-        is_writable($this->saveFolder)
+        if (!defined("WINDOWS2WSL")) {
+            is_writable($this->saveFolder)
             or $this->raiseError('Target directory is not writable.');
+        }
 
         $type = $this->getTargetImageExtension();
         $this->Log("Saving image as " . $type);
@@ -4138,6 +4143,15 @@ class CCache
 
         if (is_dir($path)) {
             return $path;
+        }
+
+        if ($create && defined('WINDOWS2WSL')) {
+            // Special case to solve Windows 2 WSL integration
+            $path = $this->path . "/" . $subdir;
+
+            if (mkdir($path)) {
+                return realpath($path);
+            }
         }
 
         if ($create && is_writable($this->path)) {
