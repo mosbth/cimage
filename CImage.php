@@ -6,6 +6,7 @@
  * @example http://dbwebb.se/opensource/cimage
  * @link    https://github.com/mosbth/cimage
  */
+#[AllowDynamicProperties]
 class CImage
 {
 

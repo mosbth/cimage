@@ -6,6 +6,13 @@ Revision history
 [![Build Status](https://scrutinizer-ci.com/g/mosbth/cimage/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mosbth/cimage/build-status/master)
 --->
 
+v0.8.6 (2023-10-27)
+-------------------------------------
+
+* Fix deprecation notice on "Creation of dynamic property" for PHP 8.2.
+
+
+
 v0.8.5 (2022-11-17)
 -------------------------------------
 
